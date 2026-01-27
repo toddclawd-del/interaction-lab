@@ -1,16 +1,13 @@
 /**
- * Infinite Canvas — True 3D Version (v4: Polished)
- * 
- * An infinitely pannable 3D image space using React Three Fiber.
- * Navigate in X, Y, AND Z axes to explore an endless universe of images.
+ * Infinite Canvas — True 3D Version (v5: Instanced + Fast Pinch)
  * 
  * Reference: https://tympanus.net/codrops/2026/01/07/infinite-canvas
  * 
- * v4 Improvements:
- * - Blur placeholder loading states
- * - Instanced rendering for performance
- * - Smooth Z easing with spring physics
- * - Tuned pinch sensitivity
+ * v5 Improvements:
+ * - Instanced mesh rendering for placeholders
+ * - Texture disposal on unmount
+ * - Much faster pinch (bigger impulse per gesture)
+ * - Better memory management
  */
 
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
@@ -28,24 +25,25 @@ const SAMPLE_IMAGES = Array.from({ length: 30 }, (_, i) =>
 
 // Chunk configuration
 const CHUNK_SIZE = 20
-const CHUNK_RADIUS = 1 // 3×3×3 = 27 chunks
-const PLANES_PER_CHUNK = 6
+const CHUNK_RADIUS = 1
+const PLANES_PER_CHUNK = 5 // Reduced for better perf
 const PLANE_SIZE_MIN = 3
 const PLANE_SIZE_MAX = 6
 
-// Navigation tuning
+// Navigation
 const DRAG_SENSITIVITY = 0.015
 const MOMENTUM_FRICTION = 0.94
 const MOMENTUM_FRICTION_MOBILE = 0.90
 
-// Z-axis spring physics
+// Z spring physics
 const Z_SCROLL_SPEED = 0.8
-const Z_SPRING_STIFFNESS = 0.08 // How fast it catches up
-const Z_SPRING_DAMPING = 0.85 // How much it overshoots
+const Z_SPRING_STIFFNESS = 0.08
+const Z_SPRING_DAMPING = 0.85
 
-// Pinch tuning (mobile)
-const PINCH_SENSITIVITY = 0.03 // Reduced from 0.05 for finer control
-const PINCH_DEADZONE = 5 // Pixels of movement before registering
+// Pinch - MUCH faster now
+const PINCH_SENSITIVITY = 0.12 // 4x increase from 0.03
+const PINCH_DEADZONE = 3 // Reduced deadzone
+const PINCH_MIN_IMPULSE = 0.5 // Minimum Z movement per pinch
 
 // Visual
 const FADE_START = 25
@@ -83,7 +81,7 @@ interface ChunkData {
 }
 
 // ============================================
-// Generate Chunk Planes
+// Chunk Plane Generation
 // ============================================
 
 const planeCache = new Map<string, PlaneData[]>()
@@ -106,17 +104,15 @@ function generateChunkPlanes(cx: number, cy: number, cz: number): PlaneData[] {
     const seed = baseSeed + i * 1000
     const r = (n: number) => seededRandom(seed + n)
     
-    const x = cx * CHUNK_SIZE + r(0) * CHUNK_SIZE
-    const y = cy * CHUNK_SIZE + r(1) * CHUNK_SIZE
-    const z = cz * CHUNK_SIZE + r(2) * CHUNK_SIZE
-    const size = PLANE_SIZE_MIN + r(3) * (PLANE_SIZE_MAX - PLANE_SIZE_MIN)
-    const imageIndex = Math.floor(r(4) * 1000000)
-    
     planes.push({
       id: `${cx}-${cy}-${cz}-${i}`,
-      position: new THREE.Vector3(x, y, z),
-      size,
-      imageIndex,
+      position: new THREE.Vector3(
+        cx * CHUNK_SIZE + r(0) * CHUNK_SIZE,
+        cy * CHUNK_SIZE + r(1) * CHUNK_SIZE,
+        cz * CHUNK_SIZE + r(2) * CHUNK_SIZE
+      ),
+      size: PLANE_SIZE_MIN + r(3) * (PLANE_SIZE_MAX - PLANE_SIZE_MIN),
+      imageIndex: Math.floor(r(4) * 1000000),
     })
   }
   
@@ -130,43 +126,96 @@ function generateChunkPlanes(cx: number, cy: number, cz: number): PlaneData[] {
 }
 
 // ============================================
-// Loading Placeholder Component
+// Spring Physics
 // ============================================
 
-interface PlaceholderPlaneProps {
-  position: THREE.Vector3
-  size: number
+class SpringValue {
+  current = 0
+  target = 0
+  velocity = 0
+  
+  constructor(initial = 0) {
+    this.current = initial
+    this.target = initial
+  }
+  
+  update(stiffness: number, damping: number) {
+    const force = (this.target - this.current) * stiffness
+    this.velocity += force
+    this.velocity *= damping
+    this.current += this.velocity
+    
+    if (Math.abs(this.target - this.current) < 0.001 && Math.abs(this.velocity) < 0.001) {
+      this.current = this.target
+      this.velocity = 0
+    }
+  }
+  
+  addImpulse(amount: number) {
+    this.target += amount
+  }
+}
+
+// ============================================
+// Shared Geometry (memory optimization)
+// ============================================
+
+const sharedGeometry = new THREE.PlaneGeometry(1, 1)
+
+// ============================================
+// Instanced Placeholder Mesh
+// ============================================
+
+interface InstancedPlaceholdersProps {
+  planes: PlaneData[]
   cameraPosition: React.MutableRefObject<THREE.Vector3>
 }
 
-function PlaceholderPlane({ position, size, cameraPosition }: PlaceholderPlaneProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
+function InstancedPlaceholders({ planes, cameraPosition }: InstancedPlaceholdersProps) {
+  const meshRef = useRef<THREE.InstancedMesh>(null)
+  const tempMatrix = useMemo(() => new THREE.Matrix4(), [])
+  const tempVec = useMemo(() => new THREE.Vector3(), [])
   
+  // Set up instances
+  useEffect(() => {
+    if (!meshRef.current) return
+    
+    planes.forEach((plane, i) => {
+      tempMatrix.makeTranslation(plane.position.x, plane.position.y, plane.position.z)
+      tempMatrix.scale(tempVec.set(plane.size, plane.size, 1))
+      meshRef.current!.setMatrixAt(i, tempMatrix)
+    })
+    meshRef.current.instanceMatrix.needsUpdate = true
+  }, [planes, tempMatrix, tempVec])
+  
+  // Update opacity based on distance
   useFrame(() => {
-    if (meshRef.current && materialRef.current) {
-      const dist = position.distanceTo(cameraPosition.current)
-      let opacity = 1
-      if (dist > FADE_START) {
-        opacity = 1 - (dist - FADE_START) / (FADE_END - FADE_START)
-        opacity = Math.max(0, Math.min(1, opacity))
-      }
-      materialRef.current.opacity = opacity * 0.3 // Subtle placeholder
-      meshRef.current.visible = opacity > 0.01
-      meshRef.current.lookAt(cameraPosition.current)
-    }
+    if (!meshRef.current) return
+    
+    // For instanced mesh, we can't easily set per-instance opacity
+    // So we just set visibility based on average distance
+    const avgDist = planes.reduce((sum, p) => 
+      sum + p.position.distanceTo(cameraPosition.current), 0
+    ) / planes.length
+    
+    meshRef.current.visible = avgDist < FADE_END
   })
 
+  if (planes.length === 0) return null
+
   return (
-    <mesh ref={meshRef} position={position}>
-      <planeGeometry args={[size, size]} />
+    <instancedMesh 
+      ref={meshRef} 
+      args={[sharedGeometry, undefined, planes.length]}
+      frustumCulled
+    >
       <meshBasicMaterial 
-        ref={materialRef}
-        color="#1a1a2e"
-        transparent
+        color="#1a1a2e" 
+        transparent 
+        opacity={0.3}
         side={THREE.DoubleSide}
       />
-    </mesh>
+    </instancedMesh>
   )
 }
 
@@ -187,41 +236,51 @@ function ImagePlaneInner({ position, size, url, cameraPosition, isMobile }: Imag
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.MeshBasicMaterial>(null)
   const [hovered, setHovered] = useState(false)
-  const [loaded, setLoaded] = useState(false)
   const loadProgress = useRef(0)
   
-  // Fade in when texture loads
+  // Dispose texture on unmount
   useEffect(() => {
-    if (texture) {
-      setLoaded(true)
+    return () => {
+      if (texture) {
+        texture.dispose()
+      }
     }
   }, [texture])
   
   useFrame((_, delta) => {
-    if (meshRef.current && materialRef.current) {
-      // Distance-based fade
-      const dist = position.distanceTo(cameraPosition.current)
-      let targetOpacity = 1
-      if (dist > FADE_START) {
-        targetOpacity = 1 - (dist - FADE_START) / (FADE_END - FADE_START)
-        targetOpacity = Math.max(0, Math.min(1, targetOpacity))
-      }
-      
-      // Loading fade-in (smooth transition from placeholder)
-      if (loaded && loadProgress.current < 1) {
-        loadProgress.current = Math.min(1, loadProgress.current + delta * 3)
-      }
-      
-      materialRef.current.opacity = targetOpacity * loadProgress.current
-      meshRef.current.visible = targetOpacity > 0.01
-      
-      // Billboard
-      meshRef.current.lookAt(cameraPosition.current)
-      
-      // Hover scale
-      const targetScale = hovered && !isMobile ? 1.1 : 1
+    if (!meshRef.current || !materialRef.current) return
+    
+    const dist = position.distanceTo(cameraPosition.current)
+    
+    // Skip updates for far away planes
+    if (dist > FADE_END + 5) {
+      meshRef.current.visible = false
+      return
+    }
+    
+    // Distance fade
+    let targetOpacity = 1
+    if (dist > FADE_START) {
+      targetOpacity = 1 - (dist - FADE_START) / (FADE_END - FADE_START)
+      targetOpacity = Math.max(0, Math.min(1, targetOpacity))
+    }
+    
+    // Loading fade-in
+    if (loadProgress.current < 1) {
+      loadProgress.current = Math.min(1, loadProgress.current + delta * 4)
+    }
+    
+    materialRef.current.opacity = targetOpacity * loadProgress.current
+    meshRef.current.visible = targetOpacity > 0.01
+    
+    // Billboard
+    meshRef.current.lookAt(cameraPosition.current)
+    
+    // Hover scale (desktop only)
+    if (!isMobile) {
+      const targetScale = hovered ? 1.1 : 1
       meshRef.current.scale.lerp(
-        new THREE.Vector3(targetScale, targetScale, 1),
+        new THREE.Vector3(targetScale * size, targetScale * size, 1),
         0.1
       )
     }
@@ -231,6 +290,7 @@ function ImagePlaneInner({ position, size, url, cameraPosition, isMobile }: Imag
     <mesh
       ref={meshRef}
       position={position}
+      scale={[size, size, 1]}
       onPointerOver={(e) => {
         if (isMobile) return
         e.stopPropagation()
@@ -243,7 +303,7 @@ function ImagePlaneInner({ position, size, url, cameraPosition, isMobile }: Imag
         document.body.style.cursor = 'grab'
       }}
     >
-      <planeGeometry args={[size, size]} />
+      <planeGeometry args={[1, 1]} />
       <meshBasicMaterial 
         ref={materialRef}
         map={texture} 
@@ -255,15 +315,19 @@ function ImagePlaneInner({ position, size, url, cameraPosition, isMobile }: Imag
   )
 }
 
+// Placeholder for loading state
+function PlaceholderPlane({ position, size }: { position: THREE.Vector3; size: number }) {
+  return (
+    <mesh position={position} scale={[size, size, 1]}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial color="#1a1a2e" transparent opacity={0.3} side={THREE.DoubleSide} />
+    </mesh>
+  )
+}
+
 function ImagePlane(props: ImagePlaneProps) {
   return (
-    <Suspense fallback={
-      <PlaceholderPlane 
-        position={props.position} 
-        size={props.size} 
-        cameraPosition={props.cameraPosition}
-      />
-    }>
+    <Suspense fallback={<PlaceholderPlane position={props.position} size={props.size} />}>
       <ImagePlaneInner {...props} />
     </Suspense>
   )
@@ -284,6 +348,7 @@ interface ChunkProps {
 
 function Chunk({ cx, cy, cz, images, cameraPosition, isMobile }: ChunkProps) {
   const [planes, setPlanes] = useState<PlaneData[]>([])
+  const [loaded, setLoaded] = useState(false)
   
   useEffect(() => {
     let canceled = false
@@ -291,27 +356,31 @@ function Chunk({ cx, cy, cz, images, cameraPosition, isMobile }: ChunkProps) {
     const generate = () => {
       if (!canceled) {
         setPlanes(generateChunkPlanes(cx, cy, cz))
+        // Delay loaded state to stagger image loading
+        setTimeout(() => {
+          if (!canceled) setLoaded(true)
+        }, 50)
       }
     }
     
     if (typeof requestIdleCallback !== 'undefined') {
       const id = requestIdleCallback(generate, { timeout: 100 })
-      return () => {
-        canceled = true
-        cancelIdleCallback(id)
-      }
+      return () => { canceled = true; cancelIdleCallback(id) }
     } else {
       const id = setTimeout(generate, 0)
-      return () => {
-        canceled = true
-        clearTimeout(id)
-      }
+      return () => { canceled = true; clearTimeout(id) }
     }
   }, [cx, cy, cz])
 
   return (
     <group>
-      {planes.map((plane) => (
+      {/* Show instanced placeholders while loading */}
+      {!loaded && planes.length > 0 && (
+        <InstancedPlaceholders planes={planes} cameraPosition={cameraPosition} />
+      )}
+      
+      {/* Actual image planes */}
+      {loaded && planes.map((plane) => (
         <ImagePlane
           key={plane.id}
           position={plane.position}
@@ -326,39 +395,6 @@ function Chunk({ cx, cy, cz, images, cameraPosition, isMobile }: ChunkProps) {
 }
 
 // ============================================
-// Spring Physics Helper
-// ============================================
-
-class SpringValue {
-  current: number = 0
-  target: number = 0
-  velocity: number = 0
-  
-  constructor(initial: number = 0) {
-    this.current = initial
-    this.target = initial
-  }
-  
-  update(stiffness: number, damping: number) {
-    // Spring force
-    const force = (this.target - this.current) * stiffness
-    this.velocity += force
-    this.velocity *= damping
-    this.current += this.velocity
-    
-    // Snap to target when close enough
-    if (Math.abs(this.target - this.current) < 0.001 && Math.abs(this.velocity) < 0.001) {
-      this.current = this.target
-      this.velocity = 0
-    }
-  }
-  
-  addImpulse(amount: number) {
-    this.target += amount
-  }
-}
-
-// ============================================
 // 3D Infinite Grid Controller
 // ============================================
 
@@ -370,26 +406,19 @@ interface InfiniteGrid3DProps {
 function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
   const { gl, camera } = useThree()
   
-  // Position state
   const cameraPos = useRef(new THREE.Vector3(0, 0, 0))
   const velocity = useRef(new THREE.Vector3(0, 0, 0))
-  
-  // Z uses spring physics for smooth easing
   const zSpring = useRef(new SpringValue(0))
   
-  // Drag state
   const isDragging = useRef(false)
   const lastPointer = useRef({ x: 0, y: 0 })
   
   // Pinch state
   const lastPinchDist = useRef(0)
-  const pinchStartDist = useRef(0)
   const isPinching = useRef(false)
   
-  // Chunk tracking
   const [currentChunk, setCurrentChunk] = useState({ cx: 0, cy: 0, cz: 0 })
   
-  // Visible chunks
   const visibleChunks = useMemo<ChunkData[]>(() => {
     const chunks: ChunkData[] = []
     const { cx, cy, cz } = currentChunk
@@ -425,7 +454,6 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
   }, [])
 
   const handlePointerDown = useCallback((e: PointerEvent | TouchEvent) => {
-    // Don't start drag if it's a pinch
     if ('touches' in e && e.touches.length >= 2) return
     
     isDragging.current = true
@@ -435,8 +463,7 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
   }, [getPointerPos, isMobile])
 
   const handlePointerMove = useCallback((e: PointerEvent | TouchEvent) => {
-    if (!isDragging.current) return
-    if (isPinching.current) return // Don't drag during pinch
+    if (!isDragging.current || isPinching.current) return
     
     const pos = getPointerPos(e)
     const deltaX = (pos.x - lastPointer.current.x) * DRAG_SENSITIVITY
@@ -457,15 +484,13 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
     if (!isMobile) document.body.style.cursor = 'grab'
   }, [isMobile])
 
-  // Wheel handler with spring physics
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault()
-    // Use spring target for smooth easing
     const delta = e.deltaY * Z_SCROLL_SPEED * 0.01
     zSpring.current.addImpulse(delta)
   }, [])
 
-  // Pinch handlers with improved sensitivity
+  // Pinch handlers - FASTER
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (e.touches.length === 2) {
       isPinching.current = true
@@ -473,10 +498,7 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
       
       const dx = e.touches[0].clientX - e.touches[1].clientX
       const dy = e.touches[0].clientY - e.touches[1].clientY
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      
-      pinchStartDist.current = dist
-      lastPinchDist.current = dist
+      lastPinchDist.current = Math.sqrt(dx * dx + dy * dy)
     } else if (e.touches.length === 1) {
       handlePointerDown(e)
     }
@@ -484,15 +506,24 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (e.touches.length === 2 && isPinching.current) {
+      e.preventDefault() // Prevent zoom
+      
       const dx = e.touches[0].clientX - e.touches[1].clientX
       const dy = e.touches[0].clientY - e.touches[1].clientY
       const dist = Math.sqrt(dx * dx + dy * dy)
       
-      // Apply deadzone
       const distDelta = lastPinchDist.current - dist
+      
+      // Only process if past deadzone
       if (Math.abs(distDelta) > PINCH_DEADZONE) {
-        // Use spring for smooth Z movement
-        const zDelta = distDelta * PINCH_SENSITIVITY
+        // Calculate impulse with minimum
+        let zDelta = distDelta * PINCH_SENSITIVITY
+        
+        // Ensure minimum impulse for snappy feel
+        if (Math.abs(zDelta) < PINCH_MIN_IMPULSE) {
+          zDelta = Math.sign(zDelta) * PINCH_MIN_IMPULSE
+        }
+        
         zSpring.current.addImpulse(zDelta)
         lastPinchDist.current = dist
       }
@@ -505,7 +536,6 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
     if (e.touches.length < 2) {
       isPinching.current = false
       lastPinchDist.current = 0
-      pinchStartDist.current = 0
     }
     if (e.touches.length === 0) {
       handlePointerUp()
@@ -533,9 +563,7 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
       window.removeEventListener('pointermove', handlePointerMove as EventListener)
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointerleave', handlePointerUp)
-      
       canvas.removeEventListener('wheel', handleWheel)
-      
       canvas.removeEventListener('touchstart', handleTouchStart as EventListener)
       window.removeEventListener('touchmove', handleTouchMove as EventListener)
       window.removeEventListener('touchend', handleTouchEnd as EventListener)
@@ -545,17 +573,16 @@ function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
 
   // Animation loop
   useFrame(() => {
-    // Apply X/Y momentum
+    // X/Y momentum
     if (!isDragging.current && !isPinching.current) {
       const friction = isMobile ? MOMENTUM_FRICTION_MOBILE : MOMENTUM_FRICTION
       velocity.current.x *= friction
       velocity.current.y *= friction
-      
       cameraPos.current.x += velocity.current.x
       cameraPos.current.y += velocity.current.y
     }
     
-    // Update Z spring (smooth easing)
+    // Z spring
     zSpring.current.update(Z_SPRING_STIFFNESS, Z_SPRING_DAMPING)
     cameraPos.current.z = zSpring.current.current
     
@@ -623,9 +650,10 @@ export function InfiniteCanvas({
     }}>
       <Canvas
         camera={{ position: [0, 0, 30], fov: 50, near: 0.1, far: 200 }}
-        gl={{ antialias: true, alpha: false }}
-        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+        dpr={[1, isMobile ? 1.5 : 2]}
         style={{ touchAction: 'none' }}
+        performance={{ min: 0.5 }}
       >
         <color attach="background" args={[backgroundColor]} />
         <fog attach="fog" args={[backgroundColor, FADE_START, FADE_END]} />
