@@ -9,6 +9,8 @@
  * - Chunk-based rendering for performance
  * - Smooth drag with momentum/inertia
  * - Hover effects on images
+ * - Fully responsive (mobile to ultrawide)
+ * - Touch support
  * 
  * Inspired by: https://tympanus.net/codrops/2026/01/07/infinite-canvas
  */
@@ -29,6 +31,33 @@ const SAMPLE_IMAGES = Array.from({ length: 20 }, (_, i) =>
 )
 
 // ============================================
+// Responsive Utilities
+// ============================================
+
+/**
+ * Calculate viewport dimensions in world units using camera frustum
+ * This ensures consistent behavior across all screen sizes
+ */
+function getViewportInWorldUnits(
+  camera: THREE.PerspectiveCamera, 
+  width: number, 
+  height: number
+): { worldWidth: number; worldHeight: number } {
+  // Distance from camera to the plane where our content lives (z=0)
+  const distance = camera.position.z
+  
+  // Calculate visible height at z=0 using FOV
+  const vFov = (camera.fov * Math.PI) / 180
+  const worldHeight = 2 * Math.tan(vFov / 2) * distance
+  
+  // Calculate width based on aspect ratio
+  const aspect = width / height
+  const worldWidth = worldHeight * aspect
+  
+  return { worldWidth, worldHeight }
+}
+
+// ============================================
 // Image Tile Component
 // ============================================
 
@@ -36,20 +65,22 @@ interface ImageTileProps {
   position: [number, number, number]
   url: string
   size: number
+  isMobile: boolean
 }
 
 /**
  * Individual image tile with hover effect
+ * Hover disabled on mobile for better touch experience
  */
-function ImageTile({ position, url, size }: ImageTileProps) {
+function ImageTile({ position, url, size, isMobile }: ImageTileProps) {
   const texture = useTexture(url)
   const meshRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
   
-  // Smooth scale animation on hover
+  // Smooth scale animation on hover (desktop only)
   useFrame(() => {
     if (meshRef.current) {
-      const targetScale = hovered ? 1.08 : 1
+      const targetScale = hovered && !isMobile ? 1.08 : 1
       meshRef.current.scale.lerp(
         new THREE.Vector3(targetScale, targetScale, 1),
         0.1
@@ -62,11 +93,13 @@ function ImageTile({ position, url, size }: ImageTileProps) {
       ref={meshRef}
       position={position}
       onPointerOver={(e) => {
+        if (isMobile) return
         e.stopPropagation()
         setHovered(true)
         document.body.style.cursor = 'pointer'
       }}
       onPointerOut={() => {
+        if (isMobile) return
         setHovered(false)
         document.body.style.cursor = 'grab'
       }}
@@ -91,13 +124,14 @@ interface GridChunkProps {
   gridSize: number
   imageSize: number
   gap: number
+  isMobile: boolean
 }
 
 /**
  * A chunk of the infinite grid containing gridSize x gridSize images
  * Chunks are rendered/unrendered based on camera proximity
  */
-function GridChunk({ chunkX, chunkY, images, gridSize, imageSize, gap }: GridChunkProps) {
+function GridChunk({ chunkX, chunkY, images, gridSize, imageSize, gap, isMobile }: GridChunkProps) {
   const chunkWorldSize = gridSize * (imageSize + gap)
   
   // Pre-calculate all tile positions and image assignments
@@ -131,6 +165,7 @@ function GridChunk({ chunkX, chunkY, images, gridSize, imageSize, gap }: GridChu
           position={tile.position}
           url={tile.url}
           size={imageSize}
+          isMobile={isMobile}
         />
       ))}
     </group>
@@ -146,16 +181,18 @@ interface InfiniteGridProps {
   gridSize: number
   imageSize: number
   gap: number
+  isMobile: boolean
 }
 
 /**
  * Main grid component that handles:
- * - Drag/pan controls
+ * - Drag/pan controls (mouse and touch)
  * - Momentum/inertia after release
  * - Chunk visibility calculation
+ * - Responsive viewport calculations
  */
-function InfiniteGrid({ images, gridSize, imageSize, gap }: InfiniteGridProps) {
-  const { size, gl } = useThree()
+function InfiniteGrid({ images, gridSize, imageSize, gap, isMobile }: InfiniteGridProps) {
+  const { size, gl, camera } = useThree()
   
   // Pan offset state
   const [offset, setOffset] = useState({ x: 0, y: 0 })
@@ -167,22 +204,31 @@ function InfiniteGrid({ images, gridSize, imageSize, gap }: InfiniteGridProps) {
   
   const chunkWorldSize = gridSize * (imageSize + gap)
   
+  // Calculate viewport in world units using proper camera math
+  const viewport = useMemo(() => {
+    return getViewportInWorldUnits(camera as THREE.PerspectiveCamera, size.width, size.height)
+  }, [camera, size.width, size.height])
+  
+  // Calculate drag sensitivity based on viewport size
+  // This ensures consistent "feel" across all screen sizes
+  const dragSensitivity = useMemo(() => {
+    // Base sensitivity adjusted by viewport size
+    // Larger viewports need more movement per pixel
+    return viewport.worldWidth / size.width
+  }, [viewport.worldWidth, size.width])
+  
   // Calculate which chunks should be visible based on current offset
   const visibleChunks = useMemo(() => {
     const chunks: { x: number; y: number }[] = []
-    
-    // Estimate viewport size in world units (rough approximation)
-    // This could be made more precise with camera calculations
-    const viewportWorldWidth = size.width / 80
-    const viewportWorldHeight = size.height / 80
     
     // Current center in world coordinates
     const centerX = -offset.x
     const centerY = -offset.y
     
     // How many chunks we need to cover the viewport + buffer
-    const chunksNeededX = Math.ceil(viewportWorldWidth / chunkWorldSize) + 3
-    const chunksNeededY = Math.ceil(viewportWorldHeight / chunkWorldSize) + 3
+    // Add extra buffer for smooth scrolling
+    const chunksNeededX = Math.ceil(viewport.worldWidth / chunkWorldSize) + 4
+    const chunksNeededY = Math.ceil(viewport.worldHeight / chunkWorldSize) + 4
     
     // Starting chunk indices
     const startChunkX = Math.floor(centerX / chunkWorldSize) - Math.floor(chunksNeededX / 2)
@@ -196,30 +242,44 @@ function InfiniteGrid({ images, gridSize, imageSize, gap }: InfiniteGridProps) {
     }
     
     return chunks
-  }, [offset, size, chunkWorldSize])
+  }, [offset, viewport, chunkWorldSize])
 
   // ============================================
-  // Pointer Event Handlers
+  // Unified Pointer/Touch Handlers
   // ============================================
 
-  const handlePointerDown = useCallback((e: PointerEvent) => {
-    isDragging.current = true
-    lastPointer.current = { x: e.clientX, y: e.clientY }
-    velocity.current = { x: 0, y: 0 }
-    document.body.style.cursor = 'grabbing'
+  const getPointerPosition = useCallback((e: PointerEvent | TouchEvent): { x: number; y: number } => {
+    if ('touches' in e && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    }
+    if ('clientX' in e) {
+      return { x: e.clientX, y: e.clientY }
+    }
+    return { x: 0, y: 0 }
   }, [])
 
-  const handlePointerMove = useCallback((e: PointerEvent) => {
+  const handlePointerDown = useCallback((e: PointerEvent | TouchEvent) => {
+    isDragging.current = true
+    const pos = getPointerPosition(e)
+    lastPointer.current = pos
+    velocity.current = { x: 0, y: 0 }
+    if (!isMobile) {
+      document.body.style.cursor = 'grabbing'
+    }
+  }, [getPointerPosition, isMobile])
+
+  const handlePointerMove = useCallback((e: PointerEvent | TouchEvent) => {
     if (!isDragging.current) return
     
-    // Calculate delta in world units
-    // Adjust the multiplier to control pan speed
-    const sensitivity = 0.015
-    const deltaX = (e.clientX - lastPointer.current.x) * sensitivity
-    const deltaY = (e.clientY - lastPointer.current.y) * -sensitivity // Invert Y for natural feel
+    const pos = getPointerPosition(e)
     
-    // Store velocity for momentum
-    velocity.current = { x: deltaX * 0.8, y: deltaY * 0.8 }
+    // Calculate delta using responsive sensitivity
+    const deltaX = (pos.x - lastPointer.current.x) * dragSensitivity
+    const deltaY = (pos.y - lastPointer.current.y) * -dragSensitivity // Invert Y for natural feel
+    
+    // Store velocity for momentum (reduced for touch)
+    const velocityMultiplier = isMobile ? 0.6 : 0.8
+    velocity.current = { x: deltaX * velocityMultiplier, y: deltaY * velocityMultiplier }
     
     // Update offset
     setOffset(prev => ({
@@ -227,28 +287,42 @@ function InfiniteGrid({ images, gridSize, imageSize, gap }: InfiniteGridProps) {
       y: prev.y + deltaY,
     }))
     
-    lastPointer.current = { x: e.clientX, y: e.clientY }
-  }, [])
+    lastPointer.current = pos
+  }, [getPointerPosition, dragSensitivity, isMobile])
 
   const handlePointerUp = useCallback(() => {
     isDragging.current = false
-    document.body.style.cursor = 'grab'
-  }, [])
+    if (!isMobile) {
+      document.body.style.cursor = 'grab'
+    }
+  }, [isMobile])
 
   // Attach event listeners to the canvas
   useEffect(() => {
     const canvas = gl.domElement
     
-    canvas.addEventListener('pointerdown', handlePointerDown)
-    window.addEventListener('pointermove', handlePointerMove)
+    // Mouse events
+    canvas.addEventListener('pointerdown', handlePointerDown as EventListener)
+    window.addEventListener('pointermove', handlePointerMove as EventListener)
     window.addEventListener('pointerup', handlePointerUp)
     window.addEventListener('pointerleave', handlePointerUp)
     
+    // Touch events for better mobile support
+    canvas.addEventListener('touchstart', handlePointerDown as EventListener, { passive: true })
+    window.addEventListener('touchmove', handlePointerMove as EventListener, { passive: true })
+    window.addEventListener('touchend', handlePointerUp)
+    window.addEventListener('touchcancel', handlePointerUp)
+    
     return () => {
-      canvas.removeEventListener('pointerdown', handlePointerDown)
-      window.removeEventListener('pointermove', handlePointerMove)
+      canvas.removeEventListener('pointerdown', handlePointerDown as EventListener)
+      window.removeEventListener('pointermove', handlePointerMove as EventListener)
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointerleave', handlePointerUp)
+      
+      canvas.removeEventListener('touchstart', handlePointerDown as EventListener)
+      window.removeEventListener('touchmove', handlePointerMove as EventListener)
+      window.removeEventListener('touchend', handlePointerUp)
+      window.removeEventListener('touchcancel', handlePointerUp)
     }
   }, [gl, handlePointerDown, handlePointerMove, handlePointerUp])
 
@@ -264,8 +338,8 @@ function InfiniteGrid({ images, gridSize, imageSize, gap }: InfiniteGridProps) {
           y: prev.y + velocity.current.y,
         }))
         
-        // Decay velocity (friction)
-        const friction = 0.95
+        // Decay velocity (friction) - slightly more friction on mobile
+        const friction = isMobile ? 0.92 : 0.95
         velocity.current.x *= friction
         velocity.current.y *= friction
       }
@@ -283,6 +357,7 @@ function InfiniteGrid({ images, gridSize, imageSize, gap }: InfiniteGridProps) {
           gridSize={gridSize}
           imageSize={imageSize}
           gap={gap}
+          isMobile={isMobile}
         />
       ))}
     </group>
@@ -298,7 +373,7 @@ export interface InfiniteCanvasProps {
   images?: string[]
   /** Number of images per row/column in each chunk (default: 3) */
   gridSize?: number
-  /** Size of each image in world units (default: 2) */
+  /** Size of each image in world units (default: 2, auto-adjusts for mobile) */
   imageSize?: number
   /** Gap between images in world units (default: 0.3) */
   gap?: number
@@ -311,6 +386,7 @@ export interface InfiniteCanvasProps {
  * 
  * An infinitely scrollable image grid that can be panned in any direction.
  * Uses chunk-based rendering to maintain performance even with thousands of potential images.
+ * Fully responsive from mobile (375px) to ultrawide (2560px+).
  * 
  * @example
  * ```tsx
@@ -328,21 +404,41 @@ export interface InfiniteCanvasProps {
 export function InfiniteCanvas({
   images = SAMPLE_IMAGES,
   gridSize = 3,
-  imageSize = 2,
-  gap = 0.3,
+  imageSize: propImageSize,
+  gap: propGap,
   backgroundColor = '#0a0a0a',
 }: InfiniteCanvasProps) {
+  // Detect if mobile for responsive adjustments
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  // Responsive image size and gap
+  // Smaller images on mobile for better fit, larger on desktop/ultrawide
+  const imageSize = propImageSize ?? (isMobile ? 1.5 : 2)
+  const gap = propGap ?? (isMobile ? 0.2 : 0.3)
+
   return (
     <div style={{ 
       width: '100%', 
       height: '100%', 
-      cursor: 'grab',
+      cursor: isMobile ? 'default' : 'grab',
       position: 'relative',
+      touchAction: 'none', // Prevent browser handling of touch
+      overflow: 'hidden',
     }}>
       <Canvas
         camera={{ position: [0, 0, 12], fov: 50 }}
         gl={{ antialias: true, alpha: false }}
         dpr={[1, 2]} // Responsive pixel ratio
+        style={{ touchAction: 'none' }}
       >
         <color attach="background" args={[backgroundColor]} />
         <InfiniteGrid
@@ -350,32 +446,33 @@ export function InfiniteCanvas({
           gridSize={gridSize}
           imageSize={imageSize}
           gap={gap}
+          isMobile={isMobile}
         />
       </Canvas>
       
-      {/* UI Overlay - Instructions */}
+      {/* UI Overlay - Instructions (responsive text) */}
       <div style={{
         position: 'absolute',
-        bottom: 24,
-        left: 24,
+        bottom: isMobile ? 16 : 24,
+        left: isMobile ? 16 : 24,
         color: 'white',
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSize: 13,
+        fontSize: isMobile ? 11 : 13,
         opacity: 0.5,
         pointerEvents: 'none',
         userSelect: 'none',
       }}>
-        Drag to explore
+        {isMobile ? 'Swipe to explore' : 'Drag to explore'}
       </div>
       
-      {/* Branding */}
+      {/* Branding (responsive) */}
       <div style={{
         position: 'absolute',
-        bottom: 24,
-        right: 24,
+        bottom: isMobile ? 16 : 24,
+        right: isMobile ? 16 : 24,
         color: 'white',
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSize: 11,
+        fontSize: isMobile ? 9 : 11,
         opacity: 0.3,
         pointerEvents: 'none',
         userSelect: 'none',
