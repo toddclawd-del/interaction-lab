@@ -1,18 +1,18 @@
 /**
- * Infinite Canvas
+ * Infinite Canvas — True 3D Version
  * 
- * An infinitely pannable image grid using React Three Fiber.
- * Drag/pan in any direction to explore an endless space of images.
+ * An infinitely pannable 3D image space using React Three Fiber.
+ * Navigate in X, Y, AND Z axes to explore an endless universe of images.
+ * 
+ * Based on: https://tympanus.net/codrops/2026/01/07/infinite-canvas
  * 
  * Features:
- * - Infinite scrolling in all directions
- * - Chunk-based rendering for performance
- * - Smooth drag with momentum/inertia
- * - Hover effects on images
- * - Fully responsive (mobile to ultrawide)
- * - Touch support
- * 
- * Inspired by: https://tympanus.net/codrops/2026/01/07/infinite-canvas
+ * - True 3D navigation (X, Y via drag, Z via scroll/pinch)
+ * - 3×3×3 chunk-based rendering (27 active chunks)
+ * - Images at varied depths within chunks
+ * - Distance-based opacity fading
+ * - Smooth momentum physics
+ * - Fully responsive + touch support
  */
 
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
@@ -24,63 +24,153 @@ import * as THREE from 'three'
 // Configuration
 // ============================================
 
-// Sample images from Picsum (placeholder service)
-// In production, replace with your own image URLs
-const SAMPLE_IMAGES = Array.from({ length: 20 }, (_, i) => 
-  `https://picsum.photos/seed/lab${i + 1}/400/400`
+const SAMPLE_IMAGES = Array.from({ length: 30 }, (_, i) => 
+  `https://picsum.photos/seed/canvas${i + 1}/400/400`
 )
 
+// Chunk configuration
+const CHUNK_SIZE = 20 // World units per chunk
+const CHUNK_RADIUS = 1 // How many chunks in each direction (1 = 3×3×3 = 27 chunks)
+const PLANES_PER_CHUNK = 6 // Images per chunk
+const PLANE_SIZE_MIN = 3
+const PLANE_SIZE_MAX = 6
+
+// Navigation
+const DRAG_SENSITIVITY = 0.015
+const SCROLL_SENSITIVITY = 0.5
+const MOMENTUM_FRICTION = 0.94
+const MOMENTUM_FRICTION_MOBILE = 0.90
+
+// Visual
+const FADE_START = 25 // Start fading at this distance
+const FADE_END = 45 // Fully transparent at this distance
+
 // ============================================
-// Responsive Utilities
+// Seeded Random for Deterministic Layouts
 // ============================================
 
-/**
- * Calculate viewport dimensions in world units using camera frustum
- * This ensures consistent behavior across all screen sizes
- */
-function getViewportInWorldUnits(
-  camera: THREE.PerspectiveCamera, 
-  width: number, 
-  height: number
-): { worldWidth: number; worldHeight: number } {
-  // Distance from camera to the plane where our content lives (z=0)
-  const distance = camera.position.z
-  
-  // Calculate visible height at z=0 using FOV
-  const vFov = (camera.fov * Math.PI) / 180
-  const worldHeight = 2 * Math.tan(vFov / 2) * distance
-  
-  // Calculate width based on aspect ratio
-  const aspect = width / height
-  const worldWidth = worldHeight * aspect
-  
-  return { worldWidth, worldHeight }
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 9999) * 10000
+  return x - Math.floor(x)
+}
+
+function hashChunk(cx: number, cy: number, cz: number): number {
+  // Simple hash for chunk coordinates
+  return cx * 73856093 + cy * 19349663 + cz * 83492791
 }
 
 // ============================================
-// Image Tile Component
+// Types
 // ============================================
 
-interface ImageTileProps {
-  position: [number, number, number]
-  url: string
+interface PlaneData {
+  id: string
+  position: THREE.Vector3
   size: number
+  imageIndex: number
+}
+
+interface ChunkData {
+  key: string
+  cx: number
+  cy: number
+  cz: number
+}
+
+// ============================================
+// Generate Chunk Planes (Deterministic)
+// ============================================
+
+const planeCache = new Map<string, PlaneData[]>()
+const MAX_CACHE = 128
+
+function generateChunkPlanes(cx: number, cy: number, cz: number): PlaneData[] {
+  const key = `${cx},${cy},${cz}`
+  
+  // Check cache
+  if (planeCache.has(key)) {
+    const cached = planeCache.get(key)!
+    // Move to end for LRU
+    planeCache.delete(key)
+    planeCache.set(key, cached)
+    return cached
+  }
+  
+  const planes: PlaneData[] = []
+  const baseSeed = hashChunk(cx, cy, cz)
+  
+  for (let i = 0; i < PLANES_PER_CHUNK; i++) {
+    const seed = baseSeed + i * 1000
+    const r = (n: number) => seededRandom(seed + n)
+    
+    // Random position within chunk bounds
+    const x = cx * CHUNK_SIZE + r(0) * CHUNK_SIZE
+    const y = cy * CHUNK_SIZE + r(1) * CHUNK_SIZE
+    const z = cz * CHUNK_SIZE + r(2) * CHUNK_SIZE
+    
+    // Random size
+    const size = PLANE_SIZE_MIN + r(3) * (PLANE_SIZE_MAX - PLANE_SIZE_MIN)
+    
+    // Random image (deterministic)
+    const imageIndex = Math.floor(r(4) * 1000000)
+    
+    planes.push({
+      id: `${cx}-${cy}-${cz}-${i}`,
+      position: new THREE.Vector3(x, y, z),
+      size,
+      imageIndex,
+    })
+  }
+  
+  // Cache with LRU eviction
+  planeCache.set(key, planes)
+  while (planeCache.size > MAX_CACHE) {
+    const firstKey = planeCache.keys().next().value
+    if (firstKey) planeCache.delete(firstKey)
+  }
+  
+  return planes
+}
+
+// ============================================
+// Image Plane Component
+// ============================================
+
+interface ImagePlaneProps {
+  position: THREE.Vector3
+  size: number
+  url: string
+  cameraPosition: React.MutableRefObject<THREE.Vector3>
   isMobile: boolean
 }
 
-/**
- * Individual image tile with hover effect
- * Hover disabled on mobile for better touch experience
- */
-function ImageTile({ position, url, size, isMobile }: ImageTileProps) {
+function ImagePlane({ position, size, url, cameraPosition, isMobile }: ImagePlaneProps) {
   const texture = useTexture(url)
   const meshRef = useRef<THREE.Mesh>(null)
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
   const [hovered, setHovered] = useState(false)
   
-  // Smooth scale animation on hover (desktop only)
+  // Update opacity based on distance from camera
   useFrame(() => {
-    if (meshRef.current) {
-      const targetScale = hovered && !isMobile ? 1.08 : 1
+    if (meshRef.current && materialRef.current) {
+      // Calculate distance to camera
+      const dist = position.distanceTo(cameraPosition.current)
+      
+      // Fade based on distance
+      let opacity = 1
+      if (dist > FADE_START) {
+        opacity = 1 - (dist - FADE_START) / (FADE_END - FADE_START)
+        opacity = Math.max(0, Math.min(1, opacity))
+      }
+      
+      materialRef.current.opacity = opacity
+      meshRef.current.visible = opacity > 0.01
+      
+      // Billboard: always face camera
+      meshRef.current.lookAt(cameraPosition.current)
+      
+      // Hover scale (desktop only)
+      const targetScale = hovered && !isMobile ? 1.1 : 1
       meshRef.current.scale.lerp(
         new THREE.Vector3(targetScale, targetScale, 1),
         0.1
@@ -106,65 +196,66 @@ function ImageTile({ position, url, size, isMobile }: ImageTileProps) {
     >
       <planeGeometry args={[size, size]} />
       <meshBasicMaterial 
+        ref={materialRef}
         map={texture} 
+        transparent
         toneMapped={false}
+        side={THREE.DoubleSide}
       />
     </mesh>
   )
 }
 
 // ============================================
-// Grid Chunk Component
+// Chunk Component
 // ============================================
 
-interface GridChunkProps {
-  chunkX: number
-  chunkY: number
+interface ChunkProps {
+  cx: number
+  cy: number
+  cz: number
   images: string[]
-  gridSize: number
-  imageSize: number
-  gap: number
+  cameraPosition: React.MutableRefObject<THREE.Vector3>
   isMobile: boolean
 }
 
-/**
- * A chunk of the infinite grid containing gridSize x gridSize images
- * Chunks are rendered/unrendered based on camera proximity
- */
-function GridChunk({ chunkX, chunkY, images, gridSize, imageSize, gap, isMobile }: GridChunkProps) {
-  const chunkWorldSize = gridSize * (imageSize + gap)
+function Chunk({ cx, cy, cz, images, cameraPosition, isMobile }: ChunkProps) {
+  const [planes, setPlanes] = useState<PlaneData[]>([])
   
-  // Pre-calculate all tile positions and image assignments
-  const tiles = useMemo(() => {
-    const result = []
-    for (let row = 0; row < gridSize; row++) {
-      for (let col = 0; col < gridSize; col++) {
-        // Deterministic but varied image selection based on position
-        const seed = Math.abs(chunkX * 7 + chunkY * 13 + row * 3 + col * 5)
-        const imageIndex = seed % images.length
-        
-        // Calculate world position
-        const x = chunkX * chunkWorldSize + col * (imageSize + gap) + imageSize / 2
-        const y = chunkY * chunkWorldSize + row * (imageSize + gap) + imageSize / 2
-        
-        result.push({
-          key: `${chunkX}-${chunkY}-${row}-${col}`,
-          position: [x, y, 0] as [number, number, number],
-          url: images[imageIndex],
-        })
+  // Generate planes on mount (deferred to idle time)
+  useEffect(() => {
+    let canceled = false
+    
+    const generate = () => {
+      if (!canceled) {
+        setPlanes(generateChunkPlanes(cx, cy, cz))
       }
     }
-    return result
-  }, [chunkX, chunkY, images, gridSize, imageSize, gap, chunkWorldSize])
+    
+    if (typeof requestIdleCallback !== 'undefined') {
+      const id = requestIdleCallback(generate, { timeout: 100 })
+      return () => {
+        canceled = true
+        cancelIdleCallback(id)
+      }
+    } else {
+      const id = setTimeout(generate, 0)
+      return () => {
+        canceled = true
+        clearTimeout(id)
+      }
+    }
+  }, [cx, cy, cz])
 
   return (
     <group>
-      {tiles.map((tile) => (
-        <ImageTile
-          key={tile.key}
-          position={tile.position}
-          url={tile.url}
-          size={imageSize}
+      {planes.map((plane) => (
+        <ImagePlane
+          key={plane.id}
+          position={plane.position}
+          size={plane.size}
+          url={images[plane.imageIndex % images.length]}
+          cameraPosition={cameraPosition}
           isMobile={isMobile}
         />
       ))}
@@ -173,82 +264,49 @@ function GridChunk({ chunkX, chunkY, images, gridSize, imageSize, gap, isMobile 
 }
 
 // ============================================
-// Infinite Grid Controller
+// 3D Infinite Grid Controller
 // ============================================
 
-interface InfiniteGridProps {
+interface InfiniteGrid3DProps {
   images: string[]
-  gridSize: number
-  imageSize: number
-  gap: number
   isMobile: boolean
 }
 
-/**
- * Main grid component that handles:
- * - Drag/pan controls (mouse and touch)
- * - Momentum/inertia after release
- * - Chunk visibility calculation
- * - Responsive viewport calculations
- */
-function InfiniteGrid({ images, gridSize, imageSize, gap, isMobile }: InfiniteGridProps) {
-  const { size, gl, camera } = useThree()
+function InfiniteGrid3D({ images, isMobile }: InfiniteGrid3DProps) {
+  const { gl, camera } = useThree()
   
-  // Pan offset state
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
-  
-  // Drag state refs (using refs to avoid re-renders during drag)
+  // Camera position state (we move the camera, not the world)
+  const cameraPos = useRef(new THREE.Vector3(0, 0, 0))
+  const velocity = useRef(new THREE.Vector3(0, 0, 0))
   const isDragging = useRef(false)
   const lastPointer = useRef({ x: 0, y: 0 })
-  const velocity = useRef({ x: 0, y: 0 })
   
-  const chunkWorldSize = gridSize * (imageSize + gap)
+  // Track current chunk for re-rendering
+  const [currentChunk, setCurrentChunk] = useState({ cx: 0, cy: 0, cz: 0 })
   
-  // Calculate viewport in world units using proper camera math
-  const viewport = useMemo(() => {
-    return getViewportInWorldUnits(camera as THREE.PerspectiveCamera, size.width, size.height)
-  }, [camera, size.width, size.height])
-  
-  // Calculate drag sensitivity based on viewport size
-  // This ensures consistent "feel" across all screen sizes
-  const dragSensitivity = useMemo(() => {
-    // Base sensitivity adjusted by viewport size
-    // Larger viewports need more movement per pixel
-    return viewport.worldWidth / size.width
-  }, [viewport.worldWidth, size.width])
-  
-  // Calculate which chunks should be visible based on current offset
-  const visibleChunks = useMemo(() => {
-    const chunks: { x: number; y: number }[] = []
+  // Calculate visible chunks (3×3×3 around camera)
+  const visibleChunks = useMemo<ChunkData[]>(() => {
+    const chunks: ChunkData[] = []
+    const { cx, cy, cz } = currentChunk
     
-    // Current center in world coordinates
-    const centerX = -offset.x
-    const centerY = -offset.y
-    
-    // How many chunks we need to cover the viewport + buffer
-    // Add extra buffer for smooth scrolling
-    const chunksNeededX = Math.ceil(viewport.worldWidth / chunkWorldSize) + 4
-    const chunksNeededY = Math.ceil(viewport.worldHeight / chunkWorldSize) + 4
-    
-    // Starting chunk indices
-    const startChunkX = Math.floor(centerX / chunkWorldSize) - Math.floor(chunksNeededX / 2)
-    const startChunkY = Math.floor(centerY / chunkWorldSize) - Math.floor(chunksNeededY / 2)
-    
-    // Generate chunk list
-    for (let x = startChunkX; x < startChunkX + chunksNeededX; x++) {
-      for (let y = startChunkY; y < startChunkY + chunksNeededY; y++) {
-        chunks.push({ x, y })
+    for (let dx = -CHUNK_RADIUS; dx <= CHUNK_RADIUS; dx++) {
+      for (let dy = -CHUNK_RADIUS; dy <= CHUNK_RADIUS; dy++) {
+        for (let dz = -CHUNK_RADIUS; dz <= CHUNK_RADIUS; dz++) {
+          chunks.push({
+            key: `${cx + dx},${cy + dy},${cz + dz}`,
+            cx: cx + dx,
+            cy: cy + dy,
+            cz: cz + dz,
+          })
+        }
       }
     }
     
     return chunks
-  }, [offset, viewport, chunkWorldSize])
-
-  // ============================================
-  // Unified Pointer/Touch Handlers
-  // ============================================
-
-  const getPointerPosition = useCallback((e: PointerEvent | TouchEvent): { x: number; y: number } => {
+  }, [currentChunk])
+  
+  // Pointer handlers
+  const getPointerPos = useCallback((e: PointerEvent | TouchEvent) => {
     if ('touches' in e && e.touches.length > 0) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY }
     }
@@ -260,58 +318,84 @@ function InfiniteGrid({ images, gridSize, imageSize, gap, isMobile }: InfiniteGr
 
   const handlePointerDown = useCallback((e: PointerEvent | TouchEvent) => {
     isDragging.current = true
-    const pos = getPointerPosition(e)
-    lastPointer.current = pos
-    velocity.current = { x: 0, y: 0 }
-    if (!isMobile) {
-      document.body.style.cursor = 'grabbing'
-    }
-  }, [getPointerPosition, isMobile])
+    lastPointer.current = getPointerPos(e)
+    velocity.current.set(0, 0, 0)
+    if (!isMobile) document.body.style.cursor = 'grabbing'
+  }, [getPointerPos, isMobile])
 
   const handlePointerMove = useCallback((e: PointerEvent | TouchEvent) => {
     if (!isDragging.current) return
     
-    const pos = getPointerPosition(e)
+    const pos = getPointerPos(e)
+    const deltaX = (pos.x - lastPointer.current.x) * DRAG_SENSITIVITY
+    const deltaY = (pos.y - lastPointer.current.y) * -DRAG_SENSITIVITY
     
-    // Calculate delta using responsive sensitivity
-    const deltaX = (pos.x - lastPointer.current.x) * dragSensitivity
-    const deltaY = (pos.y - lastPointer.current.y) * -dragSensitivity // Invert Y for natural feel
+    // Apply to velocity for momentum
+    const mult = isMobile ? 0.5 : 0.7
+    velocity.current.x = -deltaX * mult
+    velocity.current.y = -deltaY * mult
     
-    // Store velocity for momentum (reduced for touch)
-    const velocityMultiplier = isMobile ? 0.6 : 0.8
-    velocity.current = { x: deltaX * velocityMultiplier, y: deltaY * velocityMultiplier }
-    
-    // Update offset
-    setOffset(prev => ({
-      x: prev.x + deltaX,
-      y: prev.y + deltaY,
-    }))
+    // Move camera
+    cameraPos.current.x -= deltaX
+    cameraPos.current.y -= deltaY
     
     lastPointer.current = pos
-  }, [getPointerPosition, dragSensitivity, isMobile])
+  }, [getPointerPos, isMobile])
 
   const handlePointerUp = useCallback(() => {
     isDragging.current = false
-    if (!isMobile) {
-      document.body.style.cursor = 'grab'
-    }
+    if (!isMobile) document.body.style.cursor = 'grab'
   }, [isMobile])
 
-  // Attach event listeners to the canvas
+  // Scroll/wheel for Z navigation
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault()
+    const delta = e.deltaY * SCROLL_SENSITIVITY * 0.01
+    velocity.current.z += delta
+  }, [])
+
+  // Pinch zoom for mobile Z navigation
+  const lastPinchDist = useRef(0)
+  
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (e.touches.length === 2) {
+      // Pinch gesture
+      const dx = e.touches[0].clientX - e.touches[1].clientX
+      const dy = e.touches[0].clientY - e.touches[1].clientY
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      
+      if (lastPinchDist.current > 0) {
+        const delta = (lastPinchDist.current - dist) * 0.05
+        velocity.current.z += delta
+      }
+      
+      lastPinchDist.current = dist
+    } else if (isDragging.current) {
+      // Regular drag
+      handlePointerMove(e)
+    }
+  }, [handlePointerMove])
+
+  const handleTouchEnd = useCallback(() => {
+    lastPinchDist.current = 0
+    handlePointerUp()
+  }, [handlePointerUp])
+
+  // Attach event listeners
   useEffect(() => {
     const canvas = gl.domElement
     
-    // Mouse events
     canvas.addEventListener('pointerdown', handlePointerDown as EventListener)
     window.addEventListener('pointermove', handlePointerMove as EventListener)
     window.addEventListener('pointerup', handlePointerUp)
     window.addEventListener('pointerleave', handlePointerUp)
     
-    // Touch events for better mobile support
+    canvas.addEventListener('wheel', handleWheel, { passive: false })
+    
     canvas.addEventListener('touchstart', handlePointerDown as EventListener, { passive: true })
-    window.addEventListener('touchmove', handlePointerMove as EventListener, { passive: true })
-    window.addEventListener('touchend', handlePointerUp)
-    window.addEventListener('touchcancel', handlePointerUp)
+    window.addEventListener('touchmove', handleTouchMove as EventListener, { passive: false })
+    window.addEventListener('touchend', handleTouchEnd)
+    window.addEventListener('touchcancel', handleTouchEnd)
     
     return () => {
       canvas.removeEventListener('pointerdown', handlePointerDown as EventListener)
@@ -319,111 +403,78 @@ function InfiniteGrid({ images, gridSize, imageSize, gap, isMobile }: InfiniteGr
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointerleave', handlePointerUp)
       
-      canvas.removeEventListener('touchstart', handlePointerDown as EventListener)
-      window.removeEventListener('touchmove', handlePointerMove as EventListener)
-      window.removeEventListener('touchend', handlePointerUp)
-      window.removeEventListener('touchcancel', handlePointerUp)
-    }
-  }, [gl, handlePointerDown, handlePointerMove, handlePointerUp])
-
-  // Apply momentum after release
-  useFrame(() => {
-    if (!isDragging.current) {
-      const speed = Math.sqrt(velocity.current.x ** 2 + velocity.current.y ** 2)
+      canvas.removeEventListener('wheel', handleWheel)
       
-      // Only apply momentum if there's meaningful velocity
-      if (speed > 0.0005) {
-        setOffset(prev => ({
-          x: prev.x + velocity.current.x,
-          y: prev.y + velocity.current.y,
-        }))
-        
-        // Decay velocity (friction) - slightly more friction on mobile
-        const friction = isMobile ? 0.92 : 0.95
-        velocity.current.x *= friction
-        velocity.current.y *= friction
-      }
+      canvas.removeEventListener('touchstart', handlePointerDown as EventListener)
+      window.removeEventListener('touchmove', handleTouchMove as EventListener)
+      window.removeEventListener('touchend', handleTouchEnd)
+      window.removeEventListener('touchcancel', handleTouchEnd)
+    }
+  }, [gl, handlePointerDown, handlePointerMove, handlePointerUp, handleWheel, handleTouchMove, handleTouchEnd])
+
+  // Animation loop
+  useFrame(() => {
+    // Apply momentum when not dragging
+    if (!isDragging.current) {
+      const friction = isMobile ? MOMENTUM_FRICTION_MOBILE : MOMENTUM_FRICTION
+      velocity.current.multiplyScalar(friction)
+      
+      // Apply velocity to position
+      cameraPos.current.add(velocity.current)
+    }
+    
+    // Update actual camera
+    camera.position.copy(cameraPos.current)
+    camera.position.z += 30 // Keep camera offset from content
+    
+    // Check if we've moved to a new chunk
+    const newCx = Math.floor(cameraPos.current.x / CHUNK_SIZE)
+    const newCy = Math.floor(cameraPos.current.y / CHUNK_SIZE)
+    const newCz = Math.floor(cameraPos.current.z / CHUNK_SIZE)
+    
+    if (newCx !== currentChunk.cx || newCy !== currentChunk.cy || newCz !== currentChunk.cz) {
+      setCurrentChunk({ cx: newCx, cy: newCy, cz: newCz })
     }
   })
 
   return (
-    <group position={[offset.x, offset.y, 0]}>
+    <>
       {visibleChunks.map((chunk) => (
-        <GridChunk
-          key={`chunk-${chunk.x}-${chunk.y}`}
-          chunkX={chunk.x}
-          chunkY={chunk.y}
+        <Chunk
+          key={chunk.key}
+          cx={chunk.cx}
+          cy={chunk.cy}
+          cz={chunk.cz}
           images={images}
-          gridSize={gridSize}
-          imageSize={imageSize}
-          gap={gap}
+          cameraPosition={cameraPos}
           isMobile={isMobile}
         />
       ))}
-    </group>
+    </>
   )
 }
 
 // ============================================
-// Main Export Component
+// Main Export
 // ============================================
 
 export interface InfiniteCanvasProps {
-  /** Array of image URLs to display */
   images?: string[]
-  /** Number of images per row/column in each chunk (default: 3) */
-  gridSize?: number
-  /** Size of each image in world units (default: 2, auto-adjusts for mobile) */
-  imageSize?: number
-  /** Gap between images in world units (default: 0.3) */
-  gap?: number
-  /** Background color (default: #0a0a0a) */
   backgroundColor?: string
 }
 
-/**
- * Infinite Canvas Component
- * 
- * An infinitely scrollable image grid that can be panned in any direction.
- * Uses chunk-based rendering to maintain performance even with thousands of potential images.
- * Fully responsive from mobile (375px) to ultrawide (2560px+).
- * 
- * @example
- * ```tsx
- * // Basic usage with defaults
- * <InfiniteCanvas />
- * 
- * // With custom images
- * <InfiniteCanvas 
- *   images={['image1.jpg', 'image2.jpg', 'image3.jpg']}
- *   imageSize={3}
- *   gap={0.5}
- * />
- * ```
- */
 export function InfiniteCanvas({
   images = SAMPLE_IMAGES,
-  gridSize = 3,
-  imageSize: propImageSize,
-  gap: propGap,
-  backgroundColor = '#0a0a0a',
+  backgroundColor = '#050505',
 }: InfiniteCanvasProps) {
-  // Detect if mobile for responsive adjustments
   const [isMobile, setIsMobile] = useState(false)
   
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
-  
-  // Responsive image size and gap
-  // Smaller images on mobile for better fit, larger on desktop/ultrawide
-  const imageSize = propImageSize ?? (isMobile ? 1.5 : 2)
-  const gap = propGap ?? (isMobile ? 0.2 : 0.3)
 
   return (
     <div style={{ 
@@ -431,55 +482,54 @@ export function InfiniteCanvas({
       height: '100%', 
       cursor: isMobile ? 'default' : 'grab',
       position: 'relative',
-      touchAction: 'none', // Prevent browser handling of touch
+      touchAction: 'none',
       overflow: 'hidden',
     }}>
       <Canvas
-        camera={{ position: [0, 0, 12], fov: 50 }}
+        camera={{ position: [0, 0, 30], fov: 50, near: 0.1, far: 200 }}
         gl={{ antialias: true, alpha: false }}
-        dpr={[1, 2]} // Responsive pixel ratio
+        dpr={[1, 2]}
         style={{ touchAction: 'none' }}
       >
         <color attach="background" args={[backgroundColor]} />
-        <InfiniteGrid
-          images={images}
-          gridSize={gridSize}
-          imageSize={imageSize}
-          gap={gap}
-          isMobile={isMobile}
-        />
+        <fog attach="fog" args={[backgroundColor, FADE_START, FADE_END]} />
+        <InfiniteGrid3D images={images} isMobile={isMobile} />
       </Canvas>
       
-      {/* UI Overlay - Instructions (responsive text) */}
+      {/* Instructions */}
       <div style={{
         position: 'absolute',
         bottom: isMobile ? 16 : 24,
         left: isMobile ? 16 : 24,
         color: 'white',
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSize: isMobile ? 11 : 13,
-        opacity: 0.5,
+        fontSize: isMobile ? 10 : 12,
+        opacity: 0.4,
         pointerEvents: 'none',
         userSelect: 'none',
+        lineHeight: 1.5,
       }}>
-        {isMobile ? 'Swipe to explore' : 'Drag to explore'}
+        {isMobile ? (
+          <>Swipe to explore • Pinch to dive</>
+        ) : (
+          <>Drag to explore • Scroll to dive deeper</>
+        )}
       </div>
       
-      {/* Branding (responsive) */}
+      {/* Depth indicator */}
       <div style={{
         position: 'absolute',
-        bottom: isMobile ? 16 : 24,
+        top: isMobile ? 16 : 24,
         right: isMobile ? 16 : 24,
         color: 'white',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSize: isMobile ? 9 : 11,
+        fontFamily: 'monospace',
+        fontSize: isMobile ? 9 : 10,
         opacity: 0.3,
         pointerEvents: 'none',
         userSelect: 'none',
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
       }}>
-        Infinite Canvas
+        INFINITE CANVAS
       </div>
     </div>
   )
