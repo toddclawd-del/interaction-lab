@@ -4,6 +4,57 @@ Techniques and lessons learned from building interactions. **Read this before st
 
 ---
 
+## 2026-01-27 — Infinite Canvas (v4: Polished)
+
+**Reference:** https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/
+
+**Interaction:** Polished 3D infinite space with loading states and spring physics
+
+**Improvements from v3:**
+
+### 1. Blur Placeholder Loading States
+- Wrapped `ImagePlane` in `<Suspense>` with `PlaceholderPlane` fallback
+- Placeholder is subtle dark rect that fades based on distance
+- Once texture loads, fade in smoothly over 300ms
+- Prevents jarring pop-in of images
+
+### 2. Spring Physics for Z Navigation
+- Created `SpringValue` class with target/current/velocity
+- Z movement applies to `target`, spring catches up smoothly
+- `stiffness` controls how fast (0.08 = gentle)
+- `damping` controls overshoot (0.85 = slight bounce)
+- Result: scroll feels organic, not mechanical
+
+### 3. Pinch Sensitivity Tuning
+- Reduced multiplier from 0.05 to 0.03
+- Added deadzone (5px) to filter jitter
+- Separate `isPinching` state to prevent drag interference
+- Reset pinch tracking properly on touch end
+
+### 4. Code Quality
+- Separated touch start/move/end handlers
+- Cleaner state management for pinch vs drag
+- Better event listener cleanup
+
+**Self-Score:**
+
+| Category | Max | Score | Notes |
+|----------|-----|-------|-------|
+| Visual Fidelity | 25 | 20 | Placeholders help, still no bloom/glow |
+| Interaction Feel | 20 | 17 | Spring Z is buttery, pinch improved |
+| Code Quality | 15 | 13 | Clean but not instanced yet |
+| Portability | 15 | 12 | Same as v3 |
+| Performance | 10 | 6 | Still no instancing |
+| Responsiveness | 15 | 13 | Pinch deadzone helps mobile |
+| **TOTAL** | **100** | **81** | Solid improvement |
+
+**Still TODO:**
+- Instanced meshes (big perf win)
+- Subtle glow/bloom on images
+- Better image loading (blur hash instead of solid placeholder)
+
+---
+
 ## 2026-01-27 — Infinite Canvas (v3: True 3D)
 
 **Reference:** https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/
