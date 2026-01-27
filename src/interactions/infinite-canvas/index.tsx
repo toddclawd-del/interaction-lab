@@ -12,6 +12,7 @@
 
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { useRef, useState, useMemo, useCallback, useEffect, Suspense } from 'react'
 import * as THREE from 'three'
 
@@ -658,6 +659,18 @@ export function InfiniteCanvas({
         <color attach="background" args={[backgroundColor]} />
         <fog attach="fog" args={[backgroundColor, FADE_START, FADE_END]} />
         <InfiniteGrid3D images={images} isMobile={isMobile} />
+        
+        {/* Post-processing: Bloom gives images a soft glow */}
+        {!isMobile && (
+          <EffectComposer>
+            <Bloom 
+              intensity={0.4}           // Strength of the glow
+              luminanceThreshold={0.6}  // Only bright areas bloom
+              luminanceSmoothing={0.9}  // Smooth transition
+              mipmapBlur                // Better quality blur
+            />
+          </EffectComposer>
+        )}
       </Canvas>
       
       {/* Instructions */}

@@ -2,6 +2,114 @@
 
 Techniques and lessons learned from building interactions. **Read this before starting new work** to apply past learnings.
 
+> **Format Note:** Each interaction includes two sections:
+> 1. **Concepts & Techniques** — The "why" and "how it works" for learning
+> 2. **Implementation Notes** — The "what I built" for future reference
+
+---
+
+## 2026-01-27 — Infinite Canvas (v5/v6: Instancing + Bloom)
+
+**Reference:** https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/
+
+### 🎓 Concepts & Techniques
+
+#### **Instanced Rendering** — Draw 1000 objects in 1 call
+When you render many similar objects (like placeholder rectangles), each one normally requires a "draw call" to the GPU. Draw calls are expensive — they're the main bottleneck in 3D performance.
+
+**Instanced rendering** lets you say: "Here's one shape. Now draw it 1000 times at these different positions/scales." One draw call, many copies.
+
+*When to use it:* Lots of identical geometry (particles, grass, crowds, placeholder shapes). Doesn't work well when each object needs a different texture — that's why we only instance the placeholders, not the actual images.
+
+*Key insight:* The geometry is shared, but each instance can have its own transformation matrix (position/rotation/scale). You set these via `setMatrixAt(index, matrix)`.
+
+---
+
+#### **Texture Disposal** — Don't leak GPU memory
+Textures (images loaded into WebGL) live in GPU memory. Unlike regular JavaScript objects, they don't get garbage collected automatically. If you load 100 images, navigate away, and load 100 more — you now have 200 textures eating VRAM.
+
+*Fix:* When a component unmounts, explicitly call `texture.dispose()`. This tells Three.js to free that GPU memory.
+
+*When it matters:* Any time images/textures are dynamic (loaded/unloaded based on user navigation). Less important for static scenes.
+
+---
+
+#### **Spring Physics** — Why UIs feel good
+Linear movement (constant speed, instant stop) feels robotic. Humans expect physics: acceleration, momentum, overshoot, settle.
+
+A **spring** simulates this with three values:
+- `current` — where you are
+- `target` — where you want to be  
+- `velocity` — how fast you're moving
+
+Each frame:
+1. Calculate force: `(target - current) * stiffness`
+2. Add force to velocity
+3. Apply damping: `velocity *= damping`
+4. Update position: `current += velocity`
+
+*Stiffness* = how snappy (high = fast catch-up)  
+*Damping* = how bouncy (low = more overshoot)
+
+This is the foundation of libraries like Framer Motion, react-spring, and smooth scrolling.
+
+---
+
+#### **Post-Processing & Bloom** — The "Hollywood" look
+Post-processing means rendering your scene to a texture first, then applying effects to that texture before displaying it. Like Instagram filters, but for 3D.
+
+**Bloom** specifically:
+1. Render the scene
+2. Extract bright areas (above a luminance threshold)
+3. Blur those bright areas
+4. Add the blur back on top of the original
+
+Result: bright things "glow" and bleed light into surroundings. Makes images feel luminous, adds depth, creates that cinematic/ethereal vibe.
+
+*Performance note:* Each post-processing effect adds a render pass. Bloom requires multiple blur passes. Skip on mobile where GPU is weaker.
+
+---
+
+#### **Pinch Gesture Math**
+Two-finger gestures track the distance between touch points:
+
+```
+distance = √((x1-x2)² + (y1-y2)²)
+delta = previousDistance - currentDistance
+```
+
+- `delta > 0` = fingers moved closer = "pinch in" = zoom out / move forward
+- `delta < 0` = fingers moved apart = "pinch out" = zoom in / move back
+
+*Key UX insight:* Add a "deadzone" (ignore tiny movements) to filter finger jitter, and a "minimum impulse" so each gesture feels meaningful even if the actual pinch was small.
+
+---
+
+### 📋 Implementation Notes
+
+**v5 changes:**
+- `InstancedMesh` for placeholder loading states
+- `texture.dispose()` in useEffect cleanup
+- Pinch sensitivity 0.03 → 0.12 (4x)
+- Added minimum impulse (0.5) per pinch gesture
+- Reduced planes per chunk, lower mobile DPR
+
+**v6 changes:**
+- Added `@react-three/postprocessing` 
+- Bloom effect (desktop only): intensity 0.4, threshold 0.6
+- mipmapBlur for better quality
+
+**Self-Score: 84/100**
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Visual Fidelity | 22/25 | Bloom adds polish |
+| Interaction Feel | 17/20 | Pinch is snappy now |
+| Code Quality | 13/15 | Clean, could abstract more |
+| Portability | 12/15 | Self-contained |
+| Performance | 7/10 | Instancing helps, still room for optimization |
+| Responsiveness | 13/15 | Good mobile feel |
+
 ---
 
 ## 2026-01-27 — Infinite Canvas (v4: Polished)
