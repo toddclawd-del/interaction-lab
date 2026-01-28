@@ -165,10 +165,8 @@ export function GridFlip() {
       {/* Grid Gallery */}
       <div
         ref={gridRef}
-        style={{
-          ...styles.grid,
-          gridTemplateColumns: getGridColumns(currentSize),
-        }}
+        className={`grid-gallery size-${currentSize.replace('%', '')}`}
+        style={styles.grid}
       >
         {ITEMS.map((item, index) => (
           <div
@@ -192,20 +190,38 @@ export function GridFlip() {
 
       {/* Branding */}
       <div style={styles.branding}>GRID FLIP</div>
+
+      {/* Responsive grid styles */}
+      <style>{`
+        .grid-gallery {
+          grid-template-columns: repeat(10, 1fr);
+        }
+        .grid-gallery.size-50 { grid-template-columns: repeat(16, 1fr); }
+        .grid-gallery.size-75 { grid-template-columns: repeat(10, 1fr); }
+        .grid-gallery.size-100 { grid-template-columns: repeat(8, 1fr); }
+        .grid-gallery.size-125 { grid-template-columns: repeat(6, 1fr); }
+        .grid-gallery.size-150 { grid-template-columns: repeat(4, 1fr); }
+        
+        @media (max-width: 768px) {
+          .grid-gallery.size-50,
+          .grid-gallery.size-75,
+          .grid-gallery.size-100,
+          .grid-gallery.size-125,
+          .grid-gallery.size-150 {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .grid-gallery.size-50 { grid-template-columns: repeat(8, 1fr) !important; }
+          .grid-gallery.size-75 { grid-template-columns: repeat(6, 1fr) !important; }
+          .grid-gallery.size-100 { grid-template-columns: repeat(5, 1fr) !important; }
+          .grid-gallery.size-125 { grid-template-columns: repeat(4, 1fr) !important; }
+          .grid-gallery.size-150 { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+      `}</style>
     </div>
   )
-}
-
-// Helper to get grid columns based on size
-function getGridColumns(size: GridSize): string {
-  const columns: Record<GridSize, number> = {
-    '50%': 16,
-    '75%': 10,
-    '100%': 8,
-    '125%': 6,
-    '150%': 4,
-  }
-  return `repeat(${columns[size]}, 1fr)`
 }
 
 // ============================================
