@@ -9,6 +9,12 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'grid-flip',
+    title: 'Grid Flip Transitions',
+    description: 'Smooth grid layout animations with GSAP Flip plugin',
+    date: '2026-01-28'
+  },
+  {
     slug: 'cylinder-text',
     title: '3D Cylinder Text',
     description: 'Scroll-driven 3D text rotation with CSS perspective transforms',
