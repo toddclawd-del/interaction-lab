@@ -9,6 +9,12 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'cylinder-text',
+    title: '3D Cylinder Text',
+    description: 'Scroll-driven 3D text rotation with CSS perspective transforms',
+    date: '2026-01-28'
+  },
+  {
     slug: 'dual-wave-text',
     title: 'Dual Wave Text',
     description: 'Scroll-driven opposing wave columns with synced center image',
