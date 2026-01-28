@@ -9,6 +9,12 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'dual-wave-text',
+    title: 'Dual Wave Text',
+    description: 'Scroll-driven opposing wave columns with synced center image',
+    date: '2026-01-28'
+  },
+  {
     slug: 'infinite-canvas',
     title: 'Infinite Canvas',
     description: 'Pannable, zoomable infinite canvas with smooth controls',
