@@ -71,6 +71,7 @@ export function DualWaveText() {
       duration: 1.5,
       smoothWheel: true,
       wheelMultiplier: 1,
+      touchMultiplier: 1.5,
     })
 
     // Sync Lenis with GSAP ScrollTrigger
