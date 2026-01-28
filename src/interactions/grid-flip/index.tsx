@@ -219,6 +219,17 @@ export function GridFlip() {
           .grid-gallery.size-125 { grid-template-columns: repeat(4, 1fr) !important; }
           .grid-gallery.size-150 { grid-template-columns: repeat(3, 1fr) !important; }
         }
+        
+        @media (max-width: 768px) {
+          nav {
+            padding-left: 1rem !important;
+            flex-wrap: nowrap !important;
+            -webkit-overflow-scrolling: touch;
+          }
+          nav > div {
+            flex-shrink: 0;
+          }
+        }
       `}</style>
     </div>
   )
@@ -259,14 +270,17 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'rgba(10, 10, 10, 0.9)',
     backdropFilter: 'blur(10px)',
     zIndex: 50,
+    overflowX: 'auto',
+    gap: '1rem',
   },
   modeToggle: {
     display: 'flex',
     gap: '0.5rem',
+    flexShrink: 0,
   },
   modeButton: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.75rem',
+    padding: '0.4rem 0.6rem',
+    fontSize: '0.65rem',
     fontWeight: 500,
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
@@ -276,6 +290,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '4px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap',
   },
   modeButtonActive: {
     color: '#fff',
@@ -285,10 +300,11 @@ const styles: Record<string, React.CSSProperties> = {
   sizeButtons: {
     display: 'flex',
     gap: '0.25rem',
+    flexShrink: 0,
   },
   sizeButton: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.875rem',
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.75rem',
     fontWeight: 500,
     color: 'rgba(255, 255, 255, 0.5)',
     background: 'rgba(255, 255, 255, 0.05)',
@@ -296,6 +312,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '4px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap',
   },
   sizeButtonActive: {
     color: '#fff',
