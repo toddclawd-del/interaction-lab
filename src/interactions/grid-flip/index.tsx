@@ -203,13 +203,11 @@ export function GridFlip() {
         .grid-gallery.size-150 { grid-template-columns: repeat(4, 1fr); }
         
         @media (max-width: 768px) {
-          .grid-gallery.size-50,
-          .grid-gallery.size-75,
-          .grid-gallery.size-100,
-          .grid-gallery.size-125,
-          .grid-gallery.size-150 {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
+          .grid-gallery.size-50 { grid-template-columns: repeat(6, 1fr) !important; }
+          .grid-gallery.size-75 { grid-template-columns: repeat(5, 1fr) !important; }
+          .grid-gallery.size-100 { grid-template-columns: repeat(4, 1fr) !important; }
+          .grid-gallery.size-125 { grid-template-columns: repeat(3, 1fr) !important; }
+          .grid-gallery.size-150 { grid-template-columns: repeat(2, 1fr) !important; }
         }
         
         @media (min-width: 769px) and (max-width: 1024px) {
