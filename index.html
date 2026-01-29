@@ -11,9 +11,19 @@
       body { overflow-y: auto; -webkit-overflow-scrolling: touch; }
       body { background: #0a0a0a; font-family: system-ui, sans-serif; }
     </style>
-    <script type="module" crossorigin src="/interaction-lab/assets/index-D0oIs2M2.js"></script>
+    <script type="module" crossorigin src="/interaction-lab/assets/index-D5ROudTq.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback while JS loads -->
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#666;">
+        Loading...
+      </div>
+    </div>
+    <noscript>
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#ff6b6b;background:#0a0a0a;">
+        JavaScript is required to run this app.
+      </div>
+    </noscript>
   </body>
 </html>
