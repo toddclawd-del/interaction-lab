@@ -359,11 +359,18 @@ function Scene({ variant, lenis }: SceneProps) {
 // Main Export Component
 // ============================================
 
+// Detect mobile
+const isMobileBrowser = () => {
+  if (typeof window === 'undefined') return false
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+}
+
 export function WavyCarousel() {
   const [variant, setVariant] = useState<'single' | 'dual' | 'triple' | 'horizontal'>('dual')
   const lenisRef = useRef<Lenis | null>(null)
   const [lenisReady, setLenisReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isMobile] = useState(isMobileBrowser)
 
   // Initialize Lenis smooth scroll
   useEffect(() => {
@@ -408,6 +415,42 @@ export function WavyCarousel() {
       <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
         <p style={{ color: '#ff6b6b', fontSize: '1.2rem' }}>⚠️ {error}</p>
         <Link to="/" style={{ color: '#fff', textDecoration: 'underline' }}>← Back to Home</Link>
+      </div>
+    )
+  }
+
+  // Mobile fallback - this interaction requires desktop for smooth scroll
+  if (isMobile) {
+    return (
+      <div style={{ 
+        ...styles.container, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        flexDirection: 'column', 
+        gap: '1.5rem',
+        padding: '2rem',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '4rem' }}>🖥️</div>
+        <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 600 }}>Desktop Recommended</h2>
+        <p style={{ color: '#888', maxWidth: '300px', lineHeight: 1.6 }}>
+          This scroll-driven 3D carousel works best on desktop browsers. 
+          The smooth scroll library has compatibility issues on mobile Safari.
+        </p>
+        <Link 
+          to="/" 
+          style={{ 
+            color: '#fff', 
+            background: '#333',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            marginTop: '1rem'
+          }}
+        >
+          ← Back to Interactions
+        </Link>
       </div>
     )
   }
