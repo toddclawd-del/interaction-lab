@@ -72,7 +72,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'Inter, -apple-system, sans-serif',
     padding: '4rem 2rem',
     overflowY: 'auto',
-    overflowX: 'hidden'
+    overflowX: 'hidden',
+    WebkitOverflowScrolling: 'touch',
+    touchAction: 'pan-y'
   },
   header: {
     maxWidth: '800px',
