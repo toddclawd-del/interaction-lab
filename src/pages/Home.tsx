@@ -289,10 +289,13 @@ export function Home() {
         </p>
       </header>
       
-      <div style={{
-        ...styles.grid,
-        opacity: mounted ? 1 : 0,
-      }}>
+      <div 
+        className="bento-grid"
+        style={{
+          ...styles.grid,
+          opacity: mounted ? 1 : 0,
+        }}
+      >
         {experiments.map((exp, i) => (
           <BentoCard key={exp.slug} experiment={exp} index={i} />
         ))}
@@ -319,9 +322,10 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#050505',
     color: '#fff',
     fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif',
-    padding: '3rem 1.5rem 6rem',
+    padding: '3rem 1rem 6rem',
     overflowX: 'hidden',
     position: 'relative',
+    boxSizing: 'border-box',
   },
   particles: {
     position: 'fixed',
@@ -421,13 +425,15 @@ const styles: Record<string, React.CSSProperties> = {
   },
   grid: {
     maxWidth: '1000px',
+    width: '100%',
     margin: '0 auto',
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '1.25rem',
     position: 'relative',
     zIndex: 1,
     transition: 'opacity 0.6s ease 0.3s',
+    boxSizing: 'border-box',
   },
   card: {
     position: 'relative',
@@ -584,13 +590,29 @@ if (typeof document !== 'undefined') {
       }
     }
     
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
       .bento-grid {
         grid-template-columns: 1fr !important;
+        padding: 0 !important;
+        gap: 1rem !important;
+      }
+      .bento-grid > * {
+        grid-column: span 1 !important;
+        grid-row: span 1 !important;
       }
     }
     
-    @media (min-width: 769px) {
+    @media (min-width: 641px) and (max-width: 900px) {
+      .bento-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+      .bento-grid > *:first-child {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+    }
+    
+    @media (min-width: 901px) {
       .bento-grid > *:first-child {
         grid-column: span 2;
         grid-row: span 2;
