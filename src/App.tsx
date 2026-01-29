@@ -4,6 +4,7 @@ import { InfiniteCanvas } from './interactions/infinite-canvas'
 import { DualWaveText } from './interactions/dual-wave-text'
 import { CylinderText } from './interactions/cylinder-text'
 import { GridFlip } from './interactions/grid-flip'
+import { WavyCarousel } from './interactions/wavy-carousel'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/dual-wave-text" element={<DualWaveText />} />
         <Route path="/cylinder-text" element={<CylinderText />} />
         <Route path="/grid-flip" element={<GridFlip />} />
+        <Route path="/wavy-carousel" element={<WavyCarousel />} />
       </Routes>
     </HashRouter>
   )

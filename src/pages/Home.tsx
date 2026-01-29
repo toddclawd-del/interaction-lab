@@ -9,6 +9,12 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'wavy-carousel',
+    title: 'Wavy Infinite Carousel',
+    description: 'Scroll-driven 3D carousel with GLSL shader wave distortion',
+    date: '2026-01-29'
+  },
+  {
     slug: 'grid-flip',
     title: 'Grid Flip Transitions',
     description: 'Smooth grid layout animations with GSAP Flip plugin',

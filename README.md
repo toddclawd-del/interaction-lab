@@ -27,6 +27,10 @@ npm run dev
 
 | Name | Tech | Status | Source |
 |------|------|--------|--------|
+| Wavy Carousel | R3F + GLSL Shaders | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/26/creating-wavy-infinite-carousels-in-react-three-fiber-with-glsl-shaders/) |
+| Grid Flip | GSAP Flip Plugin | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/20/animating-responsive-grid-layout-transitions-with-gsap-flip/) |
+| Cylinder Text | CSS 3D Transforms | ✅ Ready | — |
+| Dual Wave Text | GSAP + Lenis | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/15/building-a-scroll-driven-dual-wave-text-animation-with-gsap/) |
 | Infinite Canvas | React Three Fiber | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/) |
 
 ## Adding to Your Project
