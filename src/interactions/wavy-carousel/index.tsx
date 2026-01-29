@@ -177,12 +177,21 @@ function Carousel({
     }
   }, [lenis, isMobile, nativeScroll])
 
+  // Debug: track frames
+  const frameCountRef = useRef(0)
+  
   // Animation loop - handle infinite scroll and velocity effects
   useFrame(() => {
     // Get velocity from either Lenis or native scroll
     const velocity = isMobile && nativeScroll 
       ? nativeScroll.current.velocity 
       : velocityRef.current
+    
+    // Debug log every 60 frames (~1 second)
+    frameCountRef.current++
+    if (frameCountRef.current % 60 === 1) {
+      console.log('Frame update:', { isMobile, velocity: velocity.toFixed(3), imageCount: imageRefs.current.length })
+    }
 
     imageRefs.current.forEach((ref) => {
       if (!ref) return
@@ -445,15 +454,22 @@ export function WavyCarousel() {
       // Mobile: use native scroll
       setLenisReady(true) // Mark as ready immediately
       
+      let scrollLogCount = 0
       const handleScroll = () => {
         const now = Date.now()
         const dt = Math.max(now - lastTimeRef.current, 1)
         const currentScroll = window.scrollY
-        const velocity = (currentScroll - lastScrollRef.current) / dt * 16 // Normalize to ~60fps
+        const velocity = (currentScroll - lastScrollRef.current) / dt * 16
         
         nativeScrollRef.current = {
           scroll: currentScroll,
-          velocity: velocity * 0.5 // Dampen velocity
+          velocity: velocity * 0.5
+        }
+        
+        // Debug log first 5 scroll events
+        if (scrollLogCount < 5) {
+          console.log('Mobile scroll:', { scroll: currentScroll, velocity: velocity.toFixed(2) })
+          scrollLogCount++
         }
         
         lastScrollRef.current = currentScroll
@@ -544,17 +560,18 @@ export function WavyCarousel() {
         {variant === 'horizontal' ? '← Scroll horizontally →' : '↑ Scroll to explore ↓'}
       </div>
 
-      {/* Three.js Canvas */}
+      {/* Three.js Canvas - key forces remount on variant change */}
       <Canvas
+        key={`canvas-${variant}`}
         camera={{ position: [0, 0, 5], fov: 50 }}
         style={styles.canvas}
         gl={{ 
-          antialias: !isMobile, // Disable antialiasing on mobile for performance
+          antialias: !isMobile,
           alpha: true,
           powerPreference: 'high-performance',
           failIfMajorPerformanceCaveat: false
         }}
-        dpr={isMobile ? 1 : [1, 2]} // Lower DPR on mobile
+        dpr={isMobile ? 1 : [1, 2]}
         onCreated={({ gl }) => {
           console.log('WebGL context created:', gl.getContext().getParameter(gl.getContext().VERSION))
         }}
@@ -584,12 +601,9 @@ export function WavyCarousel() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
+    position: 'relative',
     width: '100vw',
-    height: '100vh',
-    overflow: 'hidden',
+    minHeight: '100vh',
     background: '#0a0a0a',
   },
   backButton: {
@@ -651,11 +665,12 @@ const styles: Record<string, React.CSSProperties> = {
     animation: 'pulse 2s ease-in-out infinite',
   },
   canvas: {
-    position: 'absolute',
+    position: 'fixed',
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
+    width: '100vw',
+    height: '100vh',
+    zIndex: 1,
   },
   branding: {
     position: 'fixed',
@@ -670,12 +685,10 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: 100,
   },
   scrollArea: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+    position: 'relative',
     width: '100%',
-    height: '500vh', // Creates scrollable space for Lenis
-    pointerEvents: 'none',
+    height: '500vh', // Creates scrollable space
+    pointerEvents: 'auto', // Allow scroll interaction
   },
 }
 
