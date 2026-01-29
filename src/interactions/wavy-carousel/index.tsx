@@ -15,7 +15,7 @@
  * - Object-fit cover in shader
  */
 
-import { useRef, useMemo, useEffect, forwardRef, useState } from 'react'
+import { useRef, useMemo, useEffect, forwardRef, useState, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
@@ -27,18 +27,18 @@ import vertexShader from './shaders/vertex.glsl?raw'
 import fragmentShader from './shaders/fragment.glsl?raw'
 
 // ============================================
-// Sample Images - Using picsum.photos
+// Sample Images - Using Unsplash with specific IDs (more reliable)
 // ============================================
 
 const IMAGE_LIST = [
-  'https://picsum.photos/seed/wavy1/600/800',
-  'https://picsum.photos/seed/wavy2/600/800',
-  'https://picsum.photos/seed/wavy3/600/800',
-  'https://picsum.photos/seed/wavy4/600/800',
-  'https://picsum.photos/seed/wavy5/600/800',
-  'https://picsum.photos/seed/wavy6/600/800',
-  'https://picsum.photos/seed/wavy7/600/800',
-  'https://picsum.photos/seed/wavy8/600/800',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800&fit=crop', // Mountains
+  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=800&fit=crop', // Nature
+  'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=600&h=800&fit=crop', // Forest
+  'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=600&h=800&fit=crop', // Waterfall
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&h=800&fit=crop', // Lake
+  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&h=800&fit=crop', // Foggy
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=800&fit=crop', // Sunlight
+  'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=600&h=800&fit=crop', // Valley
 ]
 
 // ============================================
@@ -77,6 +77,12 @@ const GLImage = forwardRef<THREE.Mesh, GLImageProps>(
     const localRef = useRef<THREE.Mesh>(null)
     const meshRef = (forwardedRef || localRef) as React.RefObject<THREE.Mesh>
     const texture = useTexture(imageUrl)
+    
+    useEffect(() => {
+      if (texture) {
+        console.log('Texture ready:', imageUrl.slice(-30))
+      }
+    }, [texture, imageUrl])
 
     const imageSizes = useMemo(() => {
       if (!texture) return [1, 1]
@@ -558,7 +564,9 @@ export function WavyCarousel() {
         }}
       >
         <color attach="background" args={['#0a0a0a']} />
-        {lenisReady && <Scene variant={variant} lenis={lenisRef.current} nativeScroll={nativeScrollRef} isMobileDevice={isMobile} />}
+        <Suspense fallback={null}>
+          {lenisReady && <Scene variant={variant} lenis={lenisRef.current} nativeScroll={nativeScrollRef} isMobileDevice={isMobile} />}
+        </Suspense>
       </Canvas>
 
       {/* Branding */}
