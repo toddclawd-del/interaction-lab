@@ -423,6 +423,13 @@ export function WavyCarousel() {
   const nativeScrollRef = useRef<NativeScrollState>({ scroll: 0, velocity: 0 })
   const lastScrollRef = useRef(0)
   const lastTimeRef = useRef(Date.now())
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const variantRef = useRef(variant)
+  
+  // Keep variantRef in sync for Lenis recreation without full remount
+  useEffect(() => {
+    variantRef.current = variant
+  }, [variant])
 
   // Check WebGL support
   if (!webglSupported) {
@@ -449,6 +456,9 @@ export function WavyCarousel() {
   }
 
   // Initialize scroll - Lenis for desktop, native for mobile
+  // Only recreate Lenis when orientation actually changes (vertical <-> horizontal)
+  const isHorizontal = variant === 'horizontal'
+  
   useEffect(() => {
     if (isMobile) {
       // Mobile: use native scroll
@@ -458,7 +468,7 @@ export function WavyCarousel() {
       const handleScroll = () => {
         const now = Date.now()
         const dt = Math.max(now - lastTimeRef.current, 1)
-        const currentScroll = window.scrollY
+        const currentScroll = isHorizontal ? window.scrollX : window.scrollY
         const velocity = (currentScroll - lastScrollRef.current) / dt * 16
         
         nativeScrollRef.current = {
@@ -484,8 +494,8 @@ export function WavyCarousel() {
         const lenis = new Lenis({
           duration: 1.2,
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          orientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
-          gestureOrientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
+          orientation: isHorizontal ? 'horizontal' : 'vertical',
+          gestureOrientation: isHorizontal ? 'horizontal' : 'vertical',
           smoothWheel: true,
           infinite: true,
         })
@@ -513,7 +523,7 @@ export function WavyCarousel() {
         setError('Scroll initialization failed')
       }
     }
-  }, [variant, isMobile])
+  }, [isHorizontal, isMobile]) // Only depend on orientation change, not every variant
 
   // Error fallback
   if (error) {
@@ -560,20 +570,29 @@ export function WavyCarousel() {
         {variant === 'horizontal' ? '← Scroll horizontally →' : '↑ Scroll to explore ↓'}
       </div>
 
-      {/* Three.js Canvas - key forces remount on variant change */}
+      {/* Three.js Canvas - no key to preserve WebGL context across variant changes */}
       <Canvas
-        key={`canvas-${variant}`}
         camera={{ position: [0, 0, 5], fov: 50 }}
         style={styles.canvas}
         gl={{ 
           antialias: !isMobile,
           alpha: true,
           powerPreference: 'high-performance',
-          failIfMajorPerformanceCaveat: false
+          failIfMajorPerformanceCaveat: false,
+          preserveDrawingBuffer: true
         }}
         dpr={isMobile ? 1 : [1, 2]}
         onCreated={({ gl }) => {
           console.log('WebGL context created:', gl.getContext().getParameter(gl.getContext().VERSION))
+          // Handle context loss/restore
+          const canvas = gl.domElement
+          canvas.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault()
+            console.warn('WebGL context lost')
+          })
+          canvas.addEventListener('webglcontextrestored', () => {
+            console.log('WebGL context restored')
+          })
         }}
         onError={(e) => {
           console.error('Canvas error:', e)
@@ -589,8 +608,15 @@ export function WavyCarousel() {
       {/* Branding */}
       <div style={styles.branding}>WAVY CAROUSEL</div>
 
-      {/* Scrollable area for Lenis */}
-      <div style={styles.scrollArea} />
+      {/* Scrollable area for Lenis - adjusts based on orientation */}
+      <div style={{
+        ...styles.scrollArea,
+        ...(isHorizontal ? {
+          height: '100vh',
+          width: '500vw',
+          display: 'flex',
+        } : {})
+      }} />
     </div>
   )
 }
