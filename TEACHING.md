@@ -313,6 +313,55 @@ if (e.touches.length === 2) {
 
 ---
 
+## 🚨 Cross-Cutting Gotchas
+
+Issues that apply across multiple interactions — read this to avoid repeating mistakes.
+
+### RAF Loop Memory Leaks (Mobile Killer)
+When using `requestAnimationFrame` in a recursive loop (common for smooth scroll libraries like Lenis), you MUST cancel it on unmount.
+
+**Bad:**
+```typescript
+useEffect(() => {
+  function raf(time: number) {
+    doStuff(time)
+    requestAnimationFrame(raf) // This keeps running forever!
+  }
+  requestAnimationFrame(raf)
+  
+  return () => {
+    // RAF still running in background, intercepting events
+  }
+}, [])
+```
+
+**Good:**
+```typescript
+useEffect(() => {
+  let rafId: number
+  
+  function raf(time: number) {
+    doStuff(time)
+    rafId = requestAnimationFrame(raf)
+  }
+  rafId = requestAnimationFrame(raf)
+  
+  return () => {
+    cancelAnimationFrame(rafId) // Actually stops the loop
+  }
+}, [])
+```
+
+*Symptom:* Page scroll stops working after navigating away from an interaction (especially on mobile).
+
+### iOS Touch Scroll
+iOS Safari needs explicit permission to scroll smoothly:
+- Add `-webkit-overflow-scrolling: touch` to scrollable containers
+- Use `touch-action: pan-y` (or `pan-x`) to allow specific gestures
+- `touch-action: none` blocks ALL touch — only use on canvases you fully control
+
+---
+
 ## Template for Future Entries
 
 ```markdown
