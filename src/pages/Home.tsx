@@ -70,7 +70,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#0a0a0a',
     color: '#fff',
     fontFamily: 'Inter, -apple-system, sans-serif',
-    padding: '4rem 2rem'
+    padding: '4rem 2rem',
+    overflowY: 'auto',
+    overflowX: 'hidden'
   },
   header: {
     maxWidth: '800px',
