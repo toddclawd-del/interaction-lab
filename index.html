@@ -13,7 +13,17 @@
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback while JS loads -->
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#666;">
+        Loading...
+      </div>
+    </div>
+    <noscript>
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#ff6b6b;background:#0a0a0a;">
+        JavaScript is required to run this app.
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
