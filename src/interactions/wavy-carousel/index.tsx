@@ -423,13 +423,6 @@ export function WavyCarousel() {
   const nativeScrollRef = useRef<NativeScrollState>({ scroll: 0, velocity: 0 })
   const lastScrollRef = useRef(0)
   const lastTimeRef = useRef(Date.now())
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const variantRef = useRef(variant)
-  
-  // Keep variantRef in sync for Lenis recreation without full remount
-  useEffect(() => {
-    variantRef.current = variant
-  }, [variant])
 
   // Check WebGL support
   if (!webglSupported) {
