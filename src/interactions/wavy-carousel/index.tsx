@@ -363,40 +363,64 @@ export function WavyCarousel() {
   const [variant, setVariant] = useState<'single' | 'dual' | 'triple' | 'horizontal'>('dual')
   const lenisRef = useRef<Lenis | null>(null)
   const [lenisReady, setLenisReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Initialize Lenis smooth scroll
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
-      gestureOrientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
-      smoothWheel: true,
-      infinite: true,
-    })
+    try {
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
+        gestureOrientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
+        smoothWheel: true,
+        infinite: true,
+        touchMultiplier: 2, // Better mobile touch response
+      })
 
-    lenisRef.current = lenis
-    setLenisReady(true)
+      lenisRef.current = lenis
+      setLenisReady(true)
 
-    let rafId: number
+      let rafId: number
 
-    function raf(time: number) {
-      lenis.raf(time)
+      function raf(time: number) {
+        lenis.raf(time)
+        rafId = requestAnimationFrame(raf)
+      }
+
       rafId = requestAnimationFrame(raf)
-    }
 
-    rafId = requestAnimationFrame(raf)
-
-    return () => {
-      cancelAnimationFrame(rafId)
-      lenis.destroy()
-      lenisRef.current = null
-      setLenisReady(false)
+      return () => {
+        cancelAnimationFrame(rafId)
+        lenis.destroy()
+        lenisRef.current = null
+        setLenisReady(false)
+      }
+    } catch (err) {
+      console.error('Lenis initialization failed:', err)
+      setError('Scroll initialization failed')
     }
   }, [variant])
 
+  // Error fallback
+  if (error) {
+    return (
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
+        <p style={{ color: '#ff6b6b', fontSize: '1.2rem' }}>⚠️ {error}</p>
+        <Link to="/" style={{ color: '#fff', textDecoration: 'underline' }}>← Back to Home</Link>
+      </div>
+    )
+  }
+
   return (
     <div style={styles.container}>
+      {/* Loading state */}
+      {!lenisReady && (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+          <p style={{ color: '#666' }}>Loading...</p>
+        </div>
+      )}
+
       {/* Back button */}
       <Link to="/" style={styles.backButton}>
         ← Back
