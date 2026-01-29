@@ -125,6 +125,8 @@ interface CarouselProps {
   direction?: 'vertical' | 'horizontal'
   scrollMultiplier?: number
   lenis: Lenis | null
+  nativeScroll?: React.MutableRefObject<{ scroll: number; velocity: number }>
+  isMobile?: boolean
 }
 
 function Carousel({
@@ -136,6 +138,8 @@ function Carousel({
   direction = 'vertical',
   scrollMultiplier = 0.01,
   lenis,
+  nativeScroll,
+  isMobile = false,
 }: CarouselProps) {
   const imageRefs = useRef<THREE.Mesh[]>([])
   const velocityRef = useRef(0)
@@ -148,8 +152,13 @@ function Carousel({
     return IMAGE_LIST.length * gap + IMAGE_LIST.length * (direction === 'vertical' ? imageSize[1] : imageSize[0])
   }, [gap, imageSize, direction])
 
-  // Subscribe to Lenis scroll events
+  // Subscribe to scroll events - Lenis or native
   useEffect(() => {
+    if (isMobile && nativeScroll) {
+      // Mobile: poll native scroll in animation frame
+      return
+    }
+    
     if (!lenis) return
 
     const handleScroll = ({ velocity }: { velocity: number }) => {
@@ -160,11 +169,14 @@ function Carousel({
     return () => {
       lenis.off('scroll', handleScroll)
     }
-  }, [lenis])
+  }, [lenis, isMobile, nativeScroll])
 
   // Animation loop - handle infinite scroll and velocity effects
   useFrame(() => {
-    const velocity = velocityRef.current
+    // Get velocity from either Lenis or native scroll
+    const velocity = isMobile && nativeScroll 
+      ? nativeScroll.current.velocity 
+      : velocityRef.current
 
     imageRefs.current.forEach((ref) => {
       if (!ref) return
@@ -227,9 +239,11 @@ function Carousel({
 interface SceneProps {
   variant: 'single' | 'dual' | 'triple' | 'horizontal'
   lenis: Lenis | null
+  nativeScroll?: React.MutableRefObject<{ scroll: number; velocity: number }>
+  isMobileDevice?: boolean
 }
 
-function Scene({ variant, lenis }: SceneProps) {
+function Scene({ variant, lenis, nativeScroll, isMobileDevice }: SceneProps) {
   const { viewport } = useThree()
 
   // Responsive sizing - detect mobile
@@ -248,7 +262,7 @@ function Scene({ variant, lenis }: SceneProps) {
         gap={imageHeight * 0.15}
         curveStrength={isMobile ? 0.3 : 0.6}
         curveFrequency={0.4}
-        lenis={lenis}
+        lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
       />
     )
   }
@@ -265,7 +279,7 @@ function Scene({ variant, lenis }: SceneProps) {
           curveStrength={isMobile ? 0.3 : 0.5}
           curveFrequency={0.35}
           scrollMultiplier={0.012}
-          lenis={lenis}
+          lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
         />
         <Carousel
           position={[offset, imageHeight * 0.5, 0]}
@@ -274,7 +288,7 @@ function Scene({ variant, lenis }: SceneProps) {
           curveStrength={isMobile ? -0.3 : -0.5}
           curveFrequency={0.35}
           scrollMultiplier={-0.01}
-          lenis={lenis}
+          lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
         />
       </>
     )
@@ -293,7 +307,7 @@ function Scene({ variant, lenis }: SceneProps) {
             curveStrength={0.25}
             curveFrequency={0.3}
             scrollMultiplier={0.01}
-            lenis={lenis}
+            lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
           />
           <Carousel
             position={[offset, imageHeight * 0.4, 0]}
@@ -302,7 +316,7 @@ function Scene({ variant, lenis }: SceneProps) {
             curveStrength={-0.25}
             curveFrequency={0.3}
             scrollMultiplier={-0.008}
-            lenis={lenis}
+            lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
           />
         </>
       )
@@ -318,7 +332,7 @@ function Scene({ variant, lenis }: SceneProps) {
           curveStrength={0.4}
           curveFrequency={0.3}
           scrollMultiplier={0.008}
-          lenis={lenis}
+          lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
         />
         <Carousel
           position={[0, imageHeight * 0.3, 0]}
@@ -327,7 +341,7 @@ function Scene({ variant, lenis }: SceneProps) {
           curveStrength={0}
           curveFrequency={0}
           scrollMultiplier={0.015}
-          lenis={lenis}
+          lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
         />
         <Carousel
           position={[offset, -imageHeight * 0.2, -0.5]}
@@ -336,7 +350,7 @@ function Scene({ variant, lenis }: SceneProps) {
           curveStrength={-0.4}
           curveFrequency={0.3}
           scrollMultiplier={-0.01}
-          lenis={lenis}
+          lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
         />
       </>
     )
@@ -350,7 +364,7 @@ function Scene({ variant, lenis }: SceneProps) {
       curveStrength={0.5}
       curveFrequency={0.3}
       direction="horizontal"
-      lenis={lenis}
+      lenis={lenis} nativeScroll={nativeScroll} isMobile={isMobileDevice}
     />
   )
 }
@@ -365,49 +379,81 @@ const isMobileBrowser = () => {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
 }
 
+// Native scroll tracker for mobile
+interface NativeScrollState {
+  scroll: number
+  velocity: number
+}
+
 export function WavyCarousel() {
   const [variant, setVariant] = useState<'single' | 'dual' | 'triple' | 'horizontal'>('dual')
   const lenisRef = useRef<Lenis | null>(null)
   const [lenisReady, setLenisReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isMobile] = useState(isMobileBrowser)
+  const nativeScrollRef = useRef<NativeScrollState>({ scroll: 0, velocity: 0 })
+  const lastScrollRef = useRef(0)
+  const lastTimeRef = useRef(Date.now())
 
-  // Initialize Lenis smooth scroll
+  // Initialize scroll - Lenis for desktop, native for mobile
   useEffect(() => {
-    try {
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        orientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
-        gestureOrientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
-        smoothWheel: true,
-        infinite: true,
-        touchMultiplier: 2, // Better mobile touch response
-      })
+    if (isMobile) {
+      // Mobile: use native scroll
+      setLenisReady(true) // Mark as ready immediately
+      
+      const handleScroll = () => {
+        const now = Date.now()
+        const dt = Math.max(now - lastTimeRef.current, 1)
+        const currentScroll = window.scrollY
+        const velocity = (currentScroll - lastScrollRef.current) / dt * 16 // Normalize to ~60fps
+        
+        nativeScrollRef.current = {
+          scroll: currentScroll,
+          velocity: velocity * 0.5 // Dampen velocity
+        }
+        
+        lastScrollRef.current = currentScroll
+        lastTimeRef.current = now
+      }
+      
+      window.addEventListener('scroll', handleScroll, { passive: true })
+      return () => window.removeEventListener('scroll', handleScroll)
+    } else {
+      // Desktop: use Lenis
+      try {
+        const lenis = new Lenis({
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          orientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
+          gestureOrientation: variant === 'horizontal' ? 'horizontal' : 'vertical',
+          smoothWheel: true,
+          infinite: true,
+        })
 
-      lenisRef.current = lenis
-      setLenisReady(true)
+        lenisRef.current = lenis
+        setLenisReady(true)
 
-      let rafId: number
+        let rafId: number
 
-      function raf(time: number) {
-        lenis.raf(time)
+        function raf(time: number) {
+          lenis.raf(time)
+          rafId = requestAnimationFrame(raf)
+        }
+
         rafId = requestAnimationFrame(raf)
-      }
 
-      rafId = requestAnimationFrame(raf)
-
-      return () => {
-        cancelAnimationFrame(rafId)
-        lenis.destroy()
-        lenisRef.current = null
-        setLenisReady(false)
+        return () => {
+          cancelAnimationFrame(rafId)
+          lenis.destroy()
+          lenisRef.current = null
+          setLenisReady(false)
+        }
+      } catch (err) {
+        console.error('Lenis initialization failed:', err)
+        setError('Scroll initialization failed')
       }
-    } catch (err) {
-      console.error('Lenis initialization failed:', err)
-      setError('Scroll initialization failed')
     }
-  }, [variant])
+  }, [variant, isMobile])
 
   // Error fallback
   if (error) {
@@ -415,42 +461,6 @@ export function WavyCarousel() {
       <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
         <p style={{ color: '#ff6b6b', fontSize: '1.2rem' }}>⚠️ {error}</p>
         <Link to="/" style={{ color: '#fff', textDecoration: 'underline' }}>← Back to Home</Link>
-      </div>
-    )
-  }
-
-  // Mobile fallback - this interaction requires desktop for smooth scroll
-  if (isMobile) {
-    return (
-      <div style={{ 
-        ...styles.container, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        flexDirection: 'column', 
-        gap: '1.5rem',
-        padding: '2rem',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '4rem' }}>🖥️</div>
-        <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 600 }}>Desktop Recommended</h2>
-        <p style={{ color: '#888', maxWidth: '300px', lineHeight: 1.6 }}>
-          This scroll-driven 3D carousel works best on desktop browsers. 
-          The smooth scroll library has compatibility issues on mobile Safari.
-        </p>
-        <Link 
-          to="/" 
-          style={{ 
-            color: '#fff', 
-            background: '#333',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '8px',
-            textDecoration: 'none',
-            marginTop: '1rem'
-          }}
-        >
-          ← Back to Interactions
-        </Link>
       </div>
     )
   }
@@ -497,7 +507,7 @@ export function WavyCarousel() {
         gl={{ antialias: true, alpha: true }}
       >
         <color attach="background" args={['#0a0a0a']} />
-        {lenisReady && <Scene variant={variant} lenis={lenisRef.current} />}
+        {lenisReady && <Scene variant={variant} lenis={lenisRef.current} nativeScroll={nativeScrollRef} isMobileDevice={isMobile} />}
       </Canvas>
 
       {/* Branding */}
