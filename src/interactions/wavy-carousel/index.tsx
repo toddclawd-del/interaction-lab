@@ -379,6 +379,19 @@ const isMobileBrowser = () => {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
 }
 
+// Check WebGL support
+const isWebGLAvailable = () => {
+  try {
+    const canvas = document.createElement('canvas')
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    )
+  } catch (e) {
+    return false
+  }
+}
+
 // Native scroll tracker for mobile
 interface NativeScrollState {
   scroll: number
@@ -391,9 +404,34 @@ export function WavyCarousel() {
   const [lenisReady, setLenisReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isMobile] = useState(isMobileBrowser)
+  const [webglSupported] = useState(isWebGLAvailable)
   const nativeScrollRef = useRef<NativeScrollState>({ scroll: 0, velocity: 0 })
   const lastScrollRef = useRef(0)
   const lastTimeRef = useRef(Date.now())
+
+  // Check WebGL support
+  if (!webglSupported) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#0a0a0a', 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '2rem',
+        color: '#fff',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+        <h2 style={{ marginBottom: '0.5rem' }}>WebGL Not Supported</h2>
+        <p style={{ color: '#888', marginBottom: '1.5rem' }}>
+          This interaction requires WebGL which isn't available on your device/browser.
+        </p>
+        <Link to="/" style={{ color: '#fff', textDecoration: 'underline' }}>← Back to Home</Link>
+      </div>
+    )
+  }
 
   // Initialize scroll - Lenis for desktop, native for mobile
   useEffect(() => {
@@ -504,7 +542,20 @@ export function WavyCarousel() {
       <Canvas
         camera={{ position: [0, 0, 5], fov: 50 }}
         style={styles.canvas}
-        gl={{ antialias: true, alpha: true }}
+        gl={{ 
+          antialias: !isMobile, // Disable antialiasing on mobile for performance
+          alpha: true,
+          powerPreference: 'high-performance',
+          failIfMajorPerformanceCaveat: false
+        }}
+        dpr={isMobile ? 1 : [1, 2]} // Lower DPR on mobile
+        onCreated={({ gl }) => {
+          console.log('WebGL context created:', gl.getContext().getParameter(gl.getContext().VERSION))
+        }}
+        onError={(e) => {
+          console.error('Canvas error:', e)
+          setError('WebGL initialization failed')
+        }}
       >
         <color attach="background" args={['#0a0a0a']} />
         {lenisReady && <Scene variant={variant} lenis={lenisRef.current} nativeScroll={nativeScrollRef} isMobileDevice={isMobile} />}
