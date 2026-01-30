@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+// ════════════════════════════════════════════════════════════════
+// INTERACTION LAB - Landing Page
+// ════════════════════════════════════════════════════════════════
+
 interface Experiment {
   slug: string
   title: string
@@ -10,6 +14,7 @@ interface Experiment {
   accent: string
   icon: string
   tags: string[]
+  github?: string
 }
 
 const experiments: Experiment[] = [
@@ -21,7 +26,8 @@ const experiments: Experiment[] = [
     size: 'hero',
     accent: '#22c55e',
     icon: '⌨️',
-    tags: ['GSAP', 'Typography', 'Hover']
+    tags: ['GSAP', 'Typography', 'Hover'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/terminal-text-hover'
   },
   {
     slug: 'wavy-carousel',
@@ -31,7 +37,8 @@ const experiments: Experiment[] = [
     size: 'large',
     accent: '#6366f1',
     icon: '🌊',
-    tags: ['Three.js', 'GLSL', 'Scroll']
+    tags: ['Three.js', 'GLSL', 'Scroll'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/wavy-carousel'
   },
   {
     slug: 'grid-flip',
@@ -41,7 +48,8 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#f59e0b',
     icon: '🔲',
-    tags: ['GSAP', 'Animation']
+    tags: ['GSAP', 'Animation'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/grid-flip'
   },
   {
     slug: 'cylinder-text',
@@ -51,7 +59,8 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#10b981',
     icon: '🔄',
-    tags: ['CSS', '3D']
+    tags: ['CSS', '3D'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/cylinder-text'
   },
   {
     slug: 'dual-wave-text',
@@ -61,7 +70,8 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#ec4899',
     icon: '〰️',
-    tags: ['Animation', 'Scroll']
+    tags: ['Animation', 'Scroll'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/dual-wave-text'
   },
   {
     slug: 'infinite-canvas',
@@ -71,11 +81,21 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#8b5cf6',
     icon: '∞',
-    tags: ['Canvas', 'Gestures']
+    tags: ['Canvas', 'Gestures'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/infinite-canvas'
   }
 ]
 
-// Animated background particles
+const stats = [
+  { value: '6', label: 'Experiments' },
+  { value: '100%', label: 'Open Source' },
+  { value: '0', label: 'Dependencies*' },
+]
+
+// ════════════════════════════════════════════════════════════════
+// COMPONENTS
+// ════════════════════════════════════════════════════════════════
+
 function Particles() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
@@ -97,15 +117,14 @@ function Particles() {
     resize()
     window.addEventListener('resize', resize)
     
-    // Create particles
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 40; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.3 + 0.1
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.2 + 0.05
       })
     }
     
@@ -141,11 +160,163 @@ function Particles() {
   return <canvas ref={canvasRef} style={styles.particles} />
 }
 
-// Interactive card component with hover effects
+// ─────────────────────────────────────────────────────────────────
+// HEADER / NAV
+// ─────────────────────────────────────────────────────────────────
+function Header() {
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+  
+  return (
+    <header style={{
+      ...styles.nav,
+      background: scrolled ? 'rgba(5,5,5,0.95)' : 'transparent',
+      borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+      backdropFilter: scrolled ? 'blur(20px)' : 'none',
+    }}>
+      <div style={styles.navInner}>
+        {/* Logo */}
+        <a href="#" style={styles.logo}>
+          <span style={styles.logoIcon}>⚡</span>
+          <span style={styles.logoText}>Interaction Lab</span>
+        </a>
+        
+        {/* Desktop Nav */}
+        <nav style={styles.navLinks}>
+          <a href="#experiments" style={styles.navLink}>Experiments</a>
+          <a href="#about" style={styles.navLink}>About</a>
+          <a 
+            href="https://github.com/toddclawd-del/interaction-lab" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={styles.navLink}
+          >
+            GitHub
+          </a>
+        </nav>
+        
+        {/* Mobile Menu Button */}
+        <button 
+          style={styles.menuButton}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span style={{
+            ...styles.menuLine,
+            transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none',
+          }} />
+          <span style={{
+            ...styles.menuLine,
+            opacity: menuOpen ? 0 : 1,
+          }} />
+          <span style={{
+            ...styles.menuLine,
+            transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none',
+          }} />
+        </button>
+      </div>
+      
+      {/* Mobile Menu */}
+      <div style={{
+        ...styles.mobileMenu,
+        maxHeight: menuOpen ? '300px' : '0',
+        opacity: menuOpen ? 1 : 0,
+        padding: menuOpen ? '1rem 1.5rem' : '0 1.5rem',
+      }}>
+        <a href="#experiments" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Experiments</a>
+        <a href="#about" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>About</a>
+        <a 
+          href="https://github.com/toddclawd-del/interaction-lab" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={styles.mobileLink}
+        >
+          GitHub →
+        </a>
+      </div>
+    </header>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// HERO SECTION
+// ─────────────────────────────────────────────────────────────────
+function Hero() {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  return (
+    <section style={styles.hero}>
+      <div style={{
+        ...styles.heroContent,
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? 'translateY(0)' : 'translateY(30px)',
+      }}>
+        <div style={styles.badge}>
+          <span style={styles.badgeDot} />
+          Open Source UI Experiments
+        </div>
+        
+        <h1 style={styles.heroTitle}>
+          Creative Web
+          <br />
+          <span style={styles.heroHighlight}>Interactions</span>
+        </h1>
+        
+        <p style={styles.heroSubtitle}>
+          A collection of experimental UI interactions built with React, Three.js, and GSAP. 
+          Each experiment explores new techniques for modern web experiences.
+        </p>
+        
+        <div style={styles.heroCtas}>
+          <a href="#experiments" style={styles.primaryCta}>
+            Explore Experiments
+          </a>
+          <a 
+            href="https://github.com/toddclawd-del/interaction-lab" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={styles.secondaryCta}
+          >
+            View on GitHub →
+          </a>
+        </div>
+        
+        {/* Stats */}
+        <div style={styles.statsRow}>
+          {stats.map((stat, i) => (
+            <div key={i} style={styles.stat}>
+              <span style={styles.statValue}>{stat.value}</span>
+              <span style={styles.statLabel}>{stat.label}</span>
+            </div>
+          ))}
+        </div>
+        <p style={styles.statsNote}>*just kidding, there are dependencies</p>
+      </div>
+      
+      {/* Gradient orbs */}
+      <div style={{ ...styles.orb, ...styles.orb1 }} />
+      <div style={{ ...styles.orb, ...styles.orb2 }} />
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EXPERIMENT CARD
+// ─────────────────────────────────────────────────────────────────
 function BentoCard({ experiment, index }: { experiment: Experiment; index: number }) {
   const [isHovered, setIsHovered] = useState(false)
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
-  const cardRef = useRef<HTMLAnchorElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
   
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!cardRef.current) return
@@ -156,22 +327,17 @@ function BentoCard({ experiment, index }: { experiment: Experiment; index: numbe
     })
   }, [])
   
-  const getSizeStyles = (): React.CSSProperties => {
-    const base: React.CSSProperties = {
-      gridRow: experiment.size === 'hero' ? 'span 2' : experiment.size === 'large' ? 'span 2' : 'span 1',
-      gridColumn: experiment.size === 'hero' ? 'span 2' : 'span 1',
-    }
-    return base
-  }
+  const getSizeStyles = (): React.CSSProperties => ({
+    gridRow: experiment.size === 'hero' ? 'span 2' : experiment.size === 'large' ? 'span 2' : 'span 1',
+    gridColumn: experiment.size === 'hero' ? 'span 2' : 'span 1',
+  })
   
-  // Subtle 3D tilt on hover
   const tiltStyle: React.CSSProperties = isHovered ? {
-    transform: `perspective(1000px) rotateX(${(mousePos.y - 0.5) * -8}deg) rotateY(${(mousePos.x - 0.5) * 8}deg) scale(1.02)`,
+    transform: `perspective(1000px) rotateX(${(mousePos.y - 0.5) * -6}deg) rotateY(${(mousePos.x - 0.5) * 6}deg) scale(1.02)`,
   } : {
     transform: 'perspective(1000px) rotateX(0) rotateY(0) scale(1)',
   }
   
-  // Dynamic gradient based on mouse position
   const gradientStyle: React.CSSProperties = {
     background: isHovered 
       ? `radial-gradient(circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, ${experiment.accent}22 0%, transparent 50%)`
@@ -179,9 +345,8 @@ function BentoCard({ experiment, index }: { experiment: Experiment; index: numbe
   }
   
   return (
-    <Link
+    <div
       ref={cardRef}
-      to={`/${experiment.slug}`}
       style={{
         ...styles.card,
         ...getSizeStyles(),
@@ -193,23 +358,21 @@ function BentoCard({ experiment, index }: { experiment: Experiment; index: numbe
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
     >
-      {/* Hover gradient overlay */}
       <div style={{ ...styles.gradientOverlay, ...gradientStyle }} />
       
-      {/* Animated icon */}
+      {/* Icon */}
       <div style={{
         ...styles.iconContainer,
         transform: isHovered ? 'scale(1.15) rotate(5deg)' : 'scale(1) rotate(0deg)',
         filter: isHovered ? `drop-shadow(0 0 20px ${experiment.accent})` : 'none',
       }}>
-        <span style={{ fontSize: experiment.size === 'hero' ? '4rem' : experiment.size === 'large' ? '3rem' : '2.5rem' }}>
+        <span style={{ fontSize: experiment.size === 'hero' ? '3.5rem' : experiment.size === 'large' ? '2.5rem' : '2rem' }}>
           {experiment.icon}
         </span>
       </div>
       
       {/* Content */}
       <div style={styles.cardContent}>
-        {/* Tags */}
         <div style={styles.tags}>
           {experiment.tags.map(tag => (
             <span key={tag} style={{
@@ -222,16 +385,14 @@ function BentoCard({ experiment, index }: { experiment: Experiment; index: numbe
           ))}
         </div>
         
-        {/* Title */}
         <h2 style={{
           ...styles.cardTitle,
-          fontSize: experiment.size === 'hero' ? '2rem' : experiment.size === 'large' ? '1.5rem' : '1.25rem',
+          fontSize: experiment.size === 'hero' ? '1.75rem' : experiment.size === 'large' ? '1.4rem' : '1.15rem',
           color: isHovered ? '#fff' : 'rgba(255,255,255,0.95)',
         }}>
           {experiment.title}
         </h2>
         
-        {/* Description - only show on larger cards */}
         {(experiment.size === 'hero' || experiment.size === 'large') && (
           <p style={{
             ...styles.cardDesc,
@@ -241,101 +402,217 @@ function BentoCard({ experiment, index }: { experiment: Experiment; index: numbe
           </p>
         )}
         
-        {/* Date */}
-        <span style={styles.date}>{experiment.date}</span>
+        {/* Actions */}
+        <div style={styles.cardActions}>
+          <Link 
+            to={`/${experiment.slug}`} 
+            style={{
+              ...styles.cardButton,
+              background: isHovered ? experiment.accent : 'rgba(255,255,255,0.1)',
+              color: isHovered ? '#000' : '#fff',
+            }}
+          >
+            View Demo
+          </Link>
+          {experiment.github && (
+            <a 
+              href={experiment.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.cardGithub}
+              onClick={(e) => e.stopPropagation()}
+            >
+              Code →
+            </a>
+          )}
+        </div>
       </div>
       
-      {/* Animated arrow */}
-      <div style={{
-        ...styles.arrow,
-        transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
-        opacity: isHovered ? 1 : 0.4,
-        color: isHovered ? experiment.accent : 'rgba(255,255,255,0.4)',
-      }}>
-        →
-      </div>
-      
-      {/* Corner accent */}
       <div style={{
         ...styles.cornerAccent,
         background: experiment.accent,
-        opacity: isHovered ? 0.6 : 0.2,
+        opacity: isHovered ? 0.5 : 0.15,
         transform: isHovered ? 'scale(1.5)' : 'scale(1)',
       }} />
-    </Link>
-  )
-}
-
-export function Home() {
-  const [mounted, setMounted] = useState(false)
-  
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  
-  return (
-    <div style={styles.container}>
-      <Particles />
-      
-      {/* Gradient orbs for visual interest */}
-      <div style={styles.orbContainer}>
-        <div style={{ ...styles.orb, ...styles.orb1 }} />
-        <div style={{ ...styles.orb, ...styles.orb2 }} />
-        <div style={{ ...styles.orb, ...styles.orb3 }} />
-      </div>
-      
-      <header style={{
-        ...styles.header,
-        opacity: mounted ? 1 : 0,
-        transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-      }}>
-        <div style={styles.badge}>
-          <span style={styles.badgeDot} />
-          Interaction Lab
-        </div>
-        <h1 style={styles.title}>UI Experiments</h1>
-        <p style={styles.subtitle}>
-          Exploring the boundaries of web interactions. Each experiment pushes creative boundaries with modern techniques.
-        </p>
-      </header>
-      
-      <div 
-        className="bento-grid"
-        style={{
-          ...styles.grid,
-          opacity: mounted ? 1 : 0,
-        }}
-      >
-        {experiments.map((exp, i) => (
-          <BentoCard key={exp.slug} experiment={exp} index={i} />
-        ))}
-      </div>
-      
-      {/* Footer */}
-      <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <span style={styles.footerText}>Built with React, Three.js, and ✨</span>
-          <div style={styles.footerLinks}>
-            <a href="https://github.com/toddclawd-del/interaction-lab" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
-              GitHub
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
 
+// ─────────────────────────────────────────────────────────────────
+// EXPERIMENTS SECTION
+// ─────────────────────────────────────────────────────────────────
+function Experiments() {
+  return (
+    <section id="experiments" style={styles.experimentsSection}>
+      <div style={styles.sectionHeader}>
+        <h2 style={styles.sectionTitle}>Experiments</h2>
+        <p style={styles.sectionSubtitle}>
+          Click any card to see the live demo, or view the source code on GitHub.
+        </p>
+      </div>
+      
+      <div className="bento-grid" style={styles.grid}>
+        {experiments.map((exp, i) => (
+          <BentoCard key={exp.slug} experiment={exp} index={i} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ABOUT SECTION
+// ─────────────────────────────────────────────────────────────────
+function About() {
+  return (
+    <section id="about" style={styles.aboutSection}>
+      <div style={styles.aboutContent}>
+        <h2 style={styles.aboutTitle}>About This Lab</h2>
+        
+        <div style={styles.aboutGrid}>
+          <div style={styles.aboutCard}>
+            <span style={styles.aboutIcon}>🔬</span>
+            <h3 style={styles.aboutCardTitle}>Experimental</h3>
+            <p style={styles.aboutCardText}>
+              Each interaction pushes boundaries. Some are practical, 
+              some are just for fun. All are learning opportunities.
+            </p>
+          </div>
+          
+          <div style={styles.aboutCard}>
+            <span style={styles.aboutIcon}>📖</span>
+            <h3 style={styles.aboutCardTitle}>Open Source</h3>
+            <p style={styles.aboutCardText}>
+              Every experiment is fully open source. Explore the code, 
+              fork it, learn from it, or contribute your own ideas.
+            </p>
+          </div>
+          
+          <div style={styles.aboutCard}>
+            <span style={styles.aboutIcon}>⚡</span>
+            <h3 style={styles.aboutCardTitle}>Modern Stack</h3>
+            <p style={styles.aboutCardText}>
+              Built with React, Three.js, GSAP, and vanilla shaders. 
+              No heavy frameworks — just the tools needed.
+            </p>
+          </div>
+        </div>
+        
+        <div style={styles.techStack}>
+          <span style={styles.techLabel}>Built with:</span>
+          <div style={styles.techLogos}>
+            {['React', 'Three.js', 'GSAP', 'TypeScript', 'Vite'].map(tech => (
+              <span key={tech} style={styles.techBadge}>{tech}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FOOTER
+// ─────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer style={styles.footer}>
+      <div style={styles.footerInner}>
+        <div style={styles.footerBrand}>
+          <span style={styles.footerLogo}>⚡ Interaction Lab</span>
+          <p style={styles.footerTagline}>
+            Exploring the boundaries of web interactions.
+          </p>
+        </div>
+        
+        <div style={styles.footerLinks}>
+          <div style={styles.footerCol}>
+            <h4 style={styles.footerColTitle}>Links</h4>
+            <a href="#experiments" style={styles.footerLink}>Experiments</a>
+            <a href="#about" style={styles.footerLink}>About</a>
+          </div>
+          
+          <div style={styles.footerCol}>
+            <h4 style={styles.footerColTitle}>Source</h4>
+            <a 
+              href="https://github.com/toddclawd-del/interaction-lab" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.footerLink}
+            >
+              GitHub Repo
+            </a>
+            <a 
+              href="https://github.com/toddclawd-del/interaction-lab/issues" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.footerLink}
+            >
+              Report Issue
+            </a>
+          </div>
+          
+          <div style={styles.footerCol}>
+            <h4 style={styles.footerColTitle}>More Labs</h4>
+            <a 
+              href="https://toddclawd-del.github.io/shader-playground" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.footerLink}
+            >
+              Shader Playground
+            </a>
+            <a 
+              href="https://toddclawd-del.github.io/landing-lab" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.footerLink}
+            >
+              Landing Lab
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div style={styles.footerBottom}>
+        <span style={styles.footerCopy}>
+          © 2025 Interaction Lab. Open source under MIT.
+        </span>
+        <span style={styles.footerBuilt}>
+          Built with React & ☕
+        </span>
+      </div>
+    </footer>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════
+// MAIN EXPORT
+// ════════════════════════════════════════════════════════════════
+export function Home() {
+  return (
+    <div style={styles.container}>
+      <Particles />
+      <Header />
+      <Hero />
+      <Experiments />
+      <About />
+      <Footer />
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════
+// STYLES
+// ════════════════════════════════════════════════════════════════
 const styles: Record<string, React.CSSProperties> = {
   container: {
     minHeight: '100vh',
     background: '#050505',
     color: '#fff',
-    fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif',
-    padding: '3rem 1rem 6rem',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
     overflowX: 'hidden',
     position: 'relative',
-    boxSizing: 'border-box',
   },
   particles: {
     position: 'fixed',
@@ -346,49 +623,95 @@ const styles: Record<string, React.CSSProperties> = {
     pointerEvents: 'none',
     zIndex: 0,
   },
-  orbContainer: {
+  
+  // NAV
+  nav: {
     position: 'fixed',
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
-    pointerEvents: 'none',
-    zIndex: 0,
+    right: 0,
+    zIndex: 100,
+    transition: 'all 0.3s ease',
+  },
+  navInner: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '1rem 1.5rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    textDecoration: 'none',
+    color: '#fff',
+  },
+  logoIcon: {
+    fontSize: '1.5rem',
+  },
+  logoText: {
+    fontSize: '1.1rem',
+    fontWeight: 600,
+    letterSpacing: '-0.02em',
+  },
+  navLinks: {
+    display: 'flex',
+    gap: '2rem',
+    alignItems: 'center',
+  },
+  navLink: {
+    color: 'rgba(255,255,255,0.7)',
+    textDecoration: 'none',
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    transition: 'color 0.2s',
+  },
+  menuButton: {
+    display: 'none',
+    flexDirection: 'column',
+    gap: '5px',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '5px',
+  },
+  menuLine: {
+    width: '24px',
+    height: '2px',
+    background: '#fff',
+    transition: 'all 0.3s ease',
+  },
+  mobileMenu: {
+    overflow: 'hidden',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    background: 'rgba(5,5,5,0.98)',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
+  },
+  mobileLink: {
+    color: 'rgba(255,255,255,0.8)',
+    textDecoration: 'none',
+    fontSize: '1rem',
+    fontWeight: 500,
+    padding: '0.5rem 0',
+  },
+  
+  // HERO
+  hero: {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '6rem 1.5rem 4rem',
+    position: 'relative',
     overflow: 'hidden',
   },
-  orb: {
-    position: 'absolute',
-    borderRadius: '50%',
-    filter: 'blur(100px)',
-    opacity: 0.4,
-  },
-  orb1: {
-    width: '600px',
-    height: '600px',
-    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-    top: '-200px',
-    right: '-100px',
-    animation: 'float 20s ease-in-out infinite',
-  },
-  orb2: {
-    width: '400px',
-    height: '400px',
-    background: 'linear-gradient(135deg, #ec4899 0%, #f59e0b 100%)',
-    bottom: '10%',
-    left: '-100px',
-    animation: 'float 25s ease-in-out infinite reverse',
-  },
-  orb3: {
-    width: '300px',
-    height: '300px',
-    background: 'linear-gradient(135deg, #10b981 0%, #6366f1 100%)',
-    top: '50%',
-    right: '10%',
-    animation: 'float 18s ease-in-out infinite',
-  },
-  header: {
-    maxWidth: '900px',
-    margin: '0 auto 4rem',
+  heroContent: {
+    maxWidth: '800px',
     textAlign: 'center',
     position: 'relative',
     zIndex: 1,
@@ -398,15 +721,14 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '6px 14px',
+    padding: '8px 16px',
     background: 'rgba(255,255,255,0.06)',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '100px',
     fontSize: '0.85rem',
     fontWeight: 500,
-    letterSpacing: '0.02em',
     color: 'rgba(255,255,255,0.7)',
-    marginBottom: '1.5rem',
+    marginBottom: '2rem',
   },
   badgeDot: {
     width: '6px',
@@ -415,22 +737,124 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#10b981',
     boxShadow: '0 0 10px #10b981',
   },
-  title: {
-    fontSize: 'clamp(3rem, 8vw, 5rem)',
+  heroTitle: {
+    fontSize: 'clamp(2.5rem, 8vw, 5rem)',
     fontWeight: 700,
     letterSpacing: '-0.04em',
-    marginBottom: '1.25rem',
-    background: 'linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%)',
+    lineHeight: 1.1,
+    marginBottom: '1.5rem',
+  },
+  heroHighlight: {
+    background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
-    lineHeight: 1.1,
   },
-  subtitle: {
-    fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-    color: 'rgba(255,255,255,0.5)',
+  heroSubtitle: {
+    fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 1.7,
+    marginBottom: '2.5rem',
     maxWidth: '600px',
-    margin: '0 auto',
+    margin: '0 auto 2.5rem',
+  },
+  heroCtas: {
+    display: 'flex',
+    gap: '1rem',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginBottom: '3rem',
+  },
+  primaryCta: {
+    padding: '0.9rem 2rem',
+    background: '#fff',
+    color: '#000',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+  },
+  secondaryCta: {
+    padding: '0.9rem 2rem',
+    background: 'transparent',
+    color: '#fff',
+    border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    fontWeight: 500,
+    fontSize: '0.95rem',
+    transition: 'border-color 0.2s',
+  },
+  statsRow: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '3rem',
+    flexWrap: 'wrap',
+  },
+  stat: {
+    textAlign: 'center',
+  },
+  statValue: {
+    display: 'block',
+    fontSize: '2rem',
+    fontWeight: 700,
+    color: '#fff',
+  },
+  statLabel: {
+    fontSize: '0.85rem',
+    color: 'rgba(255,255,255,0.5)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  statsNote: {
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.3)',
+    marginTop: '1rem',
+    fontStyle: 'italic',
+  },
+  orb: {
+    position: 'absolute',
+    borderRadius: '50%',
+    filter: 'blur(120px)',
+    opacity: 0.4,
+    pointerEvents: 'none',
+  },
+  orb1: {
+    width: '500px',
+    height: '500px',
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    top: '-150px',
+    right: '-100px',
+  },
+  orb2: {
+    width: '400px',
+    height: '400px',
+    background: 'linear-gradient(135deg, #ec4899 0%, #f59e0b 100%)',
+    bottom: '-100px',
+    left: '-100px',
+  },
+  
+  // EXPERIMENTS
+  experimentsSection: {
+    padding: '6rem 1.5rem',
+    position: 'relative',
+    zIndex: 1,
+  },
+  sectionHeader: {
+    maxWidth: '600px',
+    margin: '0 auto 3rem',
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+    fontWeight: 700,
+    letterSpacing: '-0.03em',
+    marginBottom: '0.75rem',
+  },
+  sectionSubtitle: {
+    fontSize: '1rem',
+    color: 'rgba(255,255,255,0.5)',
     lineHeight: 1.6,
   },
   grid: {
@@ -440,26 +864,20 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '1.25rem',
-    position: 'relative',
-    zIndex: 1,
-    transition: 'opacity 0.6s ease 0.3s',
-    boxSizing: 'border-box',
   },
   card: {
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '1.75rem',
+    padding: '1.5rem',
     background: 'rgba(255,255,255,0.03)',
     backdropFilter: 'blur(10px)',
     border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '20px',
-    textDecoration: 'none',
-    color: '#fff',
+    borderRadius: '16px',
     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
     overflow: 'hidden',
-    minHeight: '220px',
+    minHeight: '200px',
     animation: 'fadeInUp 0.6s ease forwards',
     opacity: 0,
     transformStyle: 'preserve-3d',
@@ -470,14 +888,14 @@ const styles: Record<string, React.CSSProperties> = {
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: '20px',
+    borderRadius: '16px',
     transition: 'background 0.3s ease',
     pointerEvents: 'none',
   },
   iconContainer: {
     position: 'absolute',
-    top: '1.5rem',
-    right: '1.5rem',
+    top: '1.25rem',
+    right: '1.25rem',
     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   cardContent: {
@@ -495,12 +913,12 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '0.5rem',
   },
   tag: {
-    padding: '4px 10px',
-    fontSize: '0.7rem',
+    padding: '3px 8px',
+    fontSize: '0.65rem',
     fontWeight: 500,
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
-    borderRadius: '6px',
+    borderRadius: '4px',
     border: '1px solid',
     transition: 'all 0.3s ease',
   },
@@ -511,25 +929,32 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
   },
   cardDesc: {
-    fontSize: '0.95rem',
+    fontSize: '0.9rem',
     lineHeight: 1.5,
     transition: 'opacity 0.3s ease',
     margin: '0.25rem 0',
     color: 'rgba(255,255,255,0.6)',
   },
-  date: {
-    fontSize: '0.75rem',
-    color: 'rgba(255,255,255,0.35)',
-    fontFamily: 'monospace',
-    marginTop: '0.5rem',
+  cardActions: {
+    display: 'flex',
+    gap: '0.75rem',
+    alignItems: 'center',
+    marginTop: '0.75rem',
   },
-  arrow: {
-    position: 'absolute',
-    bottom: '1.75rem',
-    right: '1.75rem',
-    fontSize: '1.5rem',
+  cardButton: {
+    padding: '0.5rem 1rem',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    fontSize: '0.8rem',
+    fontWeight: 600,
     transition: 'all 0.3s ease',
-    fontWeight: 300,
+  },
+  cardGithub: {
+    color: 'rgba(255,255,255,0.5)',
+    textDecoration: 'none',
+    fontSize: '0.8rem',
+    fontWeight: 500,
+    transition: 'color 0.2s',
   },
   cornerAccent: {
     position: 'absolute',
@@ -542,41 +967,157 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'all 0.4s ease',
     pointerEvents: 'none',
   },
-  footer: {
-    maxWidth: '1000px',
-    margin: '5rem auto 0',
-    padding: '2rem 0',
-    borderTop: '1px solid rgba(255,255,255,0.08)',
-    position: 'relative',
-    zIndex: 1,
+  
+  // ABOUT
+  aboutSection: {
+    padding: '6rem 1.5rem',
+    background: 'rgba(255,255,255,0.02)',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
   },
-  footerContent: {
+  aboutContent: {
+    maxWidth: '1000px',
+    margin: '0 auto',
+    textAlign: 'center',
+  },
+  aboutTitle: {
+    fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+    fontWeight: 700,
+    letterSpacing: '-0.03em',
+    marginBottom: '3rem',
+  },
+  aboutGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '1.5rem',
+    marginBottom: '3rem',
+  },
+  aboutCard: {
+    padding: '2rem',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '12px',
+    textAlign: 'left',
+  },
+  aboutIcon: {
+    fontSize: '2rem',
+    marginBottom: '1rem',
+    display: 'block',
+  },
+  aboutCardTitle: {
+    fontSize: '1.1rem',
+    fontWeight: 600,
+    marginBottom: '0.5rem',
+  },
+  aboutCardText: {
+    fontSize: '0.9rem',
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 1.6,
+    margin: 0,
+  },
+  techStack: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1rem',
+    flexWrap: 'wrap',
+  },
+  techLabel: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: '0.9rem',
+  },
+  techLogos: {
+    display: 'flex',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  techBadge: {
+    padding: '0.4rem 0.8rem',
+    background: 'rgba(255,255,255,0.08)',
+    borderRadius: '6px',
+    fontSize: '0.8rem',
+    fontWeight: 500,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  
+  // FOOTER
+  footer: {
+    padding: '4rem 1.5rem 2rem',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
+  },
+  footerInner: {
+    maxWidth: '1000px',
+    margin: '0 auto',
+    display: 'grid',
+    gridTemplateColumns: '2fr 3fr',
+    gap: '3rem',
+    marginBottom: '3rem',
+  },
+  footerBrand: {},
+  footerLogo: {
+    fontSize: '1.25rem',
+    fontWeight: 600,
+    marginBottom: '0.5rem',
+    display: 'block',
+  },
+  footerTagline: {
+    fontSize: '0.9rem',
+    color: 'rgba(255,255,255,0.5)',
+    margin: 0,
+    lineHeight: 1.6,
+  },
+  footerLinks: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '2rem',
+  },
+  footerCol: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+  },
+  footerColTitle: {
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: 'rgba(255,255,255,0.9)',
+    marginBottom: '0.25rem',
+  },
+  footerLink: {
+    color: 'rgba(255,255,255,0.5)',
+    textDecoration: 'none',
+    fontSize: '0.9rem',
+    transition: 'color 0.2s',
+  },
+  footerBottom: {
+    maxWidth: '1000px',
+    margin: '0 auto',
+    paddingTop: '2rem',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: '1rem',
   },
-  footerText: {
+  footerCopy: {
+    fontSize: '0.85rem',
     color: 'rgba(255,255,255,0.4)',
-    fontSize: '0.9rem',
   },
-  footerLinks: {
-    display: 'flex',
-    gap: '1.5rem',
-  },
-  footerLink: {
-    color: 'rgba(255,255,255,0.5)',
-    textDecoration: 'none',
-    fontSize: '0.9rem',
-    transition: 'color 0.2s ease',
+  footerBuilt: {
+    fontSize: '0.85rem',
+    color: 'rgba(255,255,255,0.4)',
   },
 }
 
-// Add keyframes via style tag (will be injected)
+// Inject keyframes and responsive styles
 if (typeof document !== 'undefined') {
   const styleSheet = document.createElement('style')
   styleSheet.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -588,23 +1129,25 @@ if (typeof document !== 'undefined') {
       }
     }
     
-    @keyframes float {
-      0%, 100% {
-        transform: translate(0, 0) scale(1);
+    /* Mobile nav */
+    @media (max-width: 768px) {
+      nav > div:first-child > nav {
+        display: none !important;
       }
-      33% {
-        transform: translate(30px, -30px) scale(1.05);
+      nav button[aria-label="Toggle menu"] {
+        display: flex !important;
       }
-      66% {
-        transform: translate(-20px, 20px) scale(0.95);
+      footer > div:first-child {
+        grid-template-columns: 1fr !important;
+      }
+      footer > div:first-child > div:last-child {
+        grid-template-columns: repeat(2, 1fr) !important;
       }
     }
     
     @media (max-width: 640px) {
       .bento-grid {
         grid-template-columns: 1fr !important;
-        padding: 0 !important;
-        gap: 1rem !important;
       }
       .bento-grid > * {
         grid-column: span 1 !important;
@@ -613,9 +1156,6 @@ if (typeof document !== 'undefined') {
     }
     
     @media (min-width: 641px) and (max-width: 900px) {
-      .bento-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-      }
       .bento-grid > *:first-child {
         grid-column: span 2;
         grid-row: span 2;
@@ -630,6 +1170,10 @@ if (typeof document !== 'undefined') {
       .bento-grid > *:nth-child(2) {
         grid-row: span 2;
       }
+    }
+    
+    a:hover {
+      color: rgba(255,255,255,0.9) !important;
     }
   `
   document.head.appendChild(styleSheet)
