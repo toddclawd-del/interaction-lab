@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { ResponsiveShader, useShaderContext } from '../../components/ResponsiveShader'
 import * as THREE from 'three'
@@ -177,7 +177,6 @@ interface DistortionMeshProps {
 
 function DistortionMeshWithTexture({ textureUrl, mode, intensity }: Required<DistortionMeshProps>) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const { viewport } = useThree()
   const { mouse, scroll, isHovered } = useShaderContext()
   const texture = useTexture(textureUrl)
   const hoverRef = useRef(0)

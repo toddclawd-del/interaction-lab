@@ -1,5 +1,5 @@
 import { useRef, useMemo, useEffect, useState } from 'react'
-import { useFrame, useThree, extend } from '@react-three/fiber'
+import { useFrame, extend } from '@react-three/fiber'
 import { ResponsiveShader, useShaderContext } from '../../components/ResponsiveShader'
 import * as THREE from 'three'
 

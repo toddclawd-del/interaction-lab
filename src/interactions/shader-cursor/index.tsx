@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { useFrame, useThree, Canvas } from '@react-three/fiber'
+import { useFrame, Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 
 // Shader variants for cursor

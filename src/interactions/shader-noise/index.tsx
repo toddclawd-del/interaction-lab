@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { ResponsiveShader, useShaderContext } from '../../components/ResponsiveShader'
 import * as THREE from 'three'
 
@@ -326,7 +326,6 @@ function NoiseMesh({
   turbulence = 0.5,
 }: NoiseMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const { viewport } = useThree()
   const { mouse, scroll } = useShaderContext()
 
   const uniforms = useRef({

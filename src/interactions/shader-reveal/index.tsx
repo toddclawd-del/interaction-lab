@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { ResponsiveShader, useShaderContext } from '../../components/ResponsiveShader'
 import * as THREE from 'three'
 
@@ -129,7 +129,6 @@ interface RevealShaderMeshProps {
 
 function RevealShaderMesh({ progress, direction, colors, noiseAmount }: RevealShaderMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const { viewport } = useThree()
   const { mouse } = useShaderContext()
 
   const uniforms = useRef({

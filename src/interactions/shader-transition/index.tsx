@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect, createContext, useContext, ReactNode } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { ResponsiveShader, useShaderContext } from '../../components/ResponsiveShader'
+import { ResponsiveShader } from '../../components/ResponsiveShader'
 import * as THREE from 'three'
 
 // Transition shader types
