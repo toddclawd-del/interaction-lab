@@ -132,4 +132,48 @@ This file captures techniques, gotchas, and insights from recreating web interac
 
 ---
 
-*Last updated: 2026-01-29*
+## 2026-01-30 — Terminal Text Hover
+
+**Source:** [Codrops Tutorial](https://tympanus.net/codrops/2024/06/19/hover-animations-for-terminal-like-typography/)
+
+### Techniques Learned
+
+1. **SplitType for Character-Level DOM Access**
+   - Split text into words and characters: `new SplitType(el, { types: 'words,chars' })`
+   - Returns `chars` array of individual span elements
+   - Call `revert()` on cleanup to restore original DOM
+   - Store original innerHTML before animating for accurate reset
+
+2. **GSAP repeatRefresh for Randomization**
+   - Use `repeatRefresh: true` to re-evaluate functions on each repeat cycle
+   - Combined with `innerHTML: () => randomChar()` creates the scramble effect
+   - Each repeat shows a different random character
+
+3. **CSS Custom Properties for Animation State**
+   - Use `--cursor-opacity` and `--bg-scale` as animation targets
+   - GSAP can tween custom properties with `gsap.to(el, { '--var': value })`
+   - CSS pseudo-elements (`::after`, `::before`) reference these vars
+   - Enables complex effects without extra DOM elements
+
+4. **Multiple Variant Patterns**
+   - Use class-based variants (`hover-effect--cursor`, `hover-effect--bg`)
+   - Same animator class handles all variants with conditional logic
+   - CSS handles visual differences, JS handles timing
+
+### Gotchas
+
+- **Font kerning:** Set `font-kerning: none` on split text elements to prevent layout shifts during animation
+- **Inline styles vs classes:** For responsive breakpoints, need actual class names — can't use `!important` with inline styles
+- **Color reset:** Store original computed colors before animation, not just innerHTML
+- **Cleanup timing:** Always kill active tweens before destroying the splitter to prevent orphaned animations
+
+### Would Do Differently
+
+- Add touch support for mobile (tap to trigger instead of hover)
+- Consider using CSS `@property` for typed custom properties with fallbacks
+- Could pre-split all text on mount for faster hover response
+- Add accessibility: `aria-live="polite"` on animated regions for screen readers
+
+---
+
+*Last updated: 2026-01-30*

@@ -14,11 +14,21 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'terminal-text-hover',
+    title: 'Terminal Text Hover',
+    description: 'Retro terminal-style character scramble effect. Characters briefly become random symbols before settling.',
+    date: '2025-01-30',
+    size: 'hero',
+    accent: '#22c55e',
+    icon: '⌨️',
+    tags: ['GSAP', 'Typography', 'Hover']
+  },
+  {
     slug: 'wavy-carousel',
     title: 'Wavy Infinite Carousel',
     description: 'Scroll-driven 3D carousel with GLSL shader wave distortion. Images flow infinitely with velocity-based stretch.',
     date: '2025-01-29',
-    size: 'hero',
+    size: 'large',
     accent: '#6366f1',
     icon: '🌊',
     tags: ['Three.js', 'GLSL', 'Scroll']
@@ -28,7 +38,7 @@ const experiments: Experiment[] = [
     title: 'Grid Flip',
     description: 'Smooth grid layout animations with GSAP Flip plugin',
     date: '2025-01-28',
-    size: 'large',
+    size: 'medium',
     accent: '#f59e0b',
     icon: '🔲',
     tags: ['GSAP', 'Animation']
@@ -48,7 +58,7 @@ const experiments: Experiment[] = [
     title: 'Dual Wave',
     description: 'Opposing wave columns with synced center image',
     date: '2025-01-28',
-    size: 'medium',
+    size: 'small',
     accent: '#ec4899',
     icon: '〰️',
     tags: ['Animation', 'Scroll']

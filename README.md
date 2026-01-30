@@ -27,6 +27,7 @@ npm run dev
 
 | Name | Tech | Status | Source |
 |------|------|--------|--------|
+| Terminal Text Hover | GSAP + SplitType | ✅ Ready | [Codrops](https://tympanus.net/codrops/2024/06/19/hover-animations-for-terminal-like-typography/) |
 | Wavy Carousel | R3F + GLSL Shaders | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/26/creating-wavy-infinite-carousels-in-react-three-fiber-with-glsl-shaders/) |
 | Grid Flip | GSAP Flip Plugin | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/20/animating-responsive-grid-layout-transitions-with-gsap-flip/) |
 | Cylinder Text | CSS 3D Transforms | ✅ Ready | — |

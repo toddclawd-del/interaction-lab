@@ -8,6 +8,7 @@ const DualWaveText = lazy(() => import('./interactions/dual-wave-text').then(m =
 const CylinderText = lazy(() => import('./interactions/cylinder-text').then(m => ({ default: m.CylinderText })))
 const GridFlip = lazy(() => import('./interactions/grid-flip').then(m => ({ default: m.GridFlip })))
 const WavyCarousel = lazy(() => import('./interactions/wavy-carousel').then(m => ({ default: m.WavyCarousel })))
+const TerminalTextHover = lazy(() => import('./interactions/terminal-text-hover').then(m => ({ default: m.TerminalTextHover })))
 
 // Loading fallback
 const Loading = () => (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/cylinder-text" element={<CylinderText />} />
           <Route path="/grid-flip" element={<GridFlip />} />
           <Route path="/wavy-carousel" element={<WavyCarousel />} />
+          <Route path="/terminal-text-hover" element={<TerminalTextHover />} />
         </Routes>
       </Suspense>
     </HashRouter>
