@@ -1,5 +1,21 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
+
+// Custom hook for reduced motion preference
+function useReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mediaQuery.matches)
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+  
+  return prefersReducedMotion
+}
 
 interface CardProps {
   children: React.ReactNode
@@ -12,6 +28,7 @@ interface CardProps {
 // ============================================================================
 export function TiltCard({ children, className = '' }: CardProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const prefersReducedMotion = useReducedMotion()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -19,7 +36,7 @@ export function TiltCard({ children, className = '' }: CardProps) {
   const rotateY = useTransform(x, [-0.5, 0.5], [-15, 15])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return
+    if (!ref.current || prefersReducedMotion) return
     const rect = ref.current.getBoundingClientRect()
     const px = (e.clientX - rect.left) / rect.width - 0.5
     const py = (e.clientY - rect.top) / rect.height - 0.5
@@ -37,7 +54,7 @@ export function TiltCard({ children, className = '' }: CardProps) {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
+      style={prefersReducedMotion ? {} : {
         rotateX,
         rotateY,
         transformStyle: 'preserve-3d',
@@ -46,7 +63,7 @@ export function TiltCard({ children, className = '' }: CardProps) {
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={`p-6 bg-neutral-800 rounded-xl ${className}`}
     >
-      <div style={{ transform: 'translateZ(20px)' }}>{children}</div>
+      <div style={prefersReducedMotion ? {} : { transform: 'translateZ(20px)' }}>{children}</div>
     </motion.div>
   )
 }
@@ -62,35 +79,48 @@ interface FlipCardProps {
 
 export function FlipCard({ front, back, className = '' }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <div
       className={`relative cursor-pointer ${className}`}
       style={{ perspective: 1000 }}
       onClick={() => setIsFlipped(!isFlipped)}
+      role="button"
+      aria-label={isFlipped ? 'Show front of card' : 'Flip card to reveal back'}
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && setIsFlipped(!isFlipped)}
     >
-      <motion.div
-        initial={false}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, type: 'spring', stiffness: 300, damping: 30 }}
-        style={{ transformStyle: 'preserve-3d' }}
-        className="relative w-full h-full"
-      >
-        {/* Front */}
-        <div
-          className="absolute inset-0 p-6 bg-neutral-800 rounded-xl backface-hidden"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          {front}
+      {prefersReducedMotion ? (
+        <div className="relative w-full h-full">
+          <div className={`absolute inset-0 p-6 rounded-xl ${isFlipped ? 'bg-indigo-600' : 'bg-neutral-800'}`}>
+            {isFlipped ? back : front}
+          </div>
         </div>
-        {/* Back */}
-        <div
-          className="absolute inset-0 p-6 bg-indigo-600 rounded-xl backface-hidden"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+      ) : (
+        <motion.div
+          initial={false}
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.6, type: 'spring', stiffness: 300, damping: 30 }}
+          style={{ transformStyle: 'preserve-3d' }}
+          className="relative w-full h-full"
         >
-          {back}
-        </div>
-      </motion.div>
+          {/* Front */}
+          <div
+            className="absolute inset-0 p-6 bg-neutral-800 rounded-xl backface-hidden"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            {front}
+          </div>
+          {/* Back */}
+          <div
+            className="absolute inset-0 p-6 bg-indigo-600 rounded-xl backface-hidden"
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+          >
+            {back}
+          </div>
+        </motion.div>
+      )}
     </div>
   )
 }

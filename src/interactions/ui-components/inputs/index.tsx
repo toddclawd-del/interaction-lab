@@ -1,6 +1,22 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// Custom hook for reduced motion preference
+function useReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mediaQuery.matches)
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+  
+  return prefersReducedMotion
+}
+
 interface InputProps {
   value: string
   onChange: (value: string) => void
@@ -15,6 +31,7 @@ interface InputProps {
 // ============================================================================
 export function FloatingLabel({ value, onChange, label = 'Label', className = '', type = 'text' }: InputProps) {
   const [isFocused, setIsFocused] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
   const isActive = isFocused || value.length > 0
 
   return (
@@ -25,16 +42,17 @@ export function FloatingLabel({ value, onChange, label = 'Label', className = ''
         onChange={e => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="w-full px-4 pt-6 pb-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white outline-none focus:border-indigo-500 transition-colors peer"
+        className="w-full px-4 pt-6 pb-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors min-h-[56px]"
+        aria-label={label}
       />
       <motion.label
         initial={false}
-        animate={{
+        animate={prefersReducedMotion ? {} : {
           y: isActive ? -12 : 0,
           scale: isActive ? 0.85 : 1,
           color: isFocused ? '#6366f1' : '#9ca3af',
         }}
-        className="absolute left-4 top-4 origin-left pointer-events-none"
+        className={`absolute left-4 origin-left pointer-events-none ${prefersReducedMotion ? (isActive ? 'top-2 text-xs text-indigo-500' : 'top-4 text-neutral-400') : 'top-4'}`}
       >
         {label}
       </motion.label>
@@ -47,6 +65,7 @@ export function FloatingLabel({ value, onChange, label = 'Label', className = ''
 // ============================================================================
 export function UnderlineInput({ value, onChange, placeholder = '', className = '' }: InputProps) {
   const [isFocused, setIsFocused] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <div className={`relative ${className}`}>
@@ -57,16 +76,20 @@ export function UnderlineInput({ value, onChange, placeholder = '', className = 
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="w-full px-2 py-3 bg-transparent text-white outline-none border-b border-neutral-700 placeholder:text-neutral-600"
+        className="w-full px-2 py-3 bg-transparent text-white outline-none border-b border-neutral-700 placeholder:text-neutral-600 min-h-[48px]"
+        aria-label={placeholder || 'Text input'}
       />
       <motion.div
         className="absolute bottom-0 left-1/2 h-0.5 bg-indigo-500"
         initial={false}
-        animate={{
+        animate={prefersReducedMotion ? {
+          width: isFocused ? '100%' : '0%',
+          x: '-50%',
+        } : {
           width: isFocused ? '100%' : '0%',
           x: '-50%',
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
       />
     </div>
   )
