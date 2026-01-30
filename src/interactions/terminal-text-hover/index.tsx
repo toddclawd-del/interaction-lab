@@ -69,9 +69,13 @@ interface HoverTextProps {
   className?: string
 }
 
+// Check if device supports hover (not touch-only)
+const supportsHover = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
+
 function HoverText({ children, variant, className = '' }: HoverTextProps) {
   const ref = useRef<HTMLSpanElement>(null)
   const animatorRef = useRef<TextAnimator | null>(null)
+  const hasAnimated = useRef(false)
   
   useEffect(() => {
     if (!ref.current) return
@@ -79,17 +83,53 @@ function HoverText({ children, variant, className = '' }: HoverTextProps) {
     // Create animator instance
     animatorRef.current = new TextAnimator(ref.current, { variant })
     
+    // On touch devices, use IntersectionObserver to trigger animation
+    if (!supportsHover) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !hasAnimated.current) {
+              hasAnimated.current = true
+              // Small delay for staggered effect
+              setTimeout(() => {
+                animatorRef.current?.animate()
+              }, Math.random() * 300)
+            }
+          })
+        },
+        { threshold: 0.5, rootMargin: '-50px' }
+      )
+      
+      observer.observe(ref.current)
+      
+      return () => {
+        observer.disconnect()
+        animatorRef.current?.destroy()
+      }
+    }
+    
     return () => {
       animatorRef.current?.destroy()
     }
   }, [variant])
   
   const handleMouseEnter = useCallback(() => {
-    animatorRef.current?.animate()
+    if (supportsHover) {
+      animatorRef.current?.animate()
+    }
   }, [])
   
   const handleMouseLeave = useCallback(() => {
-    animatorRef.current?.animateOut()
+    if (supportsHover) {
+      animatorRef.current?.animateOut()
+    }
+  }, [])
+  
+  // Also support tap on mobile
+  const handleTap = useCallback(() => {
+    if (!supportsHover) {
+      animatorRef.current?.animate()
+    }
   }, [])
   
   return (
@@ -98,6 +138,7 @@ function HoverText({ children, variant, className = '' }: HoverTextProps) {
       className={className}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleTap}
       style={styles.hoverText}
       data-text={children}
     >
