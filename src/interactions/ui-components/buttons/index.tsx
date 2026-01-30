@@ -1,5 +1,21 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+
+// Custom hook for reduced motion preference
+function useReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mediaQuery.matches)
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+  
+  return prefersReducedMotion
+}
 
 // Shared types
 interface ButtonProps {
@@ -14,6 +30,7 @@ interface ButtonProps {
 // ============================================================================
 export function MagneticButton({ children, className = '', onClick }: ButtonProps) {
   const ref = useRef<HTMLButtonElement>(null)
+  const prefersReducedMotion = useReducedMotion()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   
@@ -22,13 +39,13 @@ export function MagneticButton({ children, className = '', onClick }: ButtonProp
   const springY = useSpring(y, springConfig)
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!ref.current) return
+    if (!ref.current || prefersReducedMotion) return
     const rect = ref.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
     x.set((e.clientX - centerX) * 0.3)
     y.set((e.clientY - centerY) * 0.3)
-  }, [x, y])
+  }, [x, y, prefersReducedMotion])
 
   const handleMouseLeave = useCallback(() => {
     x.set(0)
@@ -38,11 +55,11 @@ export function MagneticButton({ children, className = '', onClick }: ButtonProp
   return (
     <motion.button
       ref={ref}
-      style={{ x: springX, y: springY }}
+      style={prefersReducedMotion ? {} : { x: springX, y: springY }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
-      className={`px-6 py-3 bg-white text-black rounded-lg font-medium transition-colors hover:bg-neutral-200 ${className}`}
+      className={`px-6 py-3 bg-white text-black rounded-lg font-medium transition-colors hover:bg-neutral-200 min-h-[48px] ${className}`}
     >
       {children}
     </motion.button>
@@ -60,17 +77,20 @@ interface Ripple {
 
 export function RippleButton({ children, className = '', onClick }: ButtonProps) {
   const [ripples, setRipples] = useState<Ripple[]>([])
+  const prefersReducedMotion = useReducedMotion()
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const id = Date.now()
-    
-    setRipples(prev => [...prev, { id, x, y }])
-    setTimeout(() => {
-      setRipples(prev => prev.filter(r => r.id !== id))
-    }, 600)
+    if (!prefersReducedMotion) {
+      const rect = e.currentTarget.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      const id = Date.now()
+      
+      setRipples(prev => [...prev, { id, x, y }])
+      setTimeout(() => {
+        setRipples(prev => prev.filter(r => r.id !== id))
+      }, 600)
+    }
     
     onClick?.()
   }
@@ -78,9 +98,9 @@ export function RippleButton({ children, className = '', onClick }: ButtonProps)
   return (
     <button
       onClick={handleClick}
-      className={`relative overflow-hidden px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium ${className}`}
+      className={`relative overflow-hidden px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium min-h-[48px] ${className}`}
     >
-      {ripples.map(ripple => (
+      {!prefersReducedMotion && ripples.map(ripple => (
         <motion.span
           key={ripple.id}
           initial={{ scale: 0, opacity: 0.5 }}
@@ -103,18 +123,19 @@ export function RippleButton({ children, className = '', onClick }: ButtonProps)
 // ============================================================================
 export function MorphButton({ children, className = '', onClick }: ButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <motion.button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      animate={{
+      animate={prefersReducedMotion ? {} : {
         borderRadius: isHovered ? 4 : 50,
         scale: isHovered ? 1.05 : 1,
       }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className={`px-6 py-3 bg-emerald-500 text-white font-medium ${className}`}
+      className={`px-6 py-3 bg-emerald-500 text-white font-medium min-h-[48px] rounded-full ${className}`}
     >
       {children}
     </motion.button>
@@ -125,14 +146,16 @@ export function MorphButton({ children, className = '', onClick }: ButtonProps) 
 // 4. GlowButton - animated glow border
 // ============================================================================
 export function GlowButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`relative px-6 py-3 rounded-lg font-medium group ${className}`}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`relative px-6 py-3 rounded-lg font-medium group min-h-[48px] ${className}`}
     >
-      <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 opacity-75 blur-md group-hover:opacity-100 transition-opacity animate-pulse" />
+      <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 opacity-75 blur-md group-hover:opacity-100 transition-opacity ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
       <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" />
       <span className="absolute inset-[2px] rounded-lg bg-neutral-900" />
       <span className="relative z-10 text-white">{children}</span>
@@ -144,14 +167,18 @@ export function GlowButton({ children, className = '', onClick }: ButtonProps) {
 // 5. ShimmerButton - shimmer sweep effect
 // ============================================================================
 export function ShimmerButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`relative overflow-hidden px-6 py-3 bg-neutral-800 text-white rounded-lg font-medium group ${className}`}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`relative overflow-hidden px-6 py-3 bg-neutral-800 text-white rounded-lg font-medium group min-h-[48px] ${className}`}
     >
-      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      {!prefersReducedMotion && (
+        <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      )}
       <span className="relative z-10">{children}</span>
     </motion.button>
   )
@@ -161,17 +188,19 @@ export function ShimmerButton({ children, className = '', onClick }: ButtonProps
 // 6. ElasticButton - bouncy press effect
 // ============================================================================
 export function ElasticButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.85 }}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.85 }}
       transition={{
         type: 'spring',
         stiffness: 500,
         damping: 15,
       }}
-      className={`px-6 py-3 bg-orange-500 text-white rounded-xl font-medium ${className}`}
+      className={`px-6 py-3 bg-orange-500 text-white rounded-xl font-medium min-h-[48px] ${className}`}
     >
       {children}
     </motion.button>
@@ -183,13 +212,14 @@ export function ElasticButton({ children, className = '', onClick }: ButtonProps
 // ============================================================================
 export function BorderButton({ children, className = '', onClick }: ButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 bg-transparent text-white font-medium ${className}`}
+      className={`relative px-6 py-3 bg-transparent text-white font-medium min-h-[48px] ${className}`}
     >
       <svg className="absolute inset-0 w-full h-full">
         <motion.rect
@@ -201,9 +231,9 @@ export function BorderButton({ children, className = '', onClick }: ButtonProps)
           fill="none"
           stroke="white"
           strokeWidth="2"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          initial={{ pathLength: prefersReducedMotion ? 1 : 0 }}
+          animate={{ pathLength: prefersReducedMotion ? 1 : (isHovered ? 1 : 0) }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.4, ease: 'easeInOut' }}
           style={{
             strokeDasharray: 1,
             strokeDashoffset: 0,
@@ -219,14 +249,16 @@ export function BorderButton({ children, className = '', onClick }: ButtonProps)
 // 8. GradientButton - shifting gradient background
 // ============================================================================
 export function GradientButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`relative px-6 py-3 rounded-lg font-medium overflow-hidden group ${className}`}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`relative px-6 py-3 rounded-lg font-medium overflow-hidden group min-h-[48px] ${className}`}
     >
-      <span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-[length:200%_100%] animate-gradient" />
+      <span className={`absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-[length:200%_100%] ${prefersReducedMotion ? '' : 'animate-gradient'}`} />
       <span className="relative z-10 text-white">{children}</span>
       <style>{`
         @keyframes gradient {
@@ -248,31 +280,38 @@ interface TextSwapButtonProps extends ButtonProps {
 
 export function TextSwapButton({ children, hoverText = 'Clicked!', className = '', onClick }: TextSwapButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <motion.button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 bg-cyan-600 text-white rounded-lg font-medium overflow-hidden ${className}`}
+      className={`relative px-6 py-3 bg-cyan-600 text-white rounded-lg font-medium overflow-hidden min-h-[48px] ${className}`}
     >
       <span className="block relative h-6">
-        <motion.span
-          className="absolute inset-0 flex items-center justify-center"
-          initial={false}
-          animate={{ y: isHovered ? -30 : 0, opacity: isHovered ? 0 : 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          {children}
-        </motion.span>
-        <motion.span
-          className="absolute inset-0 flex items-center justify-center"
-          initial={false}
-          animate={{ y: isHovered ? 0 : 30, opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          {hoverText}
-        </motion.span>
+        {prefersReducedMotion ? (
+          <span className="flex items-center justify-center">{isHovered ? hoverText : children}</span>
+        ) : (
+          <>
+            <motion.span
+              className="absolute inset-0 flex items-center justify-center"
+              initial={false}
+              animate={{ y: isHovered ? -30 : 0, opacity: isHovered ? 0 : 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {children}
+            </motion.span>
+            <motion.span
+              className="absolute inset-0 flex items-center justify-center"
+              initial={false}
+              animate={{ y: isHovered ? 0 : 30, opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {hoverText}
+            </motion.span>
+          </>
+        )}
       </span>
     </motion.button>
   )
@@ -286,24 +325,30 @@ interface IconRevealButtonProps extends ButtonProps {
 }
 
 export function IconRevealButton({ children, icon = '→', className = '', onClick }: IconRevealButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <motion.button
       onClick={onClick}
-      whileHover="hover"
-      className={`group relative px-6 py-3 bg-violet-600 text-white rounded-lg font-medium overflow-hidden ${className}`}
+      whileHover={prefersReducedMotion ? undefined : 'hover'}
+      className={`group relative px-6 py-3 bg-violet-600 text-white rounded-lg font-medium overflow-hidden min-h-[48px] ${className}`}
     >
       <span className="flex items-center gap-2">
         <span>{children}</span>
-        <motion.span
-          variants={{
-            hover: { x: 0, opacity: 1 }
-          }}
-          initial={{ x: -20, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="inline-block"
-        >
-          {icon}
-        </motion.span>
+        {prefersReducedMotion ? (
+          <span className="inline-block group-hover:opacity-100 opacity-0 transition-opacity">{icon}</span>
+        ) : (
+          <motion.span
+            variants={{
+              hover: { x: 0, opacity: 1 }
+            }}
+            initial={{ x: -20, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            {icon}
+          </motion.span>
+        )}
       </span>
     </motion.button>
   )
@@ -317,26 +362,33 @@ export function SplitButton({ children, className = '', onClick }: ButtonProps) 
   const midpoint = Math.ceil(text.length / 2)
   const leftText = text.slice(0, midpoint)
   const rightText = text.slice(midpoint)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <motion.button
       onClick={onClick}
-      whileHover="hover"
-      className={`relative px-6 py-3 bg-rose-600 text-white rounded-lg font-medium ${className}`}
+      whileHover={prefersReducedMotion ? undefined : 'hover'}
+      className={`relative px-6 py-3 bg-rose-600 text-white rounded-lg font-medium min-h-[48px] ${className}`}
     >
       <span className="flex items-center justify-center">
-        <motion.span
-          variants={{ hover: { x: -4 } }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          {leftText}
-        </motion.span>
-        <motion.span
-          variants={{ hover: { x: 4 } }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          {rightText}
-        </motion.span>
+        {prefersReducedMotion ? (
+          <span>{children}</span>
+        ) : (
+          <>
+            <motion.span
+              variants={{ hover: { x: -4 } }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              {leftText}
+            </motion.span>
+            <motion.span
+              variants={{ hover: { x: 4 } }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              {rightText}
+            </motion.span>
+          </>
+        )}
       </span>
     </motion.button>
   )
@@ -347,27 +399,35 @@ export function SplitButton({ children, className = '', onClick }: ButtonProps) 
 // ============================================================================
 export function LiquidButton({ children, className = '', onClick }: ButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <motion.button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 rounded-lg font-medium overflow-hidden border-2 border-blue-500 ${className}`}
+      className={`relative px-6 py-3 rounded-lg font-medium overflow-hidden border-2 border-blue-500 min-h-[48px] ${className}`}
     >
-      <motion.div
-        className="absolute inset-0 bg-blue-500"
-        initial={{ y: '100%' }}
-        animate={{ y: isHovered ? '0%' : '100%' }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      />
-      <motion.div
-        className="absolute inset-0 bg-blue-400"
-        initial={{ y: '100%' }}
-        animate={{ y: isHovered ? '0%' : '100%' }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1], delay: 0.05 }}
-        style={{ clipPath: 'ellipse(80% 50% at 50% 100%)' }}
-      />
+      {!prefersReducedMotion && (
+        <>
+          <motion.div
+            className="absolute inset-0 bg-blue-500"
+            initial={{ y: '100%' }}
+            animate={{ y: isHovered ? '0%' : '100%' }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          />
+          <motion.div
+            className="absolute inset-0 bg-blue-400"
+            initial={{ y: '100%' }}
+            animate={{ y: isHovered ? '0%' : '100%' }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1], delay: 0.05 }}
+            style={{ clipPath: 'ellipse(80% 50% at 50% 100%)' }}
+          />
+        </>
+      )}
+      {prefersReducedMotion && isHovered && (
+        <div className="absolute inset-0 bg-blue-500" />
+      )}
       <span className={`relative z-10 transition-colors duration-300 ${isHovered ? 'text-white' : 'text-blue-500'}`}>
         {children}
       </span>
@@ -379,29 +439,33 @@ export function LiquidButton({ children, className = '', onClick }: ButtonProps)
 // 13. NeonButton - neon glow with flicker
 // ============================================================================
 export function NeonButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`relative px-6 py-3 bg-transparent border-2 border-green-400 text-green-400 rounded-lg font-medium group ${className}`}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`relative px-6 py-3 bg-transparent border-2 border-green-400 text-green-400 rounded-lg font-medium group min-h-[48px] ${className}`}
       style={{
         textShadow: '0 0 5px #4ade80, 0 0 10px #4ade80, 0 0 20px #4ade80',
         boxShadow: '0 0 5px #4ade80, 0 0 10px #4ade80, inset 0 0 10px rgba(74, 222, 128, 0.1)',
       }}
     >
-      <span className="relative z-10 group-hover:animate-pulse">{children}</span>
-      <motion.span
-        className="absolute inset-0 bg-green-400/10 rounded-lg"
-        animate={{
-          opacity: [0.5, 1, 0.5, 1, 0.5],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatType: 'loop',
-        }}
-      />
+      <span className={`relative z-10 ${prefersReducedMotion ? '' : 'group-hover:animate-pulse'}`}>{children}</span>
+      {!prefersReducedMotion && (
+        <motion.span
+          className="absolute inset-0 bg-green-400/10 rounded-lg"
+          animate={{
+            opacity: [0.5, 1, 0.5, 1, 0.5],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            repeatType: 'loop',
+          }}
+        />
+      )}
     </motion.button>
   )
 }
@@ -411,16 +475,17 @@ export function NeonButton({ children, className = '', onClick }: ButtonProps) {
 // ============================================================================
 export function GlitchButton({ children, className = '', onClick }: ButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <motion.button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 bg-red-600 text-white rounded-lg font-medium ${className}`}
+      className={`relative px-6 py-3 bg-red-600 text-white rounded-lg font-medium min-h-[48px] ${className}`}
     >
       <span className="relative">
-        {isHovered && (
+        {isHovered && !prefersReducedMotion && (
           <>
             <span className="absolute inset-0 text-cyan-400 animate-glitch-1 clip-glitch-1">
               {children}
@@ -430,7 +495,7 @@ export function GlitchButton({ children, className = '', onClick }: ButtonProps)
             </span>
           </>
         )}
-        <span className={isHovered ? 'opacity-0' : ''}>{children}</span>
+        <span className={isHovered && !prefersReducedMotion ? 'opacity-0' : ''}>{children}</span>
       </span>
       <style>{`
         @keyframes glitch-1 {
@@ -460,6 +525,7 @@ export function GlitchButton({ children, className = '', onClick }: ButtonProps)
 // 15. ThreeDButton - perspective tilt on hover
 // ============================================================================
 export function ThreeDButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -467,6 +533,7 @@ export function ThreeDButton({ children, className = '', onClick }: ButtonProps)
   const rotateY = useTransform(x, [-50, 50], [-15, 15])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (prefersReducedMotion) return
     const rect = e.currentTarget.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
@@ -484,17 +551,17 @@ export function ThreeDButton({ children, className = '', onClick }: ButtonProps)
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
+      style={prefersReducedMotion ? {} : {
         rotateX,
         rotateY,
         transformStyle: 'preserve-3d',
         perspective: 1000,
       }}
-      whileTap={{ scale: 0.95 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className={`px-6 py-3 bg-gradient-to-br from-amber-400 to-orange-600 text-white rounded-xl font-medium shadow-lg ${className}`}
+      className={`px-6 py-3 bg-gradient-to-br from-amber-400 to-orange-600 text-white rounded-xl font-medium shadow-lg min-h-[48px] ${className}`}
     >
-      <span style={{ transform: 'translateZ(20px)', display: 'block' }}>{children}</span>
+      <span style={prefersReducedMotion ? {} : { transform: 'translateZ(20px)', display: 'block' }}>{children}</span>
     </motion.button>
   )
 }

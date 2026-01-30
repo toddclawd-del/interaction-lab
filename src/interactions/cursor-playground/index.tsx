@@ -157,7 +157,7 @@ export function CursorPlayground() {
       </header>
 
       {/* Demo selector */}
-      <div style={styles.selector}>
+      <div style={styles.selector} role="tablist" aria-label="Cursor effect demos">
         {[
           { key: 'trail', label: 'Trailing' },
           { key: 'text', label: 'Dynamic Text' },
@@ -171,6 +171,9 @@ export function CursorPlayground() {
               ...styles.selectorButton,
               ...(activeDemo === key ? styles.selectorButtonActive : {}),
             }}
+            role="tab"
+            aria-selected={activeDemo === key}
+            aria-label={`Select ${label} cursor effect`}
           >
             {label}
           </button>
@@ -355,7 +358,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexWrap: 'wrap',
   },
   selectorButton: {
-    padding: '0.75rem 1.5rem',
+    padding: '0.875rem 1.5rem',
     background: 'rgba(255, 255, 255, 0.05)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '8px',
@@ -363,7 +366,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.9rem',
     fontWeight: 500,
     cursor: 'pointer',
-    transition: 'all 0.2s',
+    transition: 'all 0.3s ease',
+    minHeight: '48px',
   },
   selectorButtonActive: {
     background: 'rgba(255, 255, 255, 0.15)',
@@ -439,8 +443,10 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid rgba(255, 255, 255, 0.1)',
     fontSize: '1.1rem',
     fontWeight: 500,
-    transition: 'all 0.3s',
+    transition: 'all 0.3s ease',
     cursor: 'none',
+    minHeight: '80px',
+    minWidth: '120px',
   },
   
   // Blob cursor styles

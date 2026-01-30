@@ -234,6 +234,7 @@ export function TextReveal() {
               resetAnimation('chars')
               setTimeout(() => playAnimation('chars'), 50)
             }}
+            aria-label="Play character rotation animation"
           >
             Play Animation
           </button>
@@ -260,6 +261,7 @@ export function TextReveal() {
               resetAnimation('words')
               setTimeout(() => playAnimation('words'), 50)
             }}
+            aria-label="Play word fade animation"
           >
             Play Animation
           </button>
@@ -286,6 +288,7 @@ export function TextReveal() {
               resetAnimation('lines')
               setTimeout(() => playAnimation('lines'), 50)
             }}
+            aria-label="Play line reveal animation"
           >
             Play Animation
           </button>
@@ -314,6 +317,7 @@ export function TextReveal() {
               }
               setTimeout(() => playAnimation('scramble'), 50)
             }}
+            aria-label="Play scramble decode animation"
           >
             Play Animation
           </button>
@@ -340,6 +344,7 @@ export function TextReveal() {
               resetAnimation('gradient')
               setTimeout(() => playAnimation('gradient'), 50)
             }}
+            aria-label="Play gradient wipe animation"
           >
             Play Animation
           </button>
@@ -471,7 +476,7 @@ const styles: Record<string, React.CSSProperties> = {
   triggerButton: {
     display: 'block',
     margin: '0 auto',
-    padding: '0.75rem 1.5rem',
+    padding: '0.875rem 1.75rem',
     background: 'rgba(255, 255, 255, 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     borderRadius: '8px',
@@ -479,7 +484,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.9rem',
     fontWeight: 500,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.3s ease',
+    minHeight: '48px',
+    minWidth: '140px',
   },
   codeHint: {
     textAlign: 'center',

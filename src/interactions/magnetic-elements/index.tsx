@@ -376,6 +376,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '1rem',
     fontWeight: 600,
     cursor: 'pointer',
+    minHeight: '48px',
+    minWidth: '120px',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   },
   secondaryButton: {
     padding: '1rem 2rem',
@@ -386,6 +389,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '1rem',
     fontWeight: 600,
     cursor: 'pointer',
+    minHeight: '48px',
+    minWidth: '120px',
+    transition: 'transform 0.3s ease, border-color 0.3s ease',
   },
   ghostButton: {
     padding: '1rem 2rem',
@@ -396,6 +402,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '1rem',
     fontWeight: 500,
     cursor: 'pointer',
+    minHeight: '48px',
+    minWidth: '120px',
+    transition: 'transform 0.3s ease, color 0.3s ease, border-color 0.3s ease',
   },
   navDemo: {
     display: 'flex',
@@ -408,7 +417,11 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: 'none',
     fontSize: '1.1rem',
     fontWeight: 500,
-    padding: '0.5rem 1rem',
+    padding: '0.75rem 1rem',
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    transition: 'color 0.3s ease',
   },
   iconGrid: {
     display: 'flex',
@@ -426,6 +439,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     cursor: 'pointer',
     border: '1px solid rgba(255, 255, 255, 0.2)',
+    transition: 'background 0.3s ease, border-color 0.3s ease',
   },
   icon: {
     fontSize: '2rem',

@@ -177,7 +177,7 @@ export function CounterLab() {
             />
           </div>
           <div style={styles.controls}>
-            <button style={styles.button} onClick={replayBasic}>
+            <button style={styles.button} onClick={replayBasic} aria-label="Replay counter animation">
               Replay Animation
             </button>
           </div>
@@ -248,7 +248,7 @@ export function CounterLab() {
             <Odometer value={odometerValue} isActive={odometerActive} />
           </div>
           <div style={styles.controls}>
-            <button style={styles.button} onClick={triggerOdometer}>
+            <button style={styles.button} onClick={triggerOdometer} aria-label="Generate random number for odometer display">
               Generate Random Number
             </button>
           </div>
@@ -445,7 +445,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '1rem',
   },
   button: {
-    padding: '0.75rem 1.5rem',
+    padding: '0.875rem 1.75rem',
     background: 'rgba(255, 255, 255, 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     borderRadius: '8px',
@@ -453,7 +453,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.9rem',
     fontWeight: 500,
     cursor: 'pointer',
-    transition: 'all 0.2s',
+    transition: 'all 0.3s ease',
+    minHeight: '48px',
+    minWidth: '140px',
   },
   easingOptions: {
     textAlign: 'center',

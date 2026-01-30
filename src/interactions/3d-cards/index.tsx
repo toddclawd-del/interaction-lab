@@ -326,16 +326,18 @@ function PerspectiveCarousel() {
           })}
         </div>
       </div>
-      <div style={styles.carouselControls}>
+      <div style={styles.carouselControls} role="group" aria-label="Carousel navigation">
         <button 
           style={styles.carouselButton}
           onClick={() => rotate(-1)}
+          aria-label="Previous slide"
         >
           ← Prev
         </button>
         <button 
           style={styles.carouselButton}
           onClick={() => rotate(1)}
+          aria-label="Next slide"
         >
           Next →
         </button>
@@ -565,7 +567,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '1rem',
   },
   carouselButton: {
-    padding: '0.75rem 1.5rem',
+    padding: '0.875rem 1.75rem',
     background: 'rgba(255, 255, 255, 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     borderRadius: '8px',
@@ -573,7 +575,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.9rem',
     fontWeight: 500,
     cursor: 'pointer',
-    transition: 'all 0.2s',
+    transition: 'all 0.3s ease',
+    minHeight: '48px',
+    minWidth: '100px',
   },
 }
 

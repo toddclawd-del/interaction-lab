@@ -186,6 +186,8 @@ export function StaggerPatterns() {
             style={styles.playButton}
             onClick={playAnimation}
             disabled={isAnimating}
+            aria-label={isAnimating ? 'Animation in progress' : 'Play stagger animation'}
+            aria-busy={isAnimating}
           >
             {isAnimating ? 'Animating...' : 'Play Animation'}
           </button>
@@ -357,7 +359,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '2rem',
   },
   playButton: {
-    padding: '0.75rem 2rem',
+    padding: '0.875rem 2rem',
     background: '#6366f1',
     border: 'none',
     borderRadius: '8px',
@@ -365,7 +367,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.9rem',
     fontWeight: 600,
     cursor: 'pointer',
-    transition: 'all 0.2s',
+    transition: 'all 0.3s ease',
+    minHeight: '48px',
+    minWidth: '140px',
   },
   grid: {
     display: 'grid',
@@ -383,7 +387,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '6px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s',
+    transition: 'background-color 0.3s ease, transform 0.3s ease',
   },
   description: {
     maxWidth: '600px',
