@@ -1,4 +1,4 @@
-import{r as Ge,g as sx,j as yi}from"./index-BRsGo1Zn.js";/**
+import{r as Ge,g as sx,j as yi}from"./index-Bkta_KIh.js";/**
  * @license
  * Copyright 2010-2023 Three.js Authors
  * SPDX-License-Identifier: MIT
