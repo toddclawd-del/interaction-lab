@@ -144,11 +144,20 @@ const BOOT_MESSAGES = [
 ]
 
 function BootSequence({ onComplete }: { onComplete: () => void }) {
-  const [lines, setLines] = useState<string[]>([])
+  const [lines, setLines] = useState<string[]>([''])
   const [currentLine, setCurrentLine] = useState(0)
   const [currentChar, setCurrentChar] = useState(0)
+  const [started, setStarted] = useState(false)
+  
+  // Start typing after a brief delay (helps mobile)
+  useEffect(() => {
+    const startDelay = setTimeout(() => setStarted(true), 100)
+    return () => clearTimeout(startDelay)
+  }, [])
   
   useEffect(() => {
+    if (!started) return
+    
     if (currentLine >= BOOT_MESSAGES.length) {
       // Boot complete
       const timeout = setTimeout(onComplete, 800)
@@ -171,12 +180,13 @@ function BootSequence({ onComplete }: { onComplete: () => void }) {
     } else {
       // Line complete, move to next
       const timeout = setTimeout(() => {
+        setLines(prev => [...prev, ''])
         setCurrentLine(l => l + 1)
         setCurrentChar(0)
       }, 200 + Math.random() * 300)
       return () => clearTimeout(timeout)
     }
-  }, [currentLine, currentChar, onComplete])
+  }, [started, currentLine, currentChar, onComplete])
   
   return (
     <div style={{
