@@ -1,5 +1,21 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+
+// Custom hook for reduced motion preference
+function useReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mediaQuery.matches)
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+  
+  return prefersReducedMotion
+}
 
 interface NavItem {
   label: string
@@ -17,7 +33,7 @@ interface NavProps {
 // ============================================================================
 export function MagneticNav({ items, className = '', onSelect }: NavProps) {
   return (
-    <nav className={`flex gap-8 ${className}`}>
+    <nav className={`flex gap-8 ${className}`} role="navigation" aria-label="Main navigation">
       {items.map((item, index) => (
         <MagneticNavItem key={item.label} item={item} onClick={() => onSelect?.(item, index)} />
       ))}
@@ -27,28 +43,29 @@ export function MagneticNav({ items, className = '', onSelect }: NavProps) {
 
 function MagneticNavItem({ item, onClick }: { item: NavItem; onClick: () => void }) {
   const ref = useRef<HTMLButtonElement>(null)
+  const prefersReducedMotion = useReducedMotion()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const springX = useSpring(x, { stiffness: 150, damping: 15 })
   const springY = useSpring(y, { stiffness: 150, damping: 15 })
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!ref.current) return
+    if (!ref.current || prefersReducedMotion) return
     const rect = ref.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
     x.set((e.clientX - centerX) * 0.2)
     y.set((e.clientY - centerY) * 0.2)
-  }, [x, y])
+  }, [x, y, prefersReducedMotion])
 
   return (
     <motion.button
       ref={ref}
-      style={{ x: springX, y: springY }}
+      style={prefersReducedMotion ? {} : { x: springX, y: springY }}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => { x.set(0); y.set(0) }}
       onClick={onClick}
-      className="text-neutral-400 hover:text-white transition-colors px-2 py-1"
+      className="text-neutral-400 hover:text-white transition-colors px-2 py-1 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 rounded"
     >
       {item.label}
     </motion.button>
@@ -62,6 +79,7 @@ export function UnderlineNav({ items, className = '', onSelect }: NavProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const prefersReducedMotion = useReducedMotion()
 
   const getIndicatorStyle = () => {
     const index = hoverIndex ?? activeIndex
@@ -74,7 +92,7 @@ export function UnderlineNav({ items, className = '', onSelect }: NavProps) {
   }
 
   return (
-    <nav className={`relative flex gap-1 ${className}`}>
+    <nav className={`relative flex gap-1 ${className}`} role="navigation" aria-label="Main navigation">
       {items.map((item, index) => (
         <button
           key={item.label}
@@ -82,7 +100,8 @@ export function UnderlineNav({ items, className = '', onSelect }: NavProps) {
           onMouseEnter={() => setHoverIndex(index)}
           onMouseLeave={() => setHoverIndex(null)}
           onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
-          className={`px-4 py-2 transition-colors ${
+          aria-current={activeIndex === index ? 'page' : undefined}
+          className={`px-4 py-2 transition-colors min-h-[44px] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 rounded ${
             activeIndex === index ? 'text-white' : 'text-neutral-400 hover:text-white'
           }`}
         >
@@ -93,7 +112,7 @@ export function UnderlineNav({ items, className = '', onSelect }: NavProps) {
         className="absolute bottom-0 h-0.5 bg-white"
         initial={false}
         animate={getIndicatorStyle()}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       />
     </nav>
   )
