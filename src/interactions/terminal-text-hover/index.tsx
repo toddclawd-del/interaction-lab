@@ -336,7 +336,7 @@ const styles: Record<string, React.CSSProperties> = {
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundImage: 'repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.15) 3px)',
+    backgroundImage: 'repeating-linear-gradient(transparent, transparent 4px, rgba(0,0,0,0.1) 5px)',
     backgroundSize: 'auto 100%',
     pointerEvents: 'none',
     zIndex: 100,
