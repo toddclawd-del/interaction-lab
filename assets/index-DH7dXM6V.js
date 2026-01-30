@@ -1,4 +1,4 @@
-import{r as s,j as e,L as j}from"./index-DSiQCNLh.js";import{w as L,u as M,z as F,s as A,A as E,V as C}from"./Texture-B3r0W7bv.js";import{L as P}from"./lenis-DTHSWqDp.js";const W=`uniform float uScrollSpeed;
+import{r as s,j as e,L as j}from"./index-DDsJlWGK.js";import{w as L,u as M,z as F,s as A,A as E,V as C}from"./Texture-qK-0WUKp.js";import{L as P}from"./lenis-DTHSWqDp.js";const W=`uniform float uScrollSpeed;
 uniform float uCurveStrength;
 uniform float uCurveFrequency;
 
