@@ -59,8 +59,15 @@ const BOOT_MESSAGES = [
 // HELPER COMPONENTS
 // ════════════════════════════════════════════════════════════════
 
-// Check if device supports hover
-const supportsHover = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
+// Check if device supports hover (safe for SSR)
+function checkHoverSupport(): boolean {
+  if (typeof window === 'undefined') return true
+  try {
+    return window.matchMedia('(hover: hover)').matches
+  } catch {
+    return true
+  }
+}
 
 interface HoverTextProps {
   children: string
@@ -78,7 +85,7 @@ function HoverText({ children, variant, className = '' }: HoverTextProps) {
     
     animatorRef.current = new TextAnimator(ref.current, { variant })
     
-    if (!supportsHover) {
+    if (!checkHoverSupport()) {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -107,15 +114,15 @@ function HoverText({ children, variant, className = '' }: HoverTextProps) {
   }, [variant])
   
   const handleMouseEnter = useCallback(() => {
-    if (supportsHover) animatorRef.current?.animate()
+    if (checkHoverSupport()) animatorRef.current?.animate()
   }, [])
   
   const handleMouseLeave = useCallback(() => {
-    if (supportsHover) animatorRef.current?.animateOut()
+    if (checkHoverSupport()) animatorRef.current?.animateOut()
   }, [])
   
   const handleTap = useCallback(() => {
-    if (!supportsHover) animatorRef.current?.animate()
+    if (!checkHoverSupport()) animatorRef.current?.animate()
   }, [])
   
   return (
@@ -191,7 +198,7 @@ function BootSequence({ onComplete }: { onComplete: () => void }) {
   }, [started, currentLine, currentChar, onComplete])
   
   return (
-    <div style={styles.bootScreen}>
+    <div style={styles.bootScreen} onClick={onComplete}>
       <div style={{ maxWidth: 500, padding: '2rem' }}>
         {lines.map((line, i) => (
           <div key={i} className="boot-line" style={styles.bootLine}>
@@ -200,6 +207,9 @@ function BootSequence({ onComplete }: { onComplete: () => void }) {
             {i === currentLine && <span className="boot-cursor" />}
           </div>
         ))}
+        <div style={{ marginTop: '2rem', fontSize: '0.7rem', opacity: 0.3, textAlign: 'center' }}>
+          TAP TO SKIP
+        </div>
       </div>
     </div>
   )
