@@ -36,7 +36,7 @@ export function StaggerPatterns() {
       return
     }
 
-    const getStagger = () => {
+    const getStagger = (): gsap.StaggerVars => {
       switch (activePattern) {
         // ────────────────────────────────────────────────────────
         // CASCADE: From top-left corner diagonally
@@ -44,8 +44,8 @@ export function StaggerPatterns() {
         case 'cascade':
           return {
             amount: 0.8,
-            grid: [GRID_SIZE, GRID_SIZE],
-            from: 'start',
+            grid: [GRID_SIZE, GRID_SIZE] as [number, number],
+            from: 'start' as const,
             ease: 'power2.inOut',
           }
 
@@ -55,8 +55,8 @@ export function StaggerPatterns() {
         case 'ripple':
           return {
             amount: 0.6,
-            grid: [GRID_SIZE, GRID_SIZE],
-            from: 'center',
+            grid: [GRID_SIZE, GRID_SIZE] as [number, number],
+            from: 'center' as const,
             ease: 'power1.out',
           }
 
@@ -66,12 +66,12 @@ export function StaggerPatterns() {
         case 'random':
           return {
             amount: 1,
-            from: 'random',
+            from: 'random' as const,
             ease: 'none',
           }
 
         default:
-          return { amount: 0.5, from: 'start' }
+          return { amount: 0.5, from: 'start' as const }
       }
     }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 
@@ -214,7 +214,7 @@ function TiltCard({ image }: { image: string }) {
 
 function SpreadingStack() {
   const stackRef = useRef<HTMLDivElement>(null)
-  const [isSpread, setIsSpread] = useState(false)
+  const [, setIsSpread] = useState(false)
 
   const handleHover = (spread: boolean) => {
     if (!stackRef.current) return

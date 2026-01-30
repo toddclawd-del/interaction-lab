@@ -75,7 +75,7 @@ export function HorizontalScroll() {
       // Each card scales and rotates based on its position
       // ────────────────────────────────────────────────────────
       
-      cards.forEach((card, index) => {
+      cards.forEach((card, _index) => {
         if (!card) return
 
         // Create individual scroll trigger for each card

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 
@@ -10,7 +10,7 @@ import gsap from 'gsap'
 
 export function ElasticPhysics() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [cardsAnimated, setCardsAnimated] = useState(false)
+  const [, setCardsAnimated] = useState(false)
   const jellyTextRef = useRef<HTMLDivElement>(null)
   const [overscrollY, setOverscrollY] = useState(0)
 

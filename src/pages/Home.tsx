@@ -30,33 +30,165 @@ const experiments: Experiment[] = [
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/terminal-text-hover'
   },
   {
+    slug: 'text-reveal',
+    title: 'Text Reveal',
+    description: 'SplitText showcase with 5 reveal styles: character rotation, word fade, line reveal, scramble decode, and gradient wipe.',
+    date: '2025-01-31',
+    size: 'large',
+    accent: '#a855f7',
+    icon: '✨',
+    tags: ['GSAP', 'SplitType', 'Typography'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/text-reveal'
+  },
+  {
     slug: 'wavy-carousel',
     title: 'Wavy Infinite Carousel',
     description: 'Scroll-driven 3D carousel with GLSL shader wave distortion. Images flow infinitely with velocity-based stretch.',
     date: '2025-01-29',
-    size: 'large',
+    size: 'medium',
     accent: '#6366f1',
     icon: '🌊',
     tags: ['Three.js', 'GLSL', 'Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/wavy-carousel'
   },
   {
+    slug: 'scroll-velocity',
+    title: 'Scroll Velocity Marquee',
+    description: 'Marquee text that accelerates based on scroll speed and reverses direction when scrolling up.',
+    date: '2025-01-31',
+    size: 'medium',
+    accent: '#f97316',
+    icon: '⚡',
+    tags: ['GSAP', 'Scroll', 'Velocity'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/scroll-velocity'
+  },
+  {
+    slug: 'magnetic-elements',
+    title: 'Magnetic Elements',
+    description: 'Buttons and elements that follow cursor with magnetic pull and elastic snap-back effect.',
+    date: '2025-01-31',
+    size: 'medium',
+    accent: '#14b8a6',
+    icon: '🧲',
+    tags: ['GSAP', 'Cursor', 'Physics'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/magnetic-elements'
+  },
+  {
+    slug: 'horizontal-scroll',
+    title: 'Horizontal Scroll Gallery',
+    description: 'Pinned section with horizontal scroll. Cards scale and rotate as they move through viewport.',
+    date: '2025-01-31',
+    size: 'medium',
+    accent: '#6366f1',
+    icon: '↔️',
+    tags: ['GSAP', 'ScrollTrigger', 'Pin'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/horizontal-scroll'
+  },
+  {
     slug: 'grid-flip',
     title: 'Grid Flip',
     description: 'Smooth grid layout animations with GSAP Flip plugin',
     date: '2025-01-28',
-    size: 'medium',
+    size: 'small',
     accent: '#f59e0b',
     icon: '🔲',
     tags: ['GSAP', 'Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/grid-flip'
   },
   {
+    slug: 'image-reveal',
+    title: 'Image Reveal Effects',
+    description: 'Multiple reveal effects: clip-path wipes, scale+blur, parallax zoom, circle mask, and before/after slider.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#ec4899',
+    icon: '🖼️',
+    tags: ['GSAP', 'Clip-path', 'Scroll'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/image-reveal'
+  },
+  {
+    slug: 'counter-lab',
+    title: 'Counter Lab',
+    description: 'Number animations: smooth counting, decimals, slot machine odometer, and scroll-triggered stats.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#22c55e',
+    icon: '🔢',
+    tags: ['GSAP', 'Numbers', 'Animation'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/counter-lab'
+  },
+  {
+    slug: 'cursor-playground',
+    title: 'Cursor Playground',
+    description: 'Custom cursor effects: trailing, dynamic text, blob morph, and spotlight reveal.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#8b5cf6',
+    icon: '🖱️',
+    tags: ['GSAP', 'Cursor', 'Interactive'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/cursor-playground'
+  },
+  {
+    slug: 'stagger-patterns',
+    title: 'Stagger Patterns',
+    description: 'Grid stagger animations: cascade, ripple from center, random order, and neighbor-affecting hover.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#0ea5e9',
+    icon: '🎯',
+    tags: ['GSAP', 'Stagger', 'Grid'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/stagger-patterns'
+  },
+  {
+    slug: 'parallax-depth',
+    title: 'Parallax Depth',
+    description: '6-layer parallax with mouse + scroll movement. 3D perspective creates depth illusion.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#6366f1',
+    icon: '🎭',
+    tags: ['GSAP', 'Parallax', '3D'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/parallax-depth'
+  },
+  {
+    slug: 'elastic-physics',
+    title: 'Elastic Physics',
+    description: 'Bouncy animations: elastic buttons, bounce cards, jelly text wobble, and rubber band scroll.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#f43f5e',
+    icon: '🪀',
+    tags: ['GSAP', 'Elastic', 'Bounce'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/elastic-physics'
+  },
+  {
+    slug: 'scroll-scrub',
+    title: 'Scroll Scrub',
+    description: 'Scrub-based animations: progress bar, transforming elements, pinned content swap, and timeline.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#0891b2',
+    icon: '📜',
+    tags: ['GSAP', 'ScrollTrigger', 'Scrub'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/scroll-scrub'
+  },
+  {
+    slug: '3d-cards',
+    title: '3D Cards',
+    description: 'CSS 3D + GSAP: card flip, cursor-following tilt, spreading stack, and perspective carousel.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#d946ef',
+    icon: '🃏',
+    tags: ['GSAP', 'CSS 3D', 'Transform'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/3d-cards'
+  },
+  {
     slug: 'cylinder-text',
     title: '3D Cylinder Text',
     description: 'Scroll-driven 3D text rotation with CSS transforms',
     date: '2025-01-28',
-    size: 'medium',
+    size: 'small',
     accent: '#10b981',
     icon: '🔄',
     tags: ['CSS', '3D'],
@@ -83,11 +215,122 @@ const experiments: Experiment[] = [
     icon: '∞',
     tags: ['Canvas', 'Gestures'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/infinite-canvas'
+  },
+  // Shader-based interactions
+  {
+    slug: 'shader-hero',
+    title: 'Shader Hero',
+    description: 'Full-viewport shader background with mouse interaction and scroll parallax. Aurora-inspired flowing patterns.',
+    date: '2025-01-31',
+    size: 'medium',
+    accent: '#7c3aed',
+    icon: '✨',
+    tags: ['GLSL', 'Three.js', 'Hero'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-hero'
+  },
+  {
+    slug: 'shader-particles',
+    title: 'GPU Particles',
+    description: 'Thousands of GPU-computed particles with mouse attraction/repulsion. Multiple presets.',
+    date: '2025-01-31',
+    size: 'medium',
+    accent: '#f72585',
+    icon: '🌟',
+    tags: ['GLSL', 'Three.js', 'Particles'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-particles'
+  },
+  {
+    slug: 'shader-liquid',
+    title: 'Liquid Metaballs',
+    description: 'Interactive metaballs that follow mouse. Click to add blobs, tilt to move on mobile.',
+    date: '2025-01-31',
+    size: 'medium',
+    accent: '#4cc9f0',
+    icon: '💧',
+    tags: ['GLSL', 'Three.js', 'Interactive'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-liquid'
+  },
+  {
+    slug: 'shader-cards',
+    title: 'Shader Cards',
+    description: 'Grid of cards with unique shader backgrounds. Hover to interact, click to expand full screen.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#667eea',
+    icon: '🎴',
+    tags: ['GLSL', 'Three.js', 'Cards'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-cards'
+  },
+  {
+    slug: 'shader-gradient',
+    title: 'Animated Gradient',
+    description: 'Beautiful aurora/mesh gradient backgrounds with mouse influence. Multiple color presets.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#f093fb',
+    icon: '🌈',
+    tags: ['GLSL', 'Background'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-gradient'
+  },
+  {
+    slug: 'shader-noise',
+    title: 'Noise Effects',
+    description: 'Perlin, simplex, and turbulent noise patterns. Mouse adds turbulence.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#38f9d7',
+    icon: '📺',
+    tags: ['GLSL', 'Noise'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-noise'
+  },
+  {
+    slug: 'shader-transition',
+    title: 'Page Transitions',
+    description: 'Shader-based page wipe transitions. Dissolve, wipe, circle, pixelate effects.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#1a1a2e',
+    icon: '🔃',
+    tags: ['GLSL', 'Transition'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-transition'
+  },
+  {
+    slug: 'shader-distortion',
+    title: 'Image Distortion',
+    description: 'Ripple, wave, twist, and bulge distortion effects on hover.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#ff6b6b',
+    icon: '🌀',
+    tags: ['GLSL', 'Distortion'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-distortion'
+  },
+  {
+    slug: 'shader-reveal',
+    title: 'Scroll Reveal',
+    description: 'Scroll-triggered shader reveal with multiple directions and noise edges.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#764ba2',
+    icon: '👁️',
+    tags: ['GLSL', 'Scroll'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-reveal'
+  },
+  {
+    slug: 'shader-cursor',
+    title: 'Shader Cursor',
+    description: 'Custom cursor with shader effects. Ripple, glow, vortex modes. Mobile touch ripples.',
+    date: '2025-01-31',
+    size: 'small',
+    accent: '#f72585',
+    icon: '👆',
+    tags: ['GLSL', 'Cursor'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-cursor'
   }
 ]
 
 const stats = [
-  { value: '6', label: 'Experiments' },
+  { value: '28', label: 'Experiments' },
   { value: '100%', label: 'Open Source' },
   { value: '0', label: 'Dependencies*' },
 ]

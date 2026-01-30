@@ -26,7 +26,8 @@ const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#
 
 export function TextReveal() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [activeDemo, setActiveDemo] = useState<string | null>(null)
+  // Track active demo (not currently used in UI but could be for visual feedback)
+  const [, setActiveDemo] = useState<string | null>(null)
   
   // Refs for each text element
   const charRef = useRef<HTMLDivElement>(null)
