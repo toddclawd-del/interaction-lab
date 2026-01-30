@@ -10,6 +10,20 @@ const GridFlip = lazy(() => import('./interactions/grid-flip').then(m => ({ defa
 const WavyCarousel = lazy(() => import('./interactions/wavy-carousel').then(m => ({ default: m.WavyCarousel })))
 const TerminalTextHover = lazy(() => import('./interactions/terminal-text-hover').then(m => ({ default: m.TerminalTextHover })))
 
+// GSAP-powered interactions
+const TextReveal = lazy(() => import('./interactions/text-reveal').then(m => ({ default: m.TextReveal })))
+const ScrollVelocity = lazy(() => import('./interactions/scroll-velocity').then(m => ({ default: m.ScrollVelocity })))
+const MagneticElements = lazy(() => import('./interactions/magnetic-elements').then(m => ({ default: m.MagneticElements })))
+const HorizontalScroll = lazy(() => import('./interactions/horizontal-scroll').then(m => ({ default: m.HorizontalScroll })))
+const ImageReveal = lazy(() => import('./interactions/image-reveal').then(m => ({ default: m.ImageReveal })))
+const CounterLab = lazy(() => import('./interactions/counter-lab').then(m => ({ default: m.CounterLab })))
+const CursorPlayground = lazy(() => import('./interactions/cursor-playground').then(m => ({ default: m.CursorPlayground })))
+const StaggerPatterns = lazy(() => import('./interactions/stagger-patterns').then(m => ({ default: m.StaggerPatterns })))
+const ParallaxDepth = lazy(() => import('./interactions/parallax-depth').then(m => ({ default: m.ParallaxDepth })))
+const ElasticPhysics = lazy(() => import('./interactions/elastic-physics').then(m => ({ default: m.ElasticPhysics })))
+const ScrollScrub = lazy(() => import('./interactions/scroll-scrub').then(m => ({ default: m.ScrollScrub })))
+const ThreeDCards = lazy(() => import('./interactions/3d-cards').then(m => ({ default: m.ThreeDCards })))
+
 // Loading fallback
 const Loading = () => (
   <div style={{ 
