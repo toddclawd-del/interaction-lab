@@ -28,7 +28,7 @@ const SCRAMBLE_COLORS = [
   '#ec4899', // Pink
 ]
 
-export type AnimationVariant = 'cursor' | 'background' | 'color' | 'blur'
+export type AnimationVariant = 'cursor' | 'background' | 'color' | 'blur' | 'glitch'
 
 interface AnimatorOptions {
   variant?: AnimationVariant
@@ -79,6 +79,8 @@ export class TextAnimator {
       this.element.classList.add('hover-effect--bg')
     } else if (this.variant === 'blur') {
       this.element.classList.add('hover-effect--blur')
+    } else if (this.variant === 'glitch') {
+      this.element.classList.add('hover-effect--glitch')
     }
   }
   
@@ -160,10 +162,44 @@ export class TextAnimator {
         }
       )
     }
+    
+    // Glitch effect: RGB split + displacement
+    if (this.variant === 'glitch') {
+      // Initial glitch burst
+      gsap.to(this.element, {
+        duration: 0.1,
+        '--glitch-intensity': 1,
+        ease: 'power2.out',
+      })
+      
+      // Random displacement flickers
+      const glitchTimeline = gsap.timeline({ repeat: 3 })
+      glitchTimeline
+        .to(this.element, {
+          duration: 0.05,
+          '--glitch-x': () => (Math.random() - 0.5) * 8,
+          '--glitch-skew': () => (Math.random() - 0.5) * 5,
+          ease: 'none',
+        })
+        .to(this.element, {
+          duration: 0.05,
+          '--glitch-x': 0,
+          '--glitch-skew': 0,
+          ease: 'none',
+        })
+      
+      // Fade out glitch
+      gsap.to(this.element, {
+        duration: 0.3,
+        delay: 0.4,
+        '--glitch-intensity': 0,
+        ease: 'power2.out',
+      })
+    }
   }
   
   /**
-   * Animate out (for background variant)
+   * Animate out (for background/glitch variants)
    */
   animateOut() {
     if (this.variant === 'background' || this.variant === 'blur') {
@@ -172,6 +208,15 @@ export class TextAnimator {
         duration: 0.6,
         ease: 'power4.out',
         '--bg-scale': 0,
+      })
+    }
+    if (this.variant === 'glitch') {
+      gsap.killTweensOf(this.element)
+      gsap.to(this.element, {
+        duration: 0.2,
+        '--glitch-intensity': 0,
+        '--glitch-x': 0,
+        '--glitch-skew': 0,
       })
     }
   }
@@ -198,6 +243,6 @@ export class TextAnimator {
   destroy() {
     this.reset()
     this.splitter?.revert()
-    this.element.classList.remove('hover-effect', 'hover-effect--cursor', 'hover-effect--bg', 'hover-effect--blur')
+    this.element.classList.remove('hover-effect', 'hover-effect--cursor', 'hover-effect--bg', 'hover-effect--blur', 'hover-effect--glitch')
   }
 }

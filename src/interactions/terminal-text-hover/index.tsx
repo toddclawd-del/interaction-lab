@@ -56,6 +56,7 @@ const VARIANTS: { key: AnimationVariant; label: string }[] = [
   { key: 'background', label: 'Background' },
   { key: 'color', label: 'Color' },
   { key: 'blur', label: 'Blur' },
+  { key: 'glitch', label: 'Glitch' },
 ]
 
 // ============================================
@@ -98,6 +99,7 @@ function HoverText({ children, variant, className = '' }: HoverTextProps) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={styles.hoverText}
+      data-text={children}
     >
       {children}
     </span>
@@ -132,13 +134,100 @@ function ListRow({ data, variant, index }: ListRowProps) {
 // Main Component
 // ============================================
 
-export function TerminalTextHover() {
-  const [variant, setVariant] = useState<AnimationVariant>('cursor')
+// Boot sequence messages
+const BOOT_MESSAGES = [
+  'SYSTEM INIT...',
+  'LOADING KERNEL v3.14.159',
+  'MEMORY CHECK: 640K OK',
+  'VOLCANIC DATABASE ONLINE',
+  'READY_',
+]
+
+function BootSequence({ onComplete }: { onComplete: () => void }) {
+  const [lines, setLines] = useState<string[]>([])
+  const [currentLine, setCurrentLine] = useState(0)
+  const [currentChar, setCurrentChar] = useState(0)
+  
+  useEffect(() => {
+    if (currentLine >= BOOT_MESSAGES.length) {
+      // Boot complete
+      const timeout = setTimeout(onComplete, 800)
+      return () => clearTimeout(timeout)
+    }
+    
+    const message = BOOT_MESSAGES[currentLine]
+    
+    if (currentChar < message.length) {
+      // Type next character
+      const timeout = setTimeout(() => {
+        setLines(prev => {
+          const newLines = [...prev]
+          newLines[currentLine] = message.slice(0, currentChar + 1)
+          return newLines
+        })
+        setCurrentChar(c => c + 1)
+      }, 30 + Math.random() * 40)
+      return () => clearTimeout(timeout)
+    } else {
+      // Line complete, move to next
+      const timeout = setTimeout(() => {
+        setCurrentLine(l => l + 1)
+        setCurrentChar(0)
+      }, 200 + Math.random() * 300)
+      return () => clearTimeout(timeout)
+    }
+  }, [currentLine, currentChar, onComplete])
   
   return (
-    <div style={styles.container} className={`demo-${variant}`}>
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: '#0a0a0a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      fontFamily: '"JetBrains Mono", monospace',
+      color: '#00ff41',
+    }}>
+      <div style={{ maxWidth: 500, padding: '2rem' }}>
+        {lines.map((line, i) => (
+          <div key={i} className="boot-line" style={{ marginBottom: '0.5rem', fontSize: 14 }}>
+            <span style={{ color: '#666', marginRight: '1rem' }}>[{String(i).padStart(2, '0')}]</span>
+            {line}
+            {i === currentLine && <span className="boot-cursor" />}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function TerminalTextHover() {
+  const [variant, setVariant] = useState<AnimationVariant>('cursor')
+  const [crtMode, setCrtMode] = useState(false)
+  const [showBoot, setShowBoot] = useState(true)
+  
+  // Skip boot on subsequent visits (session storage)
+  useEffect(() => {
+    if (sessionStorage.getItem('terminal-booted')) {
+      setShowBoot(false)
+    }
+  }, [])
+  
+  const handleBootComplete = () => {
+    setShowBoot(false)
+    sessionStorage.setItem('terminal-booted', 'true')
+  }
+  
+  if (showBoot) {
+    return <BootSequence onComplete={handleBootComplete} />
+  }
+  
+  return (
+    <div style={styles.container} className={`demo-${variant} ${crtMode ? 'crt-mode' : ''}`}>
       {/* Scanlines overlay for retro effect */}
-      <div style={styles.scanlines} />
+      <div style={styles.scanlines} className="scanlines" />
       
       {/* Back button */}
       <Link to="/" style={styles.backButton}>
@@ -161,6 +250,21 @@ export function TerminalTextHover() {
               {v.label}
             </button>
           ))}
+        </div>
+        
+        {/* CRT Mode Toggle */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={styles.navLabel}>CRT:</span>
+          <button
+            onClick={() => setCrtMode(!crtMode)}
+            style={{
+              ...styles.variantButton,
+              ...(crtMode ? styles.variantButtonActive : {}),
+              minWidth: 50,
+            }}
+          >
+            {crtMode ? 'ON' : 'OFF'}
+          </button>
         </div>
       </nav>
       
@@ -288,6 +392,89 @@ export function TerminalTextHover() {
           --bg-color: #0a0a0a;
           --text-color: rgba(255, 255, 255, 0.9);
           --accent-color: #2d2d2d;
+        }
+        
+        .demo-glitch {
+          --bg-color: #0d0d0d;
+          --text-color: #00ff41;
+          --accent-color: #003d0f;
+        }
+        
+        /* Glitch effect styles */
+        .hover-effect--glitch {
+          --glitch-intensity: 0;
+          --glitch-x: 0;
+          --glitch-skew: 0;
+          position: relative;
+          transform: translateX(calc(var(--glitch-x) * 1px)) skewX(calc(var(--glitch-skew) * 1deg));
+        }
+        
+        .hover-effect--glitch::before,
+        .hover-effect--glitch::after {
+          content: attr(data-text);
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          opacity: var(--glitch-intensity);
+          pointer-events: none;
+        }
+        
+        .hover-effect--glitch::before {
+          color: #ff0040;
+          transform: translateX(-2px);
+          clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+        
+        .hover-effect--glitch::after {
+          color: #00ffff;
+          transform: translateX(2px);
+          clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+        
+        /* CRT mode */
+        .crt-mode {
+          border-radius: 20px;
+          overflow: hidden;
+        }
+        
+        .crt-mode::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 90%, rgba(0,0,0,0.6) 100%);
+          pointer-events: none;
+          z-index: 99;
+        }
+        
+        .crt-mode .scanlines {
+          background-image: 
+            repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 4px),
+            repeating-linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.03) 1px, rgba(0,0,255,0.03) 2px);
+        }
+        
+        /* Boot sequence */
+        .boot-line {
+          overflow: hidden;
+          white-space: nowrap;
+        }
+        
+        .boot-cursor {
+          display: inline-block;
+          width: 0.6em;
+          height: 1.1em;
+          background: currentColor;
+          margin-left: 2px;
+          vertical-align: text-bottom;
+          animation: blink 0.7s step-end infinite;
+        }
+        
+        @keyframes blink {
+          50% { opacity: 0; }
         }
         
         /* Responsive list */
