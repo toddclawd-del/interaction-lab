@@ -19,11 +19,22 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'ui-components',
+    title: 'UI Components',
+    description: '72 micro-interaction components: buttons, inputs, toggles, cards, loaders, badges, tooltips, menus, tabs, and navigation. Copy-paste ready.',
+    date: '2025-02-01',
+    size: 'hero',
+    accent: '#6366f1',
+    icon: '🧩',
+    tags: ['Framer Motion', 'Micro-interactions', 'Components'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/ui-components'
+  },
+  {
     slug: 'terminal-text-hover',
     title: 'Terminal Text Hover',
     description: 'Retro terminal-style character scramble effect. Characters briefly become random symbols before settling.',
     date: '2025-01-30',
-    size: 'hero',
+    size: 'large',
     accent: '#22c55e',
     icon: '⌨️',
     tags: ['GSAP', 'Typography', 'Hover'],

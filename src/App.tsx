@@ -36,6 +36,9 @@ const ShaderDistortion = lazy(() => import('./interactions/shader-distortion').t
 const ShaderTransition = lazy(() => import('./interactions/shader-transition').then(m => ({ default: m.TransitionShowcase })))
 const ShaderParticles = lazy(() => import('./interactions/shader-particles').then(m => ({ default: m.ParticleDemo })))
 
+// UI Components micro-interaction library
+const UIComponents = lazy(() => import('./interactions/ui-components').then(m => ({ default: m.UIComponents })))
+
 // Loading fallback
 const Loading = () => (
   <div style={{ 
@@ -185,6 +188,9 @@ export default function App() {
               <ShaderParticles />
             </ShaderDemoWrapper>
           } />
+          
+          {/* UI Components Library */}
+          <Route path="/ui-components" element={<UIComponents />} />
         </Routes>
       </Suspense>
     </HashRouter>
