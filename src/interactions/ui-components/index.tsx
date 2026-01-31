@@ -457,33 +457,33 @@ function UIComponentsContent() {
         {/* Tooltips Section */}
         <Section title="Tooltips" count={5}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Fade"><FadeTooltip content="Fade tooltip"><button className="px-4 py-2 rounded-lg text-white" style={{ backgroundColor: 'var(--color-primary)' }}>Hover</button></FadeTooltip></ComponentCard>
-            <ComponentCard label="Scale"><ScaleTooltip content="Scale tooltip"><button className="px-4 py-2 rounded-lg text-white" style={{ backgroundColor: 'var(--color-secondary)' }}>Hover</button></ScaleTooltip></ComponentCard>
-            <ComponentCard label="Slide"><SlideTooltip content="Slide tooltip"><button className="px-4 py-2 rounded-lg text-white" style={{ backgroundColor: 'var(--color-accent)' }}>Hover</button></SlideTooltip></ComponentCard>
-            <ComponentCard label="Magnetic"><MagneticTooltip content="Follows cursor"><button className="px-4 py-2 rounded-lg text-white bg-amber-600">Hover</button></MagneticTooltip></ComponentCard>
-            <ComponentCard label="Rich"><RichTooltip title="Title" content="Rich content"><button className="px-4 py-2 rounded-lg text-white bg-rose-600">Hover</button></RichTooltip></ComponentCard>
+            <ComponentCard label="Glassmorphism"><FadeTooltip content="Frosted glass effect">Hover me</FadeTooltip></ComponentCard>
+            <ComponentCard label="Aurora"><ScaleTooltip content="Flowing gradient">Hover me</ScaleTooltip></ComponentCard>
+            <ComponentCard label="Neumorphic"><SlideTooltip content="Soft 3D depth">Hover me</SlideTooltip></ComponentCard>
+            <ComponentCard label="Magnetic"><MagneticTooltip content="Follows cursor">Hover me</MagneticTooltip></ComponentCard>
+            <ComponentCard label="Holographic"><RichTooltip content="Iridescent effect">Hover me</RichTooltip></ComponentCard>
           </div>
         </Section>
 
         {/* Menus Section */}
         <Section title="Menus" count={5}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Fade"><FadeMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Fade ▼</button>} /></ComponentCard>
-            <ComponentCard label="Slide"><SlideMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Slide ▼</button>} /></ComponentCard>
-            <ComponentCard label="Scale"><ScaleMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Scale ▼</button>} /></ComponentCard>
-            <ComponentCard label="Blur"><BlurMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Blur ▼</button>} /></ComponentCard>
-            <ComponentCard label="Stagger"><StaggerMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Stagger ▼</button>} /></ComponentCard>
+            <ComponentCard label="Glassmorphism"><FadeMenu items={menuItems} trigger="Menu" /></ComponentCard>
+            <ComponentCard label="Aurora"><SlideMenu items={menuItems} trigger="Menu" /></ComponentCard>
+            <ComponentCard label="Neumorphic"><ScaleMenu items={menuItems} trigger="Menu" /></ComponentCard>
+            <ComponentCard label="Cyberpunk"><BlurMenu items={menuItems} trigger="Menu" /></ComponentCard>
+            <ComponentCard label="Layered"><StaggerMenu items={menuItems} trigger="Menu" /></ComponentCard>
           </div>
         </Section>
 
         {/* Tabs Section */}
         <Section title="Tabs" count={5}>
           <div className="space-y-4">
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Slide Tabs</p><SlideTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Fade Tabs</p><FadeTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Underline Tabs</p><UnderlineTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Pill Tabs</p><PillTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Vertical Tabs</p><VerticalTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Glassmorphism Tabs</p><SlideTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Aurora Tabs</p><FadeTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Neumorphic Tabs</p><UnderlineTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Cyberpunk Tabs</p><PillTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Vertical Premium Tabs</p><VerticalTabs tabs={tabData} /></div>
           </div>
         </Section>
 
