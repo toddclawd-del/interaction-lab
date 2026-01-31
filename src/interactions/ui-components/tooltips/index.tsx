@@ -10,11 +10,11 @@ interface TooltipProps {
 
 // Premium trigger button base styles
 const triggerStyles = `
-  relative px-6 py-3 rounded-2xl font-semibold text-white
+  relative inline-flex items-center justify-center px-10 py-4 rounded-2xl font-semibold text-white
   backdrop-blur-xl bg-white/10 
   border border-white/20
   shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]
-  overflow-hidden cursor-pointer
+  overflow-hidden cursor-pointer min-w-[140px] whitespace-nowrap
   transition-all duration-300
   hover:scale-[1.02] hover:-translate-y-0.5
   active:scale-[0.98]
@@ -22,12 +22,12 @@ const triggerStyles = `
 
 // Premium tooltip panel styles
 const tooltipPanelStyles = `
-  px-4 py-3 
+  px-6 py-4 
   backdrop-blur-xl bg-neutral-900/90
   border border-white/10
   shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_30px_rgba(99,102,241,0.15)]
   rounded-xl
-  whitespace-nowrap pointer-events-none
+  whitespace-nowrap pointer-events-none min-w-[120px] text-center
 `
 
 // ============================================================================

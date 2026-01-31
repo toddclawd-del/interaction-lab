@@ -16,19 +16,19 @@ interface MenuProps {
 
 // Premium menu panel styles
 const menuPanelStyles = `
-  absolute top-full left-0 mt-3 min-w-[220px]
+  absolute top-full left-0 mt-3 min-w-[240px]
   backdrop-blur-xl bg-neutral-900/95
   border border-white/10
   shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(99,102,241,0.1)]
-  rounded-2xl overflow-hidden z-50
+  rounded-2xl overflow-hidden z-50 p-2
 `
 
 // Premium menu item styles
 const menuItemStyles = `
-  w-full px-5 py-4 text-left flex items-center gap-4
+  w-full px-6 py-4 text-left flex items-center gap-4 rounded-xl
   transition-all duration-200
   hover:bg-white/10
-  group
+  group min-h-[52px]
 `
 
 // ============================================================================
@@ -54,7 +54,7 @@ export function GlassmorphismMenu({ items, trigger, className = '' }: MenuProps)
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
-        className="relative px-6 py-3 rounded-2xl font-semibold text-white backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] overflow-hidden cursor-pointer"
+        className="relative inline-flex items-center justify-center px-10 py-4 rounded-2xl font-semibold text-white backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] overflow-hidden cursor-pointer min-w-[160px] whitespace-nowrap"
       >
         <span className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
         <span 
@@ -139,7 +139,7 @@ export function AuroraMenu({ items, trigger, className = '' }: MenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="relative px-6 py-3 rounded-2xl font-semibold text-white overflow-hidden cursor-pointer"
+        className="relative inline-flex items-center justify-center px-10 py-4 rounded-2xl font-semibold text-white overflow-hidden cursor-pointer min-w-[160px] whitespace-nowrap"
       >
         <span 
           className="absolute inset-0 animate-aurora"
@@ -242,7 +242,7 @@ export function NeumorphicMenu({ items, trigger, className = '' }: MenuProps) {
             : '8px 8px 20px rgba(0,0,0,0.4), -8px -8px 20px rgba(255,255,255,0.05)',
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="relative px-6 py-3 rounded-2xl font-semibold bg-neutral-800 text-white/90 cursor-pointer"
+        className="relative inline-flex items-center justify-center px-10 py-4 rounded-2xl font-semibold bg-neutral-800 text-white/90 cursor-pointer min-w-[160px] whitespace-nowrap"
       >
         <span className={`relative z-10 flex items-center gap-2 transition-transform duration-150 ${isPressed ? 'scale-95' : ''}`}>
           {trigger}
@@ -311,7 +311,7 @@ export function CyberpunkMenu({ items, trigger, className = '' }: MenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="relative px-6 py-3 font-bold uppercase tracking-wider overflow-hidden cursor-pointer group"
+        className="relative inline-flex items-center justify-center px-10 py-4 font-bold uppercase tracking-wider overflow-hidden cursor-pointer group min-w-[160px] whitespace-nowrap"
         style={{
           background: 'linear-gradient(135deg, #0a0a0a, #1a1a2e)',
           border: '2px solid var(--color-primary)',
@@ -440,7 +440,7 @@ export function LayeredMenu({ items, trigger, className = '' }: MenuProps) {
         />
         {/* Top layer */}
         <motion.span
-          className="relative block px-6 py-3 rounded-xl font-semibold text-white"
+          className="relative inline-flex items-center justify-center px-10 py-4 rounded-xl font-semibold text-white min-w-[160px] whitespace-nowrap"
           style={{ backgroundColor: 'var(--color-primary)' }}
           variants={{ hover: { y: -2 } }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
