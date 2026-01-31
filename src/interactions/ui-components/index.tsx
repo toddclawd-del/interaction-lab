@@ -19,6 +19,8 @@ import {
   TextScrambleButton,
   BorderFlowButton,
   DepthShadowButton,
+  PillIndicatorButton,
+  PillGradientButton,
 } from './buttons'
 
 import {
@@ -32,6 +34,10 @@ import {
   MorphingHamburger,
   CircleMenu,
   SlidingDrawer,
+  GlassHeader,
+  MinimalHeader,
+  // FloatingHeader, // Fixed-position header, best used in full page context
+  GradientBorderHeader,
 } from './headers'
 
 import {
@@ -278,9 +284,11 @@ function UIComponentsContent() {
       <main className="max-w-6xl mx-auto px-6 pb-16">
 
         {/* Buttons Section */}
-        <Section title="Buttons" count={15}>
+        <Section title="Buttons" count={17}>
           <p className="text-white/50 text-sm mb-6 -mt-2">Hover, click, and interact with each button to see the effects</p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <ComponentCard label="Pill Indicator"><PillIndicatorButton>Get Started</PillIndicatorButton></ComponentCard>
+            <ComponentCard label="Pill Gradient"><PillGradientButton>Explore</PillGradientButton></ComponentCard>
             <ComponentCard label="Glassmorphism"><GlassmorphismButton>Glass</GlassmorphismButton></ComponentCard>
             <ComponentCard label="Neumorphic"><NeumorphicButton>Soft UI</NeumorphicButton></ComponentCard>
             <ComponentCard label="Aurora"><AuroraButton>Aurora</AuroraButton></ComponentCard>
@@ -300,7 +308,26 @@ function UIComponentsContent() {
         </Section>
 
         {/* Navigation Section */}
-        <Section title="Navigation" count={10}>
+        <Section title="Navigation" count={14}>
+          {/* Full Headers */}
+          <p className="text-white/50 text-sm mb-4 -mt-2">Full headers with logo, nav links, and CTA</p>
+          <div className="space-y-4 mb-8">
+            <div className="p-4 bg-neutral-900/50 rounded-xl">
+              <p className="text-xs text-white/40 mb-3">Glass Header</p>
+              <GlassHeader items={navItems} />
+            </div>
+            <div className="p-4 bg-neutral-900/50 rounded-xl">
+              <p className="text-xs text-white/40 mb-3">Minimal Header</p>
+              <MinimalHeader items={navItems} />
+            </div>
+            <div className="p-4 bg-neutral-900/50 rounded-xl">
+              <p className="text-xs text-white/40 mb-3">Gradient Border Header</p>
+              <GradientBorderHeader items={navItems} />
+            </div>
+          </div>
+          
+          {/* Nav Link Animations */}
+          <p className="text-white/50 text-sm mb-4">Nav link animations</p>
           <div className="space-y-4">
             <ShowcaseRow label="Magnetic"><MagneticNav items={navItems} /></ShowcaseRow>
             <ShowcaseRow label="Underline"><UnderlineNav items={navItems} /></ShowcaseRow>
