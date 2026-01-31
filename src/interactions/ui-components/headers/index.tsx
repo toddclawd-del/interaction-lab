@@ -65,7 +65,7 @@ function MagneticNavItem({ item, onClick }: { item: NavItem; onClick: () => void
       onMouseMove={handleMouseMove}
       onMouseLeave={() => { x.set(0); y.set(0) }}
       onClick={onClick}
-      className="text-neutral-400 hover:text-white transition-colors px-2 py-1 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 rounded"
+      className="inline-flex items-center justify-center text-neutral-400 hover:text-white transition-colors px-5 py-2.5 min-h-[44px] min-w-[70px] whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-indigo-500/50 rounded-md"
     >
       {item.label}
     </motion.button>
@@ -493,14 +493,14 @@ export function GlassHeader({
       </div>
 
       {/* Nav Links */}
-      <nav className="hidden md:flex items-center gap-1">
+      <nav className="hidden md:flex items-center gap-2">
         {items.map((item, index) => (
           <motion.button
             key={item.label}
             onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
             whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
             className={`
-              px-4 py-2 rounded-lg transition-colors
+              inline-flex items-center justify-center px-6 py-3 rounded-lg transition-colors min-w-[80px] whitespace-nowrap
               ${activeIndex === index 
                 ? 'text-white bg-white/10' 
                 : 'text-neutral-400 hover:text-white hover:bg-white/5'}
@@ -517,8 +517,8 @@ export function GlassHeader({
         whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
         whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
         className="
-          flex items-center gap-3 pl-5 pr-2 py-2 
-          rounded-full font-medium text-white
+          inline-flex items-center justify-center gap-3 pl-8 pr-4 py-3 
+          rounded-full font-medium text-white min-w-[140px] whitespace-nowrap
           bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500
         "
       >
@@ -554,13 +554,13 @@ export function MinimalHeader({
         </div>
         
         {/* Nav Links */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-2">
           {items.map((item, index) => (
             <motion.button
               key={item.label}
               onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
               className={`
-                text-sm transition-colors
+                inline-flex items-center justify-center px-5 py-2.5 text-sm transition-colors min-w-[70px] whitespace-nowrap rounded-md
                 ${activeIndex === index ? 'text-white' : 'text-neutral-500 hover:text-white'}
               `}
             >
@@ -572,7 +572,7 @@ export function MinimalHeader({
 
       {/* CTA */}
       <div className="flex items-center gap-4">
-        <button className="text-sm text-neutral-400 hover:text-white transition-colors hidden sm:block">
+        <button className="inline-flex items-center justify-center px-5 py-2.5 text-sm text-neutral-400 hover:text-white transition-colors hidden sm:block whitespace-nowrap">
           Log In
         </button>
         <motion.button
@@ -580,7 +580,7 @@ export function MinimalHeader({
           whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
           className="
-            px-4 py-2 rounded-lg font-medium text-sm
+            inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium text-sm min-w-[100px] whitespace-nowrap
             bg-white text-black hover:bg-neutral-200 transition-colors
           "
         >
@@ -724,13 +724,13 @@ export function GradientBorderHeader({
         </div>
 
         {/* Nav Links */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-2">
           {items.map((item, index) => (
             <button
               key={item.label}
               onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
               className={`
-                text-sm transition-colors
+                inline-flex items-center justify-center px-5 py-2.5 text-sm transition-colors min-w-[70px] whitespace-nowrap rounded-md
                 ${activeIndex === index ? 'text-white' : 'text-neutral-500 hover:text-white'}
               `}
             >
@@ -745,7 +745,7 @@ export function GradientBorderHeader({
           whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
           className="
-            px-5 py-2.5 rounded-xl font-medium text-white text-sm
+            inline-flex items-center justify-center px-8 py-2.5 rounded-xl font-medium text-white text-sm min-w-[120px] whitespace-nowrap
             bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500
           "
         >
