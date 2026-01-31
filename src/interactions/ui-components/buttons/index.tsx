@@ -885,9 +885,9 @@ export function PillIndicatorButton({ children, className = '', onClick }: Butto
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative flex items-center gap-4 pl-14 pr-6 py-4 
+        relative inline-flex items-center gap-4 pl-14 pr-6 py-4 
         rounded-full font-semibold text-white
-        min-h-[56px] overflow-hidden
+        min-h-[56px] min-w-[220px] overflow-hidden whitespace-nowrap
         ${className}
       `}
       style={{
@@ -939,8 +939,9 @@ export function PillGradientButton({ children, className = '', onClick }: Button
       whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -1 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-16 py-5 rounded-full font-semibold text-white
-        min-h-[56px] overflow-hidden
+        relative inline-flex items-center justify-center
+        px-16 py-5 rounded-full font-semibold text-white
+        min-h-[56px] min-w-[200px] overflow-hidden whitespace-nowrap
         ${className}
       `}
       style={{
