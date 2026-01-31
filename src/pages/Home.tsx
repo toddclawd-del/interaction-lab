@@ -695,7 +695,17 @@ function BentoCard({ experiment, index }: { experiment: Experiment; index: numbe
 // ─────────────────────────────────────────────────────────────────
 // EXPERIMENTS SECTION
 // ─────────────────────────────────────────────────────────────────
+
+// Extract all unique tags
+const allTags = Array.from(new Set(experiments.flatMap(exp => exp.tags))).sort()
+
 function Experiments() {
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  
+  const filteredExperiments = selectedTag 
+    ? experiments.filter(exp => exp.tags.includes(selectedTag))
+    : experiments
+  
   return (
     <section id="experiments" style={styles.experimentsSection}>
       <div style={styles.sectionHeader}>
@@ -705,8 +715,40 @@ function Experiments() {
         </p>
       </div>
       
+      {/* Tag Filter Nav */}
+      <div style={styles.filterNav}>
+        <button
+          onClick={() => setSelectedTag(null)}
+          style={{
+            ...styles.filterButton,
+            background: selectedTag === null ? 'rgba(99, 102, 241, 0.9)' : 'rgba(255,255,255,0.08)',
+            color: selectedTag === null ? '#fff' : 'rgba(255,255,255,0.7)',
+            borderColor: selectedTag === null ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255,255,255,0.1)',
+          }}
+        >
+          All ({experiments.length})
+        </button>
+        {allTags.map(tag => {
+          const count = experiments.filter(exp => exp.tags.includes(tag)).length
+          return (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+              style={{
+                ...styles.filterButton,
+                background: selectedTag === tag ? 'rgba(99, 102, 241, 0.9)' : 'rgba(255,255,255,0.08)',
+                color: selectedTag === tag ? '#fff' : 'rgba(255,255,255,0.7)',
+                borderColor: selectedTag === tag ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255,255,255,0.1)',
+              }}
+            >
+              {tag} ({count})
+            </button>
+          )
+        })}
+      </div>
+      
       <div className="bento-grid" style={styles.grid}>
-        {experiments.map((exp, i) => (
+        {filteredExperiments.map((exp, i) => (
           <BentoCard key={exp.slug} experiment={exp} index={i} />
         ))}
       </div>
@@ -1110,6 +1152,24 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '1rem',
     color: 'rgba(255,255,255,0.5)',
     lineHeight: 1.6,
+  },
+  filterNav: {
+    maxWidth: '1000px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
+    justifyContent: 'center',
+  },
+  filterButton: {
+    padding: '0.5rem 1rem',
+    fontSize: '0.8rem',
+    fontWeight: 500,
+    border: '1px solid',
+    borderRadius: '9999px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap',
   },
   grid: {
     maxWidth: '1000px',
