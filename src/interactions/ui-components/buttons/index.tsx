@@ -37,7 +37,7 @@ export function GlassmorphismButton({ children, className = '', onClick }: Butto
       whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -2 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-semibold text-white
+        relative px-10 py-4 rounded-2xl font-semibold text-white
         backdrop-blur-xl bg-white/10 
         border border-white/20
         shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]
@@ -88,7 +88,7 @@ export function NeumorphicButton({ children, className = '', onClick }: ButtonPr
       }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-semibold
+        relative px-10 py-4 rounded-2xl font-semibold
         bg-neutral-800 text-white/90
         min-h-[56px]
         ${className}
@@ -113,7 +113,7 @@ export function AuroraButton({ children, className = '', onClick }: ButtonProps)
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-semibold text-white
+        relative px-10 py-4 rounded-2xl font-semibold text-white
         overflow-hidden min-h-[56px] group
         ${className}
       `}
@@ -197,7 +197,7 @@ export function HolographicButton({ children, className = '', onClick }: ButtonP
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-semibold text-white
+        relative px-10 py-4 rounded-2xl font-semibold text-white
         overflow-hidden min-h-[56px]
         shadow-[0_0_30px_rgba(200,100,255,0.3)]
         ${className}
@@ -296,7 +296,7 @@ export function GhostOutlineButton({ children, className = '', onClick }: Button
       onMouseLeave={() => setIsHovered(false)}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-xl font-semibold
+        relative px-10 py-4 rounded-xl font-semibold
         border-2 overflow-hidden min-h-[56px]
         ${className}
       `}
@@ -355,7 +355,7 @@ export function LayeredDepthButton({ children, className = '', onClick }: Button
       
       {/* Top layer (main) */}
       <motion.span
-        className="relative block px-8 py-4 rounded-xl font-semibold text-white"
+        className="relative block px-10 py-4 rounded-xl font-semibold text-white"
         style={{ backgroundColor: 'var(--color-primary)' }}
         variants={{ hover: { y: -2 } }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -419,7 +419,7 @@ export function MagneticPremiumButton({ children, className = '', onClick }: But
         onClick={onClick}
         whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
         className={`
-          relative px-8 py-4 rounded-2xl font-semibold text-white
+          relative px-10 py-4 rounded-2xl font-semibold text-white
           min-h-[56px] overflow-hidden
           shadow-lg
           ${className}
@@ -479,7 +479,7 @@ export function LiquidMetalButton({ children, className = '', onClick }: ButtonP
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-bold text-neutral-800
+        relative px-10 py-4 rounded-2xl font-bold text-neutral-800
         min-h-[56px] overflow-hidden
         shadow-[0_10px_40px_rgba(0,0,0,0.3),inset_0_2px_0_rgba(255,255,255,0.8),inset_0_-2px_0_rgba(0,0,0,0.2)]
         ${className}
@@ -554,7 +554,7 @@ export function MorphingBlobButton({ children, className = '', onClick }: Button
         }}
       />
       
-      <span className="relative z-10 px-8 py-4 text-white font-semibold block">
+      <span className="relative z-10 px-10 py-4 text-white font-semibold block">
         {children}
       </span>
     </motion.button>
@@ -573,7 +573,7 @@ export function CyberpunkNeonButton({ children, className = '', onClick }: Butto
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 font-bold uppercase tracking-wider
+        relative px-10 py-4 font-bold uppercase tracking-wider
         min-h-[56px] overflow-hidden group
         ${className}
       `}
@@ -683,7 +683,7 @@ export function ParticleBurstButton({ children, className = '', onClick }: Butto
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-semibold text-white
+        relative px-10 py-4 rounded-2xl font-semibold text-white
         min-h-[56px] overflow-visible
         ${className}
       `}
@@ -768,7 +768,7 @@ export function TextScrambleButton({ children, className = '', onClick }: Button
       onMouseLeave={() => setIsHovered(false)}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-xl font-mono font-bold
+        relative px-10 py-4 rounded-xl font-mono font-bold
         min-h-[56px] uppercase tracking-wider
         ${className}
       `}
@@ -794,7 +794,7 @@ export function BorderFlowButton({ children, className = '', onClick }: ButtonPr
       whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       className={`
-        relative px-8 py-4 rounded-xl font-semibold text-white
+        relative px-10 py-4 rounded-xl font-semibold text-white
         min-h-[56px] bg-neutral-900
         ${className}
       `}
@@ -854,7 +854,7 @@ export function DepthShadowButton({ children, className = '', onClick }: ButtonP
       }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className={`
-        relative px-8 py-4 rounded-2xl font-semibold text-white
+        relative px-10 py-4 rounded-2xl font-semibold text-white
         min-h-[56px]
         ${className}
       `}

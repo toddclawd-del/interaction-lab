@@ -280,7 +280,7 @@ function UIComponentsContent() {
         {/* Buttons Section */}
         <Section title="Buttons" count={15}>
           <p className="text-white/50 text-sm mb-6 -mt-2">Hover, click, and interact with each button to see the effects</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <ComponentCard label="Glassmorphism"><GlassmorphismButton>Glass</GlassmorphismButton></ComponentCard>
             <ComponentCard label="Neumorphic"><NeumorphicButton>Soft UI</NeumorphicButton></ComponentCard>
             <ComponentCard label="Aurora"><AuroraButton>Aurora</AuroraButton></ComponentCard>
