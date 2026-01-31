@@ -116,14 +116,14 @@ import {
 } from './tabs'
 
 // New component imports
-// import { ModalsDemo, BasicModal, ConfirmationDialog, SlideDrawer, AlertModal } from './modals'
-// import { ToastsDemo, ToastsShowcase, ToastProvider, useToast } from './toasts'
-// import { SelectsDemo, BasicSelect, SearchableSelect, MultiSelect, GroupedSelect } from './selects'
-// import { AccordionsDemo, Accordion, FAQAccordion, NestedAccordion } from './accordions'
-// import { AvatarsDemo, Avatar, AvatarGroup, AvatarWithBadge, AvatarWithName, InteractiveAvatar } from './avatars'
-// import { ProgressDemo, LinearProgress, CircularProgress, Stepper, ProgressSteps, AnimatedCounter } from './progress'
-// import { SlidersDemo, BasicSlider, RangeSlider, SteppedSlider, VerticalSlider, ColorSlider } from './sliders'
-// import { SkeletonsDemo, CardSkeleton, ListItemSkeleton, TableSkeleton, ProfileSkeleton, MediaGridSkeleton } from './skeletons'
+import { BasicModal, ConfirmationDialog, SlideDrawer, AlertModal, FullScreenModal } from './modals'
+import { ToastProvider, ToastsShowcase } from './toasts'
+import { BasicSelect, SearchableSelect, MultiSelect, GroupedSelect } from './selects'
+import { Accordion, FAQAccordion } from './accordions'
+import { Avatar, AvatarGroup, AvatarWithBadge, AvatarWithName, InteractiveAvatar, EditableAvatar } from './avatars'
+import { LinearProgress, CircularProgress, Stepper, AnimatedCounter, SegmentedProgress } from './progress'
+import { BasicSlider, RangeSlider, SteppedSlider, VerticalSlider, ColorSlider } from './sliders'
+import { CardSkeleton, ListItemSkeleton, TableSkeleton, ProfileSkeleton, MediaGridSkeleton, ArticleSkeleton, CommentSkeleton, FormSkeleton } from './skeletons'
 
 // Categories for sidebar navigation
 const categories = [
@@ -307,13 +307,13 @@ function SectionHeader({ id, title, description, count }: { id: string; title: s
 }
 
 // Grid layouts for different component types
-function ComponentGrid({ children, cols = 3 }: { children: React.ReactNode; cols?: 2 | 3 | 4 }) {
+function ComponentGrid({ children, cols = 3, className = '' }: { children: React.ReactNode; cols?: 2 | 3 | 4; className?: string }) {
   const colClasses = {
     2: 'grid-cols-1 md:grid-cols-2',
     3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
     4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
   }
-  return <div className={`grid ${colClasses[cols]} gap-6`}>{children}</div>
+  return <div className={`grid ${colClasses[cols]} gap-6 ${className}`}>{children}</div>
 }
 
 // Sidebar Navigation
@@ -458,6 +458,28 @@ function UIComponentsContent() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isCircleMenuOpen, setIsCircleMenuOpen] = useState(false)
   const [hamburgerOpen, setHamburgerOpen] = useState(false)
+  
+  // New component states
+  const [isBasicModalOpen, setIsBasicModalOpen] = useState(false)
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [isSlideDrawerOpen, setIsSlideDrawerOpen] = useState(false)
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
+  const [isFullScreenModalOpen, setIsFullScreenModalOpen] = useState(false)
+  
+  const [selectValue, setSelectValue] = useState('')
+  const [searchSelectValue, setSearchSelectValue] = useState('')
+  const [multiSelectValue, setMultiSelectValue] = useState<string[]>([])
+  const [groupedSelectValue, setGroupedSelectValue] = useState('')
+  
+  const [sliderValue, setSliderValue] = useState(50)
+  const [rangeValue, setRangeValue] = useState<[number, number]>([25, 75])
+  const [steppedValue, setSteppedValue] = useState(50)
+  const [verticalValue, setVerticalValue] = useState(50)
+  const [colorValue, setColorValue] = useState(180)
+  
+  const [progressValue, setProgressValue] = useState(65)
+  const [counterValue, setCounterValue] = useState(1234)
+  const [activeStep, setActiveStep] = useState(1)
 
   const navItems = [
     { label: 'Home' },
@@ -477,6 +499,62 @@ function UIComponentsContent() {
     { id: 'tab1', label: 'Overview', content: <p className="text-white/60">Overview content goes here.</p> },
     { id: 'tab2', label: 'Features', content: <p className="text-white/60">Features content goes here.</p> },
     { id: 'tab3', label: 'Pricing', content: <p className="text-white/60">Pricing content goes here.</p> },
+  ]
+
+  // Select options
+  const selectOptions = [
+    { value: 'react', label: 'React' },
+    { value: 'vue', label: 'Vue' },
+    { value: 'angular', label: 'Angular' },
+    { value: 'svelte', label: 'Svelte' },
+  ]
+
+  const groupedOptions = [
+    { label: 'Frontend', options: [
+      { value: 'react', label: 'React' },
+      { value: 'vue', label: 'Vue' },
+    ]},
+    { label: 'Backend', options: [
+      { value: 'node', label: 'Node.js' },
+      { value: 'python', label: 'Python' },
+    ]},
+  ]
+
+  // Accordion data
+  const accordionItems = [
+    { id: '1', title: 'What is this component library?', content: <p className="text-white/60">A collection of beautiful, animated React components built with Framer Motion and Tailwind CSS.</p> },
+    { id: '2', title: 'How do I use it?', content: <p className="text-white/60">Simply import the components you need and customize them with props and styles.</p> },
+    { id: '3', title: 'Is it production-ready?', content: <p className="text-white/60">Yes! All components follow accessibility best practices and are fully tested.</p> },
+  ]
+
+  const faqItems = [
+    { id: 'faq1', question: 'Do you offer support?', answer: <p className="text-white/60">Yes, we provide comprehensive documentation and community support.</p> },
+    { id: 'faq2', question: 'Can I customize the styles?', answer: <p className="text-white/60">Absolutely. All components accept className props and use CSS variables.</p> },
+    { id: 'faq3', question: 'Is there a free tier?', answer: <p className="text-white/60">The entire library is free and open source.</p> },
+  ]
+
+  // Stepper data
+  const stepperSteps = [
+    { id: '1', title: 'Account', description: 'Create your account' },
+    { id: '2', title: 'Profile', description: 'Set up your profile' },
+    { id: '3', title: 'Preferences', description: 'Configure settings' },
+    { id: '4', title: 'Done', description: 'All set!' },
+  ]
+
+  // Stepped slider data
+  const sliderSteps = [
+    { value: 0, label: '0%' },
+    { value: 25, label: '25%' },
+    { value: 50, label: '50%' },
+    { value: 75, label: '75%' },
+    { value: 100, label: '100%' },
+  ]
+
+  // Segmented progress data  
+  const segmentData = [
+    { value: 20, color: 'var(--color-primary)', label: 'Design' },
+    { value: 30, color: '#10b981', label: 'Dev' },
+    { value: 15, color: '#f59e0b', label: 'QA' },
   ]
 
   // Intersection observer for active section
@@ -676,6 +754,546 @@ function UIComponentsContent() {
                   code={`<DepthShadowButton>Depth</DepthShadowButton>`}
                 >
                   <DepthShadowButton>Depth</DepthShadowButton>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Modals Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="modals"
+                title="Modals" 
+                description="Dialog and modal components with smooth animations and accessible interactions."
+                count={5}
+              />
+              <ComponentGrid cols={3}>
+                <ComponentPreview 
+                  name="Basic Modal" 
+                  description="Simple animated modal"
+                  code={`<BasicModal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Modal Title">Content</BasicModal>`}
+                >
+                  <button onClick={() => setIsBasicModalOpen(true)} className="px-16 py-5 min-w-[180px] rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
+                    Open Modal
+                  </button>
+                  <BasicModal isOpen={isBasicModalOpen} onClose={() => setIsBasicModalOpen(false)} title="Basic Modal">
+                    <p className="text-white/60">This is a basic modal with smooth entrance and exit animations.</p>
+                  </BasicModal>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Confirmation Dialog" 
+                  description="Confirm/cancel actions"
+                  code={`<ConfirmationDialog isOpen={isOpen} onClose={onClose} onConfirm={onConfirm} title="Confirm" />`}
+                >
+                  <button onClick={() => setIsConfirmDialogOpen(true)} className="px-16 py-5 min-w-[180px] rounded-lg font-medium text-white bg-red-500/80 hover:bg-red-500">
+                    Delete Item
+                  </button>
+                  <ConfirmationDialog 
+                    isOpen={isConfirmDialogOpen} 
+                    onClose={() => setIsConfirmDialogOpen(false)} 
+                    onConfirm={() => setIsConfirmDialogOpen(false)}
+                    title="Delete Item?"
+                    message="This action cannot be undone. Are you sure you want to continue?"
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    variant="danger"
+                  />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Slide Drawer" 
+                  description="Side panel drawer"
+                  code={`<SlideDrawer isOpen={isOpen} onClose={() => setIsOpen(false)} title="Menu">Content</SlideDrawer>`}
+                >
+                  <button onClick={() => setIsSlideDrawerOpen(true)} className="px-16 py-5 min-w-[180px] rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
+                    Open Drawer
+                  </button>
+                  <SlideDrawer isOpen={isSlideDrawerOpen} onClose={() => setIsSlideDrawerOpen(false)} title="Settings">
+                    <div className="space-y-4">
+                      <p className="text-white/60">Drawer content slides in from the side with a smooth animation.</p>
+                      <div className="flex items-center justify-between py-2 border-b border-white/10">
+                        <span className="text-white/80">Dark Mode</span>
+                        <span className="text-white/40">On</span>
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-white/10">
+                        <span className="text-white/80">Notifications</span>
+                        <span className="text-white/40">Off</span>
+                      </div>
+                    </div>
+                  </SlideDrawer>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Alert Modal" 
+                  description="Alert/notification modal"
+                  code={`<AlertModal isOpen={isOpen} onClose={onClose} type="success" title="Success!" />`}
+                >
+                  <button onClick={() => setIsAlertModalOpen(true)} className="px-16 py-5 min-w-[180px] rounded-lg font-medium text-white bg-emerald-500/80 hover:bg-emerald-500">
+                    Show Alert
+                  </button>
+                  <AlertModal 
+                    isOpen={isAlertModalOpen} 
+                    onClose={() => setIsAlertModalOpen(false)}
+                    type="success"
+                    title="Success!"
+                    message="Your changes have been saved successfully."
+                  />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Full Screen Modal" 
+                  description="Immersive full screen"
+                  code={`<FullScreenModal isOpen={isOpen} onClose={onClose}>Content</FullScreenModal>`}
+                >
+                  <button onClick={() => setIsFullScreenModalOpen(true)} className="px-16 py-5 min-w-[180px] rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
+                    Full Screen
+                  </button>
+                  <FullScreenModal isOpen={isFullScreenModalOpen} onClose={() => setIsFullScreenModalOpen(false)}>
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <h2 className="text-4xl font-bold text-white mb-4">Full Screen Modal</h2>
+                      <p className="text-white/60 mb-8">Press Escape or click the close button to exit.</p>
+                      <button onClick={() => setIsFullScreenModalOpen(false)} className="px-6 py-3 rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
+                        Close Modal
+                      </button>
+                    </div>
+                  </FullScreenModal>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Toasts Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="toasts"
+                title="Toasts" 
+                description="Toast notifications with auto-dismiss and various styles."
+                count={4}
+              />
+              <ComponentPreview 
+                name="Toast Notifications" 
+                description="Click buttons to trigger different toast types"
+                code={`<ToastProvider><ToastsShowcase /></ToastProvider>`}
+              >
+                <ToastProvider>
+                  <ToastsShowcase />
+                </ToastProvider>
+              </ComponentPreview>
+            </section>
+
+            {/* Selects Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="selects"
+                title="Selects" 
+                description="Custom select components with search, multi-select, and grouping."
+                count={4}
+              />
+              <ComponentGrid cols={2}>
+                <ComponentPreview 
+                  name="Basic Select" 
+                  description="Animated dropdown select"
+                  code={`<BasicSelect options={options} value={value} onChange={setValue} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <BasicSelect 
+                      options={selectOptions} 
+                      value={selectValue} 
+                      onChange={setSelectValue}
+                      placeholder="Select a framework..."
+                    />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Searchable Select" 
+                  description="Type to filter options"
+                  code={`<SearchableSelect options={options} value={value} onChange={setValue} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <SearchableSelect 
+                      options={selectOptions} 
+                      value={searchSelectValue} 
+                      onChange={setSearchSelectValue}
+                      placeholder="Search frameworks..."
+                    />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Multi Select" 
+                  description="Select multiple values"
+                  code={`<MultiSelect options={options} value={values} onChange={setValues} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <MultiSelect 
+                      options={selectOptions} 
+                      value={multiSelectValue} 
+                      onChange={setMultiSelectValue}
+                      placeholder="Select multiple..."
+                    />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Grouped Select" 
+                  description="Options in groups"
+                  code={`<GroupedSelect groups={groups} value={value} onChange={setValue} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <GroupedSelect 
+                      groups={groupedOptions} 
+                      value={groupedSelectValue} 
+                      onChange={setGroupedSelectValue}
+                      placeholder="Select technology..."
+                    />
+                  </div>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Accordions Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="accordions"
+                title="Accordions" 
+                description="Expandable content sections with smooth animations."
+                count={4}
+              />
+              <div className="space-y-6">
+                <ComponentPreview 
+                  name="Basic Accordion" 
+                  description="Single or multiple expand"
+                  code={`<Accordion items={items} allowMultiple />`}
+                >
+                  <div className="w-full max-w-lg">
+                    <Accordion items={accordionItems} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="FAQ Accordion" 
+                  description="Styled for FAQ sections"
+                  code={`<FAQAccordion items={faqItems} />`}
+                >
+                  <div className="w-full max-w-lg">
+                    <FAQAccordion items={faqItems} />
+                  </div>
+                </ComponentPreview>
+                <ComponentGrid cols={2}>
+                  <ComponentPreview 
+                    name="Bordered Variant" 
+                    description="With visible borders"
+                  >
+                    <div className="w-full">
+                      <Accordion items={accordionItems.slice(0, 2)} variant="bordered" />
+                    </div>
+                  </ComponentPreview>
+                  <ComponentPreview 
+                    name="Separated Variant" 
+                    description="Spaced apart items"
+                  >
+                    <div className="w-full">
+                      <Accordion items={accordionItems.slice(0, 2)} variant="separated" />
+                    </div>
+                  </ComponentPreview>
+                </ComponentGrid>
+              </div>
+            </section>
+
+            {/* Avatars Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="avatars"
+                title="Avatars" 
+                description="User avatars with status indicators, groups, and interactions."
+                count={6}
+              />
+              <ComponentGrid cols={3}>
+                <ComponentPreview 
+                  name="Basic Avatar" 
+                  description="Image or initials"
+                  code={`<Avatar src="url" name="Name" size="lg" />`}
+                >
+                  <div className="flex gap-4 items-center">
+                    <Avatar src="https://i.pravatar.cc/150?img=1" name="John Doe" size="sm" />
+                    <Avatar src="https://i.pravatar.cc/150?img=2" name="Jane Doe" size="md" />
+                    <Avatar src="https://i.pravatar.cc/150?img=3" name="Bob Smith" size="lg" />
+                    <Avatar name="Todd Smith" size="lg" />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Avatar Group" 
+                  description="Stacked avatars"
+                  code={`<AvatarGroup users={[...]} max={4} />`}
+                >
+                  <AvatarGroup 
+                    users={[
+                      { src: 'https://i.pravatar.cc/150?img=1', name: 'User 1' },
+                      { src: 'https://i.pravatar.cc/150?img=2', name: 'User 2' },
+                      { src: 'https://i.pravatar.cc/150?img=3', name: 'User 3' },
+                      { src: 'https://i.pravatar.cc/150?img=4', name: 'User 4' },
+                      { src: 'https://i.pravatar.cc/150?img=5', name: 'User 5' },
+                    ]}
+                    max={4}
+                  />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="With Badge" 
+                  description="Status indicator"
+                  code={`<AvatarWithBadge src="url" name="Name" status="online" />`}
+                >
+                  <div className="flex gap-6 items-center">
+                    <AvatarWithBadge src="https://i.pravatar.cc/150?img=6" name="Online" status="online" />
+                    <AvatarWithBadge src="https://i.pravatar.cc/150?img=7" name="Away" status="away" />
+                    <AvatarWithBadge src="https://i.pravatar.cc/150?img=8" name="Busy" status="busy" />
+                    <AvatarWithBadge src="https://i.pravatar.cc/150?img=9" name="Offline" status="offline" />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="With Name" 
+                  description="Avatar and text"
+                  code={`<AvatarWithName src="url" name="John" subtitle="Admin" />`}
+                >
+                  <AvatarWithName 
+                    src="https://i.pravatar.cc/150?img=10" 
+                    name="John Doe" 
+                    subtitle="Product Designer"
+                  />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Interactive" 
+                  description="Hover effects"
+                  code={`<InteractiveAvatar src="url" name="Name" onClick={fn} />`}
+                >
+                  <InteractiveAvatar 
+                    src="https://i.pravatar.cc/150?img=11" 
+                    name="Click me"
+                    onClick={() => {}}
+                  />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Editable" 
+                  description="Upload new image"
+                  code={`<EditableAvatar src="url" name="Name" onEdit={fn} />`}
+                >
+                  <EditableAvatar 
+                    src="https://i.pravatar.cc/150?img=12"
+                    name="Edit Avatar"
+                    onEdit={() => {}}
+                  />
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Progress Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="progress"
+                title="Progress" 
+                description="Progress indicators, steppers, and animated counters."
+                count={6}
+              />
+              <div className="space-y-6">
+                <ComponentGrid cols={2}>
+                  <ComponentPreview 
+                    name="Linear Progress" 
+                    description="Horizontal bar"
+                    code={`<LinearProgress value={65} />`}
+                  >
+                    <div className="w-full max-w-xs space-y-4">
+                      <LinearProgress value={progressValue} />
+                      <div className="flex gap-2">
+                        <button onClick={() => setProgressValue(Math.max(0, progressValue - 10))} className="px-3 py-1 text-sm bg-white/10 rounded">-10</button>
+                        <button onClick={() => setProgressValue(Math.min(100, progressValue + 10))} className="px-3 py-1 text-sm bg-white/10 rounded">+10</button>
+                      </div>
+                    </div>
+                  </ComponentPreview>
+                  <ComponentPreview 
+                    name="Circular Progress" 
+                    description="Ring indicator"
+                    code={`<CircularProgress value={65} />`}
+                  >
+                    <div className="flex gap-6 items-center">
+                      <CircularProgress value={progressValue} size={60} />
+                      <CircularProgress value={progressValue} size={80} showLabel />
+                    </div>
+                  </ComponentPreview>
+                </ComponentGrid>
+                <ComponentPreview 
+                  name="Stepper" 
+                  description="Multi-step progress"
+                  code={`<Stepper steps={steps} currentStep={1} />`}
+                >
+                  <div className="w-full max-w-2xl">
+                    <Stepper steps={stepperSteps} currentStep={activeStep} />
+                    <div className="flex gap-2 mt-6 justify-center">
+                      <button onClick={() => setActiveStep(Math.max(0, activeStep - 1))} className="px-4 py-2 text-sm bg-white/10 rounded-lg">Previous</button>
+                      <button onClick={() => setActiveStep(Math.min(3, activeStep + 1))} className="px-4 py-2 text-sm rounded-lg text-white" style={{ backgroundColor: 'var(--color-primary)' }}>Next</button>
+                    </div>
+                  </div>
+                </ComponentPreview>
+                <ComponentGrid cols={2}>
+                  <ComponentPreview 
+                    name="Animated Counter" 
+                    description="Counting animation"
+                    code={`<AnimatedCounter value={1234} />`}
+                  >
+                    <div className="text-center">
+                      <AnimatedCounter value={counterValue} className="text-4xl font-bold" />
+                      <div className="flex gap-2 mt-4 justify-center">
+                        <button onClick={() => setCounterValue(counterValue + 100)} className="px-3 py-1 text-sm bg-white/10 rounded">+100</button>
+                        <button onClick={() => setCounterValue(Math.floor(Math.random() * 10000))} className="px-3 py-1 text-sm bg-white/10 rounded">Random</button>
+                      </div>
+                    </div>
+                  </ComponentPreview>
+                  <ComponentPreview 
+                    name="Segmented Progress" 
+                    description="Multi-segment bar"
+                    code={`<SegmentedProgress segments={[{value: 20}, {value: 30}]} />`}
+                  >
+                    <div className="w-full max-w-xs">
+                      <SegmentedProgress segments={segmentData} showLabels />
+                    </div>
+                  </ComponentPreview>
+                </ComponentGrid>
+              </div>
+            </section>
+
+            {/* Sliders Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="sliders"
+                title="Sliders" 
+                description="Range inputs with various styles and interactions."
+                count={5}
+              />
+              <ComponentGrid cols={2}>
+                <ComponentPreview 
+                  name="Basic Slider" 
+                  description="Single value slider"
+                  code={`<BasicSlider value={50} onChange={setValue} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <BasicSlider value={sliderValue} onChange={setSliderValue} />
+                    <p className="text-center text-white/40 mt-2">Value: {sliderValue}</p>
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Range Slider" 
+                  description="Min/max range"
+                  code={`<RangeSlider value={[25, 75]} onChange={setRange} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <RangeSlider 
+                      value={rangeValue}
+                      onChange={setRangeValue} 
+                    />
+                    <p className="text-center text-white/40 mt-2">{rangeValue[0]} - {rangeValue[1]}</p>
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Stepped Slider" 
+                  description="Discrete steps"
+                  code={`<SteppedSlider value={50} steps={[...]} onChange={setValue} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <SteppedSlider value={steppedValue} steps={sliderSteps} onChange={setSteppedValue} showLabels />
+                    <p className="text-center text-white/40 mt-2">Value: {steppedValue}</p>
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Color Slider" 
+                  description="Hue picker"
+                  code={`<ColorSlider value={180} onChange={setHue} />`}
+                >
+                  <div className="w-full max-w-xs">
+                    <ColorSlider value={colorValue} onChange={setColorValue} />
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: `hsl(${colorValue}, 70%, 50%)` }} />
+                      <span className="text-white/40">hsl({colorValue}, 70%, 50%)</span>
+                    </div>
+                  </div>
+                </ComponentPreview>
+              </ComponentGrid>
+              <div className="mt-6">
+                <ComponentPreview 
+                  name="Vertical Slider" 
+                  description="Vertical orientation"
+                  code={`<VerticalSlider value={50} onChange={setValue} />`}
+                >
+                  <div className="h-48">
+                    <VerticalSlider value={verticalValue} onChange={setVerticalValue} />
+                  </div>
+                </ComponentPreview>
+              </div>
+            </section>
+
+            {/* Skeletons Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="skeletons"
+                title="Skeletons" 
+                description="Loading placeholders for various content types."
+                count={10}
+              />
+              <ComponentGrid cols={2}>
+                <ComponentPreview 
+                  name="Card Skeleton" 
+                  description="Card loading state"
+                  code={`<CardSkeleton />`}
+                >
+                  <CardSkeleton />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Profile Skeleton" 
+                  description="User profile loading"
+                  code={`<ProfileSkeleton />`}
+                >
+                  <ProfileSkeleton />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="List Item Skeleton" 
+                  description="List row loading"
+                  code={`<ListItemSkeleton />`}
+                >
+                  <div className="space-y-3 w-full">
+                    <ListItemSkeleton />
+                    <ListItemSkeleton />
+                    <ListItemSkeleton />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Article Skeleton" 
+                  description="Blog post loading"
+                  code={`<ArticleSkeleton />`}
+                >
+                  <ArticleSkeleton />
+                </ComponentPreview>
+              </ComponentGrid>
+              <div className="mt-6">
+                <ComponentPreview 
+                  name="Table Skeleton" 
+                  description="Data table loading"
+                  code={`<TableSkeleton rows={4} columns={4} />`}
+                >
+                  <div className="w-full">
+                    <TableSkeleton rows={4} columns={4} />
+                  </div>
+                </ComponentPreview>
+              </div>
+              <ComponentGrid cols={3} className="mt-6">
+                <ComponentPreview 
+                  name="Media Grid" 
+                  description="Image grid loading"
+                  code={`<MediaGridSkeleton />`}
+                >
+                  <MediaGridSkeleton />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Form Skeleton" 
+                  description="Form fields loading"
+                  code={`<FormSkeleton />`}
+                >
+                  <FormSkeleton />
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Comment Skeleton" 
+                  description="Comment loading"
+                  code={`<CommentSkeleton />`}
+                >
+                  <CommentSkeleton />
                 </ComponentPreview>
               </ComponentGrid>
             </section>
