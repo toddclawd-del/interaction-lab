@@ -79,29 +79,34 @@ export function ResponsiveShader({
   const [isHovered, setIsHovered] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
 
-  // Detect mobile
+  // Detect mobile (but don't use this to skip mouse tracking)
   useEffect(() => {
     setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0)
   }, [])
 
-  // Mouse tracking (desktop)
+  // Mouse tracking - always track on all devices (laptops with touch still have mice)
+  // Don't skip on isMobile since many "mobile" devices are laptops with touchscreens
   useEffect(() => {
-    if (!trackMouse || isMobile) return
+    if (!trackMouse) return
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return
       const rect = containerRef.current.getBoundingClientRect()
+      // Calculate relative position
+      const x = (e.clientX - rect.left) / rect.width
+      const y = 1 - (e.clientY - rect.top) / rect.height // Flip Y for WebGL
+      // Clamp to valid range
       setMouse(new THREE.Vector2(
-        (e.clientX - rect.left) / rect.width,
-        1 - (e.clientY - rect.top) / rect.height // Flip Y for WebGL
+        Math.max(0, Math.min(1, x)),
+        Math.max(0, Math.min(1, y))
       ))
     }
 
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [trackMouse, isMobile])
+  }, [trackMouse])
 
-  // Mobile interactions
+  // Mobile touch interactions (in addition to mouse tracking)
   useEffect(() => {
     if (!isMobile) return
 
@@ -122,8 +127,8 @@ export function ResponsiveShader({
         const touch = e.touches[0]
         if (touch) {
           setMouse(new THREE.Vector2(
-            (touch.clientX - rect.left) / rect.width,
-            1 - (touch.clientY - rect.top) / rect.height
+            Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width)),
+            Math.max(0, Math.min(1, 1 - (touch.clientY - rect.top) / rect.height))
           ))
         }
       }
@@ -145,7 +150,7 @@ export function ResponsiveShader({
     }
   }, [isMobile, mobileInteraction])
 
-  // Scroll tracking (desktop)
+  // Scroll tracking (all devices)
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY / (document.body.scrollHeight - window.innerHeight)

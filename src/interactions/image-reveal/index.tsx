@@ -32,41 +32,41 @@ export function ImageReveal() {
 
     const ctx = gsap.context(() => {
       // ────────────────────────────────────────────────────────
-      // 1. CLIP-PATH WIPE (Left to Right)
+      // 1. CLIP-PATH WIPE (Left to Right) - SCRUB BASED
       // ────────────────────────────────────────────────────────
       gsap.fromTo('.reveal-clip-ltr', 
         { clipPath: 'inset(0 100% 0 0)' },
         {
           clipPath: 'inset(0 0% 0 0)',
-          duration: 1.5,
-          ease: 'power3.inOut',
+          ease: 'none',
           scrollTrigger: {
             trigger: '.reveal-clip-ltr',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
+            start: 'top 85%',
+            end: 'top 30%',
+            scrub: 0.5,
           },
         }
       )
 
       // ────────────────────────────────────────────────────────
-      // 2. CLIP-PATH DIAGONAL WIPE
+      // 2. CLIP-PATH DIAGONAL WIPE - SCRUB BASED
       // ────────────────────────────────────────────────────────
       gsap.fromTo('.reveal-clip-diagonal',
         { clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)' },
         {
           clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-          duration: 1.5,
-          ease: 'power3.inOut',
+          ease: 'none',
           scrollTrigger: {
             trigger: '.reveal-clip-diagonal',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
+            start: 'top 85%',
+            end: 'top 30%',
+            scrub: 0.5,
           },
         }
       )
 
       // ────────────────────────────────────────────────────────
-      // 3. SCALE + BLUR REVEAL
+      // 3. SCALE + BLUR REVEAL - SCRUB BASED
       // ────────────────────────────────────────────────────────
       gsap.fromTo('.reveal-scale-blur',
         { 
@@ -78,12 +78,12 @@ export function ImageReveal() {
           scale: 1,
           opacity: 1,
           filter: 'blur(0px)',
-          duration: 1.2,
-          ease: 'power2.out',
+          ease: 'none',
           scrollTrigger: {
             trigger: '.reveal-scale-blur',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
+            start: 'top 85%',
+            end: 'top 30%',
+            scrub: 0.5,
           },
         }
       )
@@ -107,18 +107,18 @@ export function ImageReveal() {
       )
 
       // ────────────────────────────────────────────────────────
-      // 5. CIRCLE MASK REVEAL
+      // 5. CIRCLE MASK REVEAL - SCRUB BASED
       // ────────────────────────────────────────────────────────
       gsap.fromTo('.reveal-circle',
         { clipPath: 'circle(0% at 50% 50%)' },
         {
           clipPath: 'circle(75% at 50% 50%)',
-          duration: 1.5,
-          ease: 'power3.inOut',
+          ease: 'none',
           scrollTrigger: {
             trigger: '.reveal-circle',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
+            start: 'top 85%',
+            end: 'top 30%',
+            scrub: 0.5,
           },
         }
       )

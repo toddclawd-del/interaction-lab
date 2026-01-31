@@ -36,23 +36,30 @@ export function ScrollVelocity() {
       // ────────────────────────────────────────────────────────
       
       let lastScroll = window.scrollY
+      let lastTime = performance.now()
       let scrollVelocity = 0
       
       // Update velocity on scroll
       const updateVelocity = () => {
         const currentScroll = window.scrollY
-        const delta = currentScroll - lastScroll
+        const currentTime = performance.now()
+        const deltaTime = Math.max(currentTime - lastTime, 1) // Prevent division by zero
+        const deltaScroll = currentScroll - lastScroll
         
         // Determine direction based on scroll
-        if (delta > 0) {
+        if (deltaScroll > 0) {
           directionRef.current = 1
-        } else if (delta < 0) {
+        } else if (deltaScroll < 0) {
           directionRef.current = -1
         }
         
-        // Calculate velocity (pixels per frame, roughly)
-        scrollVelocity = Math.abs(delta)
+        // Calculate velocity (pixels per millisecond, scaled up for visibility)
+        // Use a smoothed velocity calculation for better feel
+        const instantVelocity = Math.abs(deltaScroll) / deltaTime * 16 // Normalize to ~60fps
+        scrollVelocity = Math.max(scrollVelocity, instantVelocity) // Keep the higher value
+        
         lastScroll = currentScroll
+        lastTime = currentTime
       }
       
       window.addEventListener('scroll', updateVelocity, { passive: true })
@@ -63,23 +70,28 @@ export function ScrollVelocity() {
       // by scroll velocity with smooth momentum decay.
       // ────────────────────────────────────────────────────────
       
-      const baseSpeeds = [0.02, -0.015, 0.025] // Different base speeds
+      const baseSpeeds = [0.03, -0.025, 0.035] // Different base speeds (increased)
       
       gsap.ticker.add(() => {
-        // Decay velocity smoothly toward zero
-        velocityRef.current += (scrollVelocity * 0.01 - velocityRef.current) * 0.1
-        scrollVelocity *= 0.95 // Decay scroll velocity
+        // Smooth interpolation toward target velocity with momentum
+        const targetVelocity = scrollVelocity * 0.15 // Scale factor for visible effect
+        velocityRef.current += (targetVelocity - velocityRef.current) * 0.08
+        
+        // Decay scroll velocity when not scrolling
+        scrollVelocity *= 0.92
         
         marqueeRefs.current.forEach((marquee, index) => {
           if (!marquee) return
           
           // Calculate movement: base speed + velocity boost
           const baseSpeed = baseSpeeds[index]
-          const velocityBoost = velocityRef.current * 0.5 * (index % 2 === 0 ? 1 : -1)
+          // Velocity boost is significant - up to 10x the base speed when scrolling fast
+          const velocityBoost = velocityRef.current * (index % 2 === 0 ? 1 : -1)
           const direction = baseSpeed > 0 ? directionRef.current : -directionRef.current
           
-          // Update position
-          xPercentRef.current[index] += (Math.abs(baseSpeed) + velocityBoost) * direction
+          // Update position with combined speed
+          const totalSpeed = Math.abs(baseSpeed) + Math.abs(velocityBoost)
+          xPercentRef.current[index] += totalSpeed * direction
           
           // Reset when we've moved a full repeat (50% because we duplicate content)
           if (xPercentRef.current[index] > 0) {

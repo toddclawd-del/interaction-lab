@@ -39,9 +39,17 @@ export function CursorPlayground() {
       // ────────────────────────────────────────────────────────
       // 1. TRAILING CURSOR
       // Multiple cursors that follow with increasing delay
+      // Using xPercent/yPercent: -50 to center, then x/y for position
       // ────────────────────────────────────────────────────────
       if (activeDemo === 'trail') {
         const trailCursors = trailCursorsRef.current.filter(Boolean)
+        
+        // Initialize centering for all trail cursors
+        trailCursors.forEach((cursor) => {
+          if (cursor) {
+            gsap.set(cursor, { xPercent: -50, yPercent: -50 })
+          }
+        })
         
         gsap.ticker.add(() => {
           trailCursors.forEach((cursor, index) => {
@@ -68,6 +76,9 @@ export function CursorPlayground() {
         const textCursor = textCursorRef.current
         if (!textCursor) return
         
+        // Initialize centering
+        gsap.set(textCursor, { xPercent: -50, yPercent: -50 })
+        
         gsap.ticker.add(() => {
           gsap.to(textCursor, {
             x: mouseRef.current.x,
@@ -85,6 +96,9 @@ export function CursorPlayground() {
       if (activeDemo === 'blob') {
         const blobCursor = blobCursorRef.current
         if (!blobCursor) return
+        
+        // Initialize centering
+        gsap.set(blobCursor, { xPercent: -50, yPercent: -50 })
         
         let lastX = 0
         let lastY = 0
@@ -124,6 +138,9 @@ export function CursorPlayground() {
       if (activeDemo === 'spotlight') {
         const spotlight = spotlightRef.current
         if (!spotlight) return
+        
+        // Initialize centering
+        gsap.set(spotlight, { xPercent: -50, yPercent: -50 })
         
         gsap.ticker.add(() => {
           gsap.to(spotlight, {
@@ -402,22 +419,24 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '2rem',
   },
   
-  // Trail cursor styles
+  // Trail cursor styles - using top/left: 0, GSAP will set x/y with xPercent/yPercent
   trailCursor: {
     position: 'fixed',
+    top: 0,
+    left: 0,
     borderRadius: '50%',
     pointerEvents: 'none',
     zIndex: 9999,
-    transform: 'translate(-50%, -50%)',
     mixBlendMode: 'difference',
   },
   
   // Text cursor styles
   textCursor: {
     position: 'fixed',
+    top: 0,
+    left: 0,
     pointerEvents: 'none',
     zIndex: 9999,
-    transform: 'translate(-50%, -50%)',
   },
   cursorTextContent: {
     display: 'block',
@@ -452,13 +471,14 @@ const styles: Record<string, React.CSSProperties> = {
   // Blob cursor styles
   blobCursor: {
     position: 'fixed',
+    top: 0,
+    left: 0,
     width: '50px',
     height: '50px',
     background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
     borderRadius: '50%',
     pointerEvents: 'none',
     zIndex: 9999,
-    transform: 'translate(-50%, -50%)',
     mixBlendMode: 'difference',
   },
   
@@ -486,12 +506,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   spotlightOverlay: {
     position: 'fixed',
+    top: 0,
+    left: 0,
     width: '250px',
     height: '250px',
     background: 'radial-gradient(circle, transparent 0%, transparent 40%, #0a0a0a 40%)',
     pointerEvents: 'none',
     zIndex: 10,
-    transform: 'translate(-50%, -50%)',
     boxShadow: '0 0 0 9999px #0a0a0a',
   },
   

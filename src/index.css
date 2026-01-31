@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Aurora animation for buttons */
+@keyframes aurora {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-aurora {
+  animation: aurora 8s ease infinite;
+}

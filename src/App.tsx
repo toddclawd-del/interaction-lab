@@ -29,7 +29,7 @@ const ShaderHero = lazy(() => import('./interactions/shader-hero').then(m => ({ 
 const ShaderCards = lazy(() => import('./interactions/shader-cards').then(m => ({ default: m.ShaderCards })))
 const ShaderGradient = lazy(() => import('./interactions/shader-gradient').then(m => ({ default: m.ShaderGradient })))
 const ShaderReveal = lazy(() => import('./interactions/shader-reveal').then(m => ({ default: m.ShaderReveal })))
-const ShaderCursor = lazy(() => import('./interactions/shader-cursor').then(m => ({ default: m.ShaderCursor })))
+const ShaderCursorDemo = lazy(() => import('./interactions/shader-cursor').then(m => ({ default: m.ShaderCursorDemo })))
 const ShaderNoise = lazy(() => import('./interactions/shader-noise').then(m => ({ default: m.ShaderNoise })))
 const ShaderLiquid = lazy(() => import('./interactions/shader-liquid').then(m => ({ default: m.ShaderLiquid })))
 const ShaderDistortion = lazy(() => import('./interactions/shader-distortion').then(m => ({ default: m.ShaderDistortion })))
@@ -128,20 +128,7 @@ export default function App() {
               </div>
             </div>
           } />
-          <Route path="/shader-cursor" element={
-            <div style={{ minHeight: '100vh', background: '#0a0a0a', cursor: 'none' }}>
-              <ShaderCursor mode="vortex" color="#f72585" size={50} expandedSize={100} />
-              <div style={{ padding: '4rem', color: 'white' }}>
-                <h1>Custom Cursor</h1>
-                <p>Move your mouse around. Hover over buttons to see it expand.</p>
-                <button style={{ padding: '1rem 2rem', marginTop: '2rem', fontSize: '1rem', cursor: 'none' }}>
-                  Hover Me
-                </button>
-                <br />
-                <a href="#/" style={{ color: '#667eea', display: 'inline-block', marginTop: '2rem' }}>← Back to Home</a>
-              </div>
-            </div>
-          } />
+          <Route path="/shader-cursor" element={<ShaderCursorDemo />} />
           <Route path="/shader-noise" element={
             <ShaderDemoWrapper title="Shader Noise">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>

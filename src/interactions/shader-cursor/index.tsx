@@ -146,28 +146,34 @@ interface CursorMeshProps {
 
 function CursorMesh({ mode, color }: CursorMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null)
-
-  const uniforms = useRef({
-    uTime: { value: 0 },
-    uSize: { value: 1 },
-    uColor: { value: new THREE.Color(color) },
-  })
+  const materialRef = useRef<THREE.ShaderMaterial>(null)
 
   useFrame(({ clock }) => {
-    uniforms.current.uTime.value = clock.getElapsedTime()
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = clock.getElapsedTime()
+    }
   })
 
   useEffect(() => {
-    uniforms.current.uColor.value.set(color)
+    if (materialRef.current) {
+      materialRef.current.uniforms.uColor.value.set(color)
+    }
   }, [color])
 
+  // Key the shader material by mode to force recreation when mode changes
   return (
     <mesh ref={meshRef}>
       <planeGeometry args={[2, 2]} />
       <shaderMaterial
+        ref={materialRef}
+        key={mode} // Force recreation on mode change
         vertexShader={vertexShader}
         fragmentShader={cursorShaders[mode]}
-        uniforms={uniforms.current}
+        uniforms={{
+          uTime: { value: 0 },
+          uSize: { value: 1 },
+          uColor: { value: new THREE.Color(color) },
+        }}
         transparent
         depthWrite={false}
       />
@@ -231,20 +237,23 @@ export function ShaderCursor({
     }
   }, [isMobile])
 
-  // Hover expansion
+  // Hover expansion - use closest() to detect hover on children of targets too
   useEffect(() => {
     if (!expandOnHover || isMobile) return
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as Element
-      if (target.matches(hoverTargets)) {
+      // Use closest() to check if target or any ancestor matches
+      if (target.closest(hoverTargets)) {
         setCurrentSize(expandedSize)
       }
     }
 
     const handleMouseOut = (e: MouseEvent) => {
       const target = e.target as Element
-      if (target.matches(hoverTargets)) {
+      const relatedTarget = e.relatedTarget as Element | null
+      // Only shrink if we're leaving a hover target and not entering another one
+      if (target.closest(hoverTargets) && (!relatedTarget || !relatedTarget.closest(hoverTargets))) {
         setCurrentSize(size)
       }
     }
@@ -435,6 +444,135 @@ export function ShaderCursorProvider({
       {children}
       <ShaderCursor mode={mode} color={color} />
     </>
+  )
+}
+
+// Interactive demo component with mode switching
+export function ShaderCursorDemo() {
+  const modes: CursorMode[] = ['ripple', 'glow', 'vortex', 'noise', 'blob']
+  const colors = ['#f72585', '#4cc9f0', '#06d6a0', '#ffd166', '#8338ec']
+  const [currentMode, setCurrentMode] = useState<CursorMode>('ripple')
+  const [currentColor, setCurrentColor] = useState('#f72585')
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', cursor: 'none' }}>
+      <ShaderCursor 
+        mode={currentMode} 
+        color={currentColor} 
+        size={50} 
+        expandedSize={100}
+      />
+      <div style={{ padding: '4rem', color: 'white' }}>
+        <h1 style={{ marginBottom: '1rem' }}>Shader Cursor</h1>
+        <p style={{ color: '#888', marginBottom: '2rem' }}>
+          Move your mouse to see the shader effect. Hover buttons to expand.
+        </p>
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <h3 style={{ marginBottom: '1rem', color: '#666' }}>Effect Mode:</h3>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {modes.map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setCurrentMode(mode)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: currentMode === mode ? currentColor : '#222',
+                  color: 'white',
+                  cursor: 'none',
+                  textTransform: 'capitalize',
+                  fontSize: '1rem',
+                  transition: 'background 0.2s',
+                }}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '3rem' }}>
+          <h3 style={{ marginBottom: '1rem', color: '#666' }}>Color:</h3>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {colors.map((color) => (
+              <button
+                key={color}
+                onClick={() => setCurrentColor(color)}
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  border: currentColor === color ? '3px solid white' : '3px solid transparent',
+                  background: color,
+                  cursor: 'none',
+                  transition: 'border 0.2s, transform 0.2s',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+        
+        <div style={{ 
+          padding: '3rem', 
+          background: '#111', 
+          borderRadius: '12px',
+          textAlign: 'center',
+          marginBottom: '2rem',
+        }}>
+          <p style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
+            Hover over these interactive elements:
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button style={{ 
+              padding: '1rem 2rem', 
+              fontSize: '1rem', 
+              cursor: 'none',
+              background: '#333',
+              border: 'none',
+              borderRadius: '8px',
+              color: 'white',
+            }}>
+              Button 1
+            </button>
+            <a 
+              href="#" 
+              onClick={(e) => e.preventDefault()}
+              style={{ 
+                padding: '1rem 2rem', 
+                fontSize: '1rem', 
+                cursor: 'none',
+                background: '#333',
+                borderRadius: '8px',
+                color: 'white',
+                textDecoration: 'none',
+                display: 'inline-block',
+              }}
+            >
+              Link Element
+            </a>
+            <div 
+              data-cursor-expand
+              style={{ 
+                padding: '1rem 2rem', 
+                fontSize: '1rem', 
+                cursor: 'none',
+                background: '#333',
+                borderRadius: '8px',
+                color: 'white',
+              }}
+            >
+              Custom [data-cursor-expand]
+            </div>
+          </div>
+        </div>
+        
+        <a href="#/" style={{ color: currentColor, display: 'inline-block', cursor: 'none' }}>
+          ← Back to Home
+        </a>
+      </div>
+    </div>
   )
 }
 
