@@ -6,6 +6,95 @@
 
 ---
 
+## 🎯 Priority: Visual Bugs
+
+**Primary focus:** Catch visual issues that make the site look unprofessional.
+
+### P0 - Horizontal Overflow (Mobile)
+
+**The #1 bug to catch.** Any horizontal scrollbar on mobile = instant amateur vibes.
+
+```
+Test at: 375px, 428px, 768px
+Look for: Horizontal scrollbar, content bleeding off-screen
+Common culprits:
+- Fixed-width elements (px instead of %, vw, or max-w-full)
+- Pre/code blocks without overflow-x-auto
+- Flex children without min-w-0
+- Images without max-w-full
+- Animations that move elements off-screen
+```
+
+**Quick test:** At each mobile breakpoint, try to scroll horizontally. If you can, it's a bug.
+
+### P1 - Loading Issues
+
+| Issue | What to Look For |
+|-------|------------------|
+| **Flash of unstyled content (FOUC)** | Page flashes white/raw HTML before styles load |
+| **Layout shift** | Elements jump around as page loads |
+| **Components not rendering** | Blank spaces, missing interactive elements |
+| **Skeleton mismatch** | Loading skeleton doesn't match final content size |
+
+### P2 - Responsive Breakage
+
+Elements that look broken or unprofessional at specific sizes:
+- Text overlapping other elements
+- Buttons/inputs getting cut off
+- Cards with wildly different heights in a grid
+- Navigation items wrapping awkwardly
+- Images stretched or squished
+
+### P3 - Visual Consistency
+
+| Issue | Example |
+|-------|---------|
+| **Spacing inconsistency** | 24px gap here, 32px gap there for same pattern |
+| **Alignment problems** | Elements not lined up when they should be |
+| **Text truncation** | Important text cut off with "..." unexpectedly |
+| **Border/radius mismatch** | Some cards rounded-lg, others rounded-xl |
+
+---
+
+## Visual Bug Testing Process
+
+### Step-by-Step
+
+```bash
+# 1. Open page in browser
+# 2. Open DevTools → Toggle device toolbar (Cmd+Shift+M)
+# 3. Test each breakpoint in sequence:
+```
+
+| Step | Width | Check |
+|------|-------|-------|
+| 1 | **375px** | Horizontal scroll? Content cut off? |
+| 2 | **428px** | Same checks |
+| 3 | **768px** | Tablet layout working? |
+| 4 | **1280px** | Desktop layout correct? |
+| 5 | **1920px** | Wide layout not stretched weird? |
+
+### At Each Breakpoint, Verify:
+
+- [ ] **No horizontal scrollbar** (scroll right should do nothing)
+- [ ] **All text visible** (no truncation unless intentional)
+- [ ] **Images contained** (not bleeding outside containers)
+- [ ] **Buttons/inputs complete** (not cut off)
+- [ ] **Cards balanced** (similar heights in grids)
+- [ ] **Navigation usable** (can access all nav items)
+
+### Common Fixes Reference
+
+| Problem | Fix |
+|---------|-----|
+| Horizontal overflow | `overflow-x-hidden` on container, `max-w-full` on children |
+| Image overflow | `max-w-full h-auto` or `object-cover` with fixed container |
+| Flex child overflow | Add `min-w-0` to flex children |
+| Text overflow | `truncate` or `break-words` |
+| Code block overflow | `overflow-x-auto` on pre/code |
+
+---
+
 ## What Good Looks Like (Research Summary)
 
 ### Professional UI Kit Patterns

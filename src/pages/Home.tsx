@@ -701,10 +701,32 @@ const allTags = Array.from(new Set(experiments.flatMap(exp => exp.tags))).sort()
 
 function Experiments() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [showLeftFade, setShowLeftFade] = useState(false)
+  const [showRightFade, setShowRightFade] = useState(true)
+  const filterScrollRef = useRef<HTMLDivElement>(null)
   
   const filteredExperiments = selectedTag 
     ? experiments.filter(exp => exp.tags.includes(selectedTag))
     : experiments
+  
+  const handleFilterScroll = useCallback(() => {
+    if (!filterScrollRef.current) return
+    const { scrollLeft, scrollWidth, clientWidth } = filterScrollRef.current
+    setShowLeftFade(scrollLeft > 10)
+    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 10)
+  }, [])
+
+  useEffect(() => {
+    const el = filterScrollRef.current
+    if (!el) return
+    handleFilterScroll()
+    el.addEventListener('scroll', handleFilterScroll, { passive: true })
+    window.addEventListener('resize', handleFilterScroll)
+    return () => {
+      el.removeEventListener('scroll', handleFilterScroll)
+      window.removeEventListener('resize', handleFilterScroll)
+    }
+  }, [handleFilterScroll])
   
   return (
     <section id="experiments" style={styles.experimentsSection}>
@@ -715,36 +737,52 @@ function Experiments() {
         </p>
       </div>
       
-      {/* Tag Filter Nav */}
-      <div style={styles.filterNav}>
-        <button
-          onClick={() => setSelectedTag(null)}
-          style={{
-            ...styles.filterButton,
-            background: selectedTag === null ? 'rgba(99, 102, 241, 0.9)' : 'rgba(255,255,255,0.08)',
-            color: selectedTag === null ? '#fff' : 'rgba(255,255,255,0.7)',
-            borderColor: selectedTag === null ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255,255,255,0.1)',
-          }}
-        >
-          All ({experiments.length})
-        </button>
-        {allTags.map(tag => {
-          const count = experiments.filter(exp => exp.tags.includes(tag)).length
-          return (
-            <button
-              key={tag}
-              onClick={() => setSelectedTag(tag)}
-              style={{
-                ...styles.filterButton,
-                background: selectedTag === tag ? 'rgba(99, 102, 241, 0.9)' : 'rgba(255,255,255,0.08)',
-                color: selectedTag === tag ? '#fff' : 'rgba(255,255,255,0.7)',
-                borderColor: selectedTag === tag ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255,255,255,0.1)',
-              }}
-            >
-              {tag} ({count})
-            </button>
-          )
-        })}
+      {/* Tag Filter Nav with scroll indicators */}
+      <div style={styles.filterNavWrapper}>
+        {/* Left fade indicator */}
+        <div style={{
+          ...styles.filterFade,
+          left: 0,
+          background: 'linear-gradient(to right, #050505 0%, transparent 100%)',
+          opacity: showLeftFade ? 1 : 0,
+        }} />
+        {/* Right fade indicator */}
+        <div style={{
+          ...styles.filterFade,
+          right: 0,
+          background: 'linear-gradient(to left, #050505 0%, transparent 100%)',
+          opacity: showRightFade ? 1 : 0,
+        }} />
+        <div ref={filterScrollRef} style={styles.filterNav}>
+          <button
+            onClick={() => setSelectedTag(null)}
+            style={{
+              ...styles.filterButton,
+              background: selectedTag === null ? 'rgba(99, 102, 241, 0.9)' : 'rgba(255,255,255,0.08)',
+              color: selectedTag === null ? '#fff' : 'rgba(255,255,255,0.7)',
+              borderColor: selectedTag === null ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255,255,255,0.1)',
+            }}
+          >
+            All ({experiments.length})
+          </button>
+          {allTags.map(tag => {
+            const count = experiments.filter(exp => exp.tags.includes(tag)).length
+            return (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+                style={{
+                  ...styles.filterButton,
+                  background: selectedTag === tag ? 'rgba(99, 102, 241, 0.9)' : 'rgba(255,255,255,0.08)',
+                  color: selectedTag === tag ? '#fff' : 'rgba(255,255,255,0.7)',
+                  borderColor: selectedTag === tag ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255,255,255,0.1)',
+                }}
+              >
+                {tag} ({count})
+              </button>
+            )
+          })}
+        </div>
       </div>
       
       <div className="bento-grid" style={styles.grid}>
@@ -1153,13 +1191,29 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'rgba(255,255,255,0.5)',
     lineHeight: 1.6,
   },
-  filterNav: {
+  filterNavWrapper: {
     maxWidth: '1000px',
     margin: '0 auto 2rem',
+    position: 'relative',
+  },
+  filterFade: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '2rem',
+    zIndex: 10,
+    pointerEvents: 'none',
+    transition: 'opacity 0.2s ease',
+  },
+  filterNav: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     gap: '0.5rem',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    overflowX: 'auto',
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+    padding: '0.25rem',
   },
   filterButton: {
     padding: '0.5rem 1rem',
@@ -1488,6 +1542,12 @@ if (typeof document !== 'undefined') {
     
     a:hover {
       color: rgba(255,255,255,0.9) !important;
+    }
+    
+    /* Hide scrollbar for filter nav */
+    div[style*="overflowX: auto"]::-webkit-scrollbar,
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
     }
   `
   document.head.appendChild(styleSheet)

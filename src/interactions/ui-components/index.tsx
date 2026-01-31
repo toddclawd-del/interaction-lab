@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ThemeProvider, useTheme } from './ThemeContext'
 
@@ -134,6 +134,72 @@ function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text)
 }
 
+// Simple JSX syntax highlighter - CSS-based, no dependencies
+function highlightJSX(code: string): React.ReactNode[] {
+  const tokens: React.ReactNode[] = []
+  let remaining = code
+  let key = 0
+  
+  const patterns: [RegExp, string][] = [
+    // JSX tags (component names and HTML elements)
+    [/^(<\/?[A-Z][a-zA-Z0-9]*|<\/?[a-z][a-z0-9-]*)/, 'text-pink-400'],
+    // Closing bracket
+    [/^(\s*\/?>)/, 'text-pink-400'],
+    // Props/attributes
+    [/^(\s[a-zA-Z][a-zA-Z0-9]*)(=)/, 'text-cyan-300'],
+    // Strings (double and single quotes)
+    [/^("[^"]*"|'[^']*')/, 'text-green-400'],
+    // Template literals
+    [/^(`[^`]*`)/, 'text-green-400'],
+    // Braces for JSX expressions
+    [/^([{}])/, 'text-yellow-300'],
+    // Keywords
+    [/^(const|let|var|function|return|import|export|from|default|if|else|true|false|null|undefined)\b/, 'text-purple-400'],
+    // Numbers
+    [/^(\d+\.?\d*)/, 'text-orange-400'],
+    // Arrow functions
+    [/^(=>)/, 'text-yellow-300'],
+    // Parentheses and brackets
+    [/^([[\](),:])/, 'text-white/50'],
+    // Spread operator
+    [/^(\.\.\.)/, 'text-yellow-300'],
+    // Comments
+    [/^(\/\/[^\n]*|\/\*[\s\S]*?\*\/)/, 'text-white/30'],
+    // Regular text/identifiers
+    [/^([a-zA-Z_$][a-zA-Z0-9_$]*)/, 'text-white/70'],
+    // Whitespace
+    [/^(\s+)/, ''],
+    // Any other character
+    [/^(.)/, 'text-white/70'],
+  ]
+  
+  while (remaining.length > 0) {
+    let matched = false
+    
+    for (const [pattern, className] of patterns) {
+      const match = remaining.match(pattern)
+      if (match) {
+        const text = match[1] || match[0]
+        if (className) {
+          tokens.push(<span key={key++} className={className}>{text}</span>)
+        } else {
+          tokens.push(<span key={key++}>{text}</span>)
+        }
+        remaining = remaining.slice(text.length)
+        matched = true
+        break
+      }
+    }
+    
+    if (!matched) {
+      tokens.push(<span key={key++}>{remaining[0]}</span>)
+      remaining = remaining.slice(1)
+    }
+  }
+  
+  return tokens
+}
+
 // Code Block Component
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -147,7 +213,7 @@ function CodeBlock({ code }: { code: string }) {
   return (
     <div className="relative group">
       <pre className="bg-neutral-900/80 border border-white/5 rounded-lg p-4 overflow-x-auto text-sm">
-        <code className="text-white/70 font-mono">{code}</code>
+        <code className="font-mono">{highlightJSX(code)}</code>
       </pre>
       <button
         onClick={handleCopy}
@@ -288,24 +354,59 @@ function Sidebar({ activeSection }: { activeSection: string }) {
   )
 }
 
-// Mobile category tabs
+// Mobile category tabs with scroll indicators
 function MobileTabs({ activeSection }: { activeSection: string }) {
+  const [showLeftFade, setShowLeftFade] = useState(false)
+  const [showRightFade, setShowRightFade] = useState(true)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
+    setShowLeftFade(scrollLeft > 10)
+    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 10)
+  }
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    handleScroll()
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <div className="lg:hidden sticky top-0 z-40 bg-neutral-950/95 backdrop-blur-md border-b border-white/5 -mx-6 px-6 py-3 mb-8 overflow-x-auto">
-      <div className="flex gap-2 min-w-max">
-        {categories.map((cat) => (
-          <a
-            key={cat.id}
-            href={`#${cat.id}`}
-            className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${
-              activeSection === cat.id
-                ? 'bg-white/10 text-white'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            {cat.label}
-          </a>
-        ))}
+    <div className="lg:hidden sticky top-0 z-40 bg-neutral-950/95 backdrop-blur-md border-b border-white/5 -mx-6 mb-8 relative">
+      {/* Left fade indicator */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-neutral-950/95 to-transparent z-10 pointer-events-none transition-opacity duration-200"
+        style={{ opacity: showLeftFade ? 1 : 0 }}
+      />
+      {/* Right fade indicator */}
+      <div 
+        className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-neutral-950/95 to-transparent z-10 pointer-events-none transition-opacity duration-200"
+        style={{ opacity: showRightFade ? 1 : 0 }}
+      />
+      <div 
+        ref={scrollRef}
+        className="overflow-x-auto px-6 py-3 scrollbar-hide"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        <div className="flex gap-2 min-w-max">
+          {categories.map((cat) => (
+            <a
+              key={cat.id}
+              href={`#${cat.id}`}
+              className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${
+                activeSection === cat.id
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              {cat.label}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   )
