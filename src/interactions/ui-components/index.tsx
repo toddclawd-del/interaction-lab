@@ -115,9 +115,27 @@ import {
   VerticalTabs,
 } from './tabs'
 
+// New component imports
+// import { ModalsDemo, BasicModal, ConfirmationDialog, SlideDrawer, AlertModal } from './modals'
+// import { ToastsDemo, ToastsShowcase, ToastProvider, useToast } from './toasts'
+// import { SelectsDemo, BasicSelect, SearchableSelect, MultiSelect, GroupedSelect } from './selects'
+// import { AccordionsDemo, Accordion, FAQAccordion, NestedAccordion } from './accordions'
+// import { AvatarsDemo, Avatar, AvatarGroup, AvatarWithBadge, AvatarWithName, InteractiveAvatar } from './avatars'
+// import { ProgressDemo, LinearProgress, CircularProgress, Stepper, ProgressSteps, AnimatedCounter } from './progress'
+// import { SlidersDemo, BasicSlider, RangeSlider, SteppedSlider, VerticalSlider, ColorSlider } from './sliders'
+// import { SkeletonsDemo, CardSkeleton, ListItemSkeleton, TableSkeleton, ProfileSkeleton, MediaGridSkeleton } from './skeletons'
+
 // Categories for sidebar navigation
 const categories = [
   { id: 'buttons', label: 'Buttons', count: 17 },
+  { id: 'modals', label: 'Modals', count: 5 },
+  { id: 'toasts', label: 'Toasts', count: 4 },
+  { id: 'selects', label: 'Selects', count: 4 },
+  { id: 'accordions', label: 'Accordions', count: 4 },
+  { id: 'avatars', label: 'Avatars', count: 6 },
+  { id: 'progress', label: 'Progress', count: 6 },
+  { id: 'sliders', label: 'Sliders', count: 5 },
+  { id: 'skeletons', label: 'Skeletons', count: 10 },
   { id: 'headers', label: 'Headers', count: 14 },
   { id: 'inputs', label: 'Form Inputs', count: 8 },
   { id: 'cards', label: 'Cards', count: 8 },
@@ -505,7 +523,7 @@ function UIComponentsContent() {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-primary)' }} />
-                <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>72 Components</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>116 Components</span>
               </div>
               <div className="flex items-center gap-2 text-white/40 text-sm">
                 <span>React</span>
