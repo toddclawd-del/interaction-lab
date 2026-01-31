@@ -315,7 +315,7 @@ export function MorphingHamburger({ isOpen, onToggle, className = '' }: Morphing
         className="absolute left-0 top-2 w-8 h-0.5 bg-white origin-center"
         animate={{
           rotate: isOpen ? 45 : 0,
-          y: isOpen ? 6 : 0,
+          y: isOpen ? 8 : 0,
         }}
         transition={{ duration: 0.3 }}
       />
@@ -331,7 +331,7 @@ export function MorphingHamburger({ isOpen, onToggle, className = '' }: Morphing
         className="absolute left-0 top-6 w-8 h-0.5 bg-white origin-center"
         animate={{
           rotate: isOpen ? -45 : 0,
-          y: isOpen ? -6 : 0,
+          y: isOpen ? -8 : 0,
         }}
         transition={{ duration: 0.3 }}
       />
