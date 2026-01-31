@@ -228,7 +228,7 @@ export function LiquidToggle({ checked, onChange, className = '' }: ToggleProps)
           stiffness: 400,
           damping: 25,
         }}
-        className="relative z-10 top-1 w-6 h-6 bg-white rounded-full shadow-md"
+        className="absolute z-10 top-1 w-6 h-6 bg-white rounded-full shadow-md"
       />
     </button>
   )
