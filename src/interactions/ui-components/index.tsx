@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ThemeProvider, useTheme } from './ThemeContext'
 
@@ -36,7 +36,6 @@ import {
   SlidingDrawer,
   GlassHeader,
   MinimalHeader,
-  // FloatingHeader, // Fixed-position header, best used in full page context
   GradientBorderHeader,
 } from './headers'
 
@@ -116,104 +115,205 @@ import {
   VerticalTabs,
 } from './tabs'
 
-// Color Controls Component
-function ColorControls() {
-  const { colors, setColor, setPreset, currentPreset } = useTheme()
+// Categories for sidebar navigation
+const categories = [
+  { id: 'buttons', label: 'Buttons', count: 17 },
+  { id: 'headers', label: 'Headers', count: 14 },
+  { id: 'inputs', label: 'Form Inputs', count: 8 },
+  { id: 'cards', label: 'Cards', count: 8 },
+  { id: 'toggles', label: 'Toggles', count: 6 },
+  { id: 'loaders', label: 'Loaders', count: 8 },
+  { id: 'badges', label: 'Badges', count: 7 },
+  { id: 'tooltips', label: 'Tooltips', count: 5 },
+  { id: 'menus', label: 'Menus', count: 5 },
+  { id: 'tabs', label: 'Tabs', count: 5 },
+]
+
+// Copy to clipboard helper
+function copyToClipboard(text: string) {
+  navigator.clipboard.writeText(text)
+}
+
+// Code Block Component
+function CodeBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    copyToClipboard(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
-    <div className="sticky top-0 z-50 bg-neutral-950/90 backdrop-blur-md border-b border-white/10">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center gap-6">
-        <span className="text-sm font-medium text-white/50">Theme</span>
-
-        {/* Color pickers */}
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-xs text-white/60 cursor-pointer">
-            Primary
-            <input
-              type="color"
-              value={colors.primary}
-              onChange={(e) => setColor('primary', e.target.value)}
-              className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent"
-            />
-          </label>
-          <label className="flex items-center gap-2 text-xs text-white/60 cursor-pointer">
-            Secondary
-            <input
-              type="color"
-              value={colors.secondary}
-              onChange={(e) => setColor('secondary', e.target.value)}
-              className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent"
-            />
-          </label>
-          <label className="flex items-center gap-2 text-xs text-white/60 cursor-pointer">
-            Accent
-            <input
-              type="color"
-              value={colors.accent}
-              onChange={(e) => setColor('accent', e.target.value)}
-              className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent"
-            />
-          </label>
-        </div>
-
-        {/* Preset buttons */}
-        <div className="flex gap-2">
-          {(['indigo', 'rose', 'cyan', 'emerald', 'orange'] as const).map((preset) => (
-            <button
-              key={preset}
-              onClick={() => setPreset(preset)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all capitalize ${
-                currentPreset === preset
-                  ? 'bg-white/20 text-white ring-1 ring-white/30'
-                  : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white'
-              }`}
-            >
-              {preset}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="relative group">
+      <pre className="bg-neutral-900/80 border border-white/5 rounded-lg p-4 overflow-x-auto text-sm">
+        <code className="text-white/70 font-mono">{code}</code>
+      </pre>
+      <button
+        onClick={handleCopy}
+        className="absolute top-3 right-3 px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors text-white/60 hover:text-white"
+      >
+        {copied ? '✓ Copied' : 'Copy'}
+      </button>
     </div>
   )
 }
 
-// Section component with premium styling
-function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
-  return (
-    <section className="mb-16">
-      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
-        <span className="w-1 h-6 rounded-full" style={{ backgroundColor: 'var(--color-primary)' }} />
-        {title}
-        <span className="text-sm font-normal text-white/40">({count})</span>
-      </h2>
-      <div className="space-y-6">{children}</div>
-    </section>
-  )
-}
+// Component Preview Card - larger, more breathing room
+function ComponentPreview({ 
+  name, 
+  description, 
+  code, 
+  children,
+  className = '' 
+}: { 
+  name: string
+  description?: string
+  code?: string
+  children: React.ReactNode
+  className?: string 
+}) {
+  const [showCode, setShowCode] = useState(false)
 
-// Component card wrapper for grid items
-function ComponentCard({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`flex flex-col items-center justify-center p-6 bg-neutral-900 rounded-xl border border-white/5 hover:border-white/10 transition-colors ${className}`}>
-      <div className="flex-1 flex items-center justify-center w-full min-h-[60px]">
+    <div className={`bg-neutral-900/50 border border-white/5 rounded-2xl overflow-hidden ${className}`}>
+      {/* Preview Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div>
+          <h3 className="font-semibold text-white">{name}</h3>
+          {description && <p className="text-sm text-white/50 mt-0.5">{description}</p>}
+        </div>
+        {code && (
+          <button
+            onClick={() => setShowCode(!showCode)}
+            className="px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-white/60 hover:text-white flex items-center gap-2"
+          >
+            <span>{showCode ? '</>' : '</>'}</span>
+            {showCode ? 'Hide Code' : 'View Code'}
+          </button>
+        )}
+      </div>
+      
+      {/* Preview Area */}
+      <div className="p-8 min-h-[120px] flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,transparent_100%)]">
         {children}
       </div>
-      <span className="mt-4 text-xs text-white/40 font-medium">{label}</span>
+
+      {/* Code Area */}
+      {showCode && code && (
+        <div className="border-t border-white/5 p-4">
+          <CodeBlock code={code} />
+        </div>
+      )}
     </div>
   )
 }
 
-// Showcase row for inline components
-function ShowcaseRow({ label, children }: { label: string; children: React.ReactNode }) {
+// Section Header
+function SectionHeader({ id, title, description, count }: { id: string; title: string; description: string; count: number }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 p-5 bg-neutral-900 rounded-xl border border-white/5">
-      <span className="w-32 text-sm text-white/50 font-medium shrink-0">{label}</span>
-      {children}
+    <div id={id} className="scroll-mt-24 mb-8">
+      <div className="flex items-center gap-4 mb-2">
+        <h2 className="text-3xl font-bold text-white">{title}</h2>
+        <span className="px-2.5 py-1 text-xs font-medium bg-white/10 rounded-full text-white/60">{count} components</span>
+      </div>
+      <p className="text-white/50 text-lg max-w-2xl">{description}</p>
+    </div>
+  )
+}
+
+// Grid layouts for different component types
+function ComponentGrid({ children, cols = 3 }: { children: React.ReactNode; cols?: 2 | 3 | 4 }) {
+  const colClasses = {
+    2: 'grid-cols-1 md:grid-cols-2',
+    3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+    4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+  }
+  return <div className={`grid ${colClasses[cols]} gap-6`}>{children}</div>
+}
+
+// Sidebar Navigation
+function Sidebar({ activeSection }: { activeSection: string }) {
+  const { setPreset, currentPreset } = useTheme()
+
+  return (
+    <aside className="hidden lg:block w-64 shrink-0">
+      <div className="sticky top-6 space-y-6">
+        {/* Theme selector */}
+        <div className="p-4 bg-neutral-900/50 border border-white/5 rounded-xl">
+          <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3">Theme</p>
+          <div className="flex flex-wrap gap-2">
+            {(['indigo', 'rose', 'cyan', 'emerald', 'orange'] as const).map((preset) => (
+              <button
+                key={preset}
+                onClick={() => setPreset(preset)}
+                className={`w-8 h-8 rounded-lg transition-all capitalize ${
+                  currentPreset === preset
+                    ? 'ring-2 ring-white/30 ring-offset-2 ring-offset-neutral-950'
+                    : 'hover:scale-110'
+                }`}
+                style={{ 
+                  backgroundColor: preset === 'indigo' ? '#6366f1' 
+                    : preset === 'rose' ? '#f43f5e'
+                    : preset === 'cyan' ? '#06b6d4'
+                    : preset === 'emerald' ? '#10b981'
+                    : '#f97316'
+                }}
+                title={preset}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="space-y-1">
+          <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3 px-3">Components</p>
+          {categories.map((cat) => (
+            <a
+              key={cat.id}
+              href={`#${cat.id}`}
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                activeSection === cat.id
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>{cat.label}</span>
+              <span className="text-xs text-white/30">{cat.count}</span>
+            </a>
+          ))}
+        </nav>
+      </div>
+    </aside>
+  )
+}
+
+// Mobile category tabs
+function MobileTabs({ activeSection }: { activeSection: string }) {
+  return (
+    <div className="lg:hidden sticky top-0 z-40 bg-neutral-950/95 backdrop-blur-md border-b border-white/5 -mx-6 px-6 py-3 mb-8 overflow-x-auto">
+      <div className="flex gap-2 min-w-max">
+        {categories.map((cat) => (
+          <a
+            key={cat.id}
+            href={`#${cat.id}`}
+            className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
+              activeSection === cat.id
+                ? 'bg-white/10 text-white'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            {cat.label}
+          </a>
+        ))}
+      </div>
     </div>
   )
 }
 
 function UIComponentsContent() {
+  const [activeSection, setActiveSection] = useState('buttons')
+  
   // State for interactive demos
   const [toggleStates, setToggleStates] = useState({
     smooth: false,
@@ -260,268 +360,654 @@ function UIComponentsContent() {
     { id: 'tab3', label: 'Pricing', content: <p className="text-white/60">Pricing content goes here.</p> },
   ]
 
+  // Intersection observer for active section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      { rootMargin: '-20% 0px -70% 0px' }
+    )
+
+    categories.forEach((cat) => {
+      const element = document.getElementById(cat.id)
+      if (element) observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
-      <ColorControls />
-
-      {/* Header */}
-      <header className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors group">
-            <span className="group-hover:-translate-x-1 transition-transform">←</span>
-            <span>Back</span>
-          </Link>
-          <div className="h-6 w-px bg-white/10" />
-          <h1 className="text-3xl font-bold">UI Components</h1>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10" style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}>
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-primary)' }} />
-          <p className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>72 micro-interactions</p>
+      {/* Hero Header */}
+      <header className="border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="flex items-center gap-4 mb-6">
+            <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors group">
+              <span className="group-hover:-translate-x-1 transition-transform">←</span>
+              <span>Back to Lab</span>
+            </Link>
+          </div>
+          
+          <div className="max-w-3xl">
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
+              UI Components
+            </h1>
+            <p className="text-xl text-white/60 mb-6">
+              A curated collection of animated, production-ready React components. 
+              Beautiful interactions, smooth animations, and clean code.
+            </p>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-primary)' }} />
+                <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>72 Components</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <span>React</span>
+                <span>•</span>
+                <span>TypeScript</span>
+                <span>•</span>
+                <span>Tailwind</span>
+                <span>•</span>
+                <span>Framer Motion</span>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="max-w-6xl mx-auto px-6 pb-16">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex gap-12">
+          {/* Sidebar */}
+          <Sidebar activeSection={activeSection} />
 
-        {/* Buttons Section */}
-        <Section title="Buttons" count={17}>
-          <p className="text-white/50 text-sm mb-6 -mt-2">Hover, click, and interact with each button to see the effects</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <ComponentCard label="Pill Indicator"><PillIndicatorButton>Get Started</PillIndicatorButton></ComponentCard>
-            <ComponentCard label="Pill Gradient"><PillGradientButton>Explore</PillGradientButton></ComponentCard>
-            <ComponentCard label="Glassmorphism"><GlassmorphismButton>Glass</GlassmorphismButton></ComponentCard>
-            <ComponentCard label="Neumorphic"><NeumorphicButton>Soft UI</NeumorphicButton></ComponentCard>
-            <ComponentCard label="Aurora"><AuroraButton>Aurora</AuroraButton></ComponentCard>
-            <ComponentCard label="Holographic"><HolographicButton>Holo</HolographicButton></ComponentCard>
-            <ComponentCard label="Underline"><UnderlineTextButton>Underline</UnderlineTextButton></ComponentCard>
-            <ComponentCard label="Ghost Fill"><GhostOutlineButton>Ghost</GhostOutlineButton></ComponentCard>
-            <ComponentCard label="3D Layers"><LayeredDepthButton>Layers</LayeredDepthButton></ComponentCard>
-            <ComponentCard label="Magnetic"><MagneticPremiumButton>Magnetic</MagneticPremiumButton></ComponentCard>
-            <ComponentCard label="Liquid Metal"><LiquidMetalButton>Chrome</LiquidMetalButton></ComponentCard>
-            <ComponentCard label="Blob Morph"><MorphingBlobButton>Blob</MorphingBlobButton></ComponentCard>
-            <ComponentCard label="Cyberpunk"><CyberpunkNeonButton>Neon</CyberpunkNeonButton></ComponentCard>
-            <ComponentCard label="Particles"><ParticleBurstButton>Burst</ParticleBurstButton></ComponentCard>
-            <ComponentCard label="Scramble"><TextScrambleButton>Decode</TextScrambleButton></ComponentCard>
-            <ComponentCard label="Border Flow"><BorderFlowButton>Flow</BorderFlowButton></ComponentCard>
-            <ComponentCard label="Depth"><DepthShadowButton>Depth</DepthShadowButton></ComponentCard>
-          </div>
-        </Section>
+          {/* Content */}
+          <main className="flex-1 min-w-0">
+            <MobileTabs activeSection={activeSection} />
 
-        {/* Navigation Section */}
-        <Section title="Navigation" count={14}>
-          {/* Full Headers */}
-          <p className="text-white/50 text-sm mb-4 -mt-2">Full headers with logo, nav links, and CTA</p>
-          <div className="space-y-4 mb-8">
-            <div className="p-4 bg-neutral-900/50 rounded-xl">
-              <p className="text-xs text-white/40 mb-3">Glass Header</p>
-              <GlassHeader items={navItems} />
-            </div>
-            <div className="p-4 bg-neutral-900/50 rounded-xl">
-              <p className="text-xs text-white/40 mb-3">Minimal Header</p>
-              <MinimalHeader items={navItems} />
-            </div>
-            <div className="p-4 bg-neutral-900/50 rounded-xl">
-              <p className="text-xs text-white/40 mb-3">Gradient Border Header</p>
-              <GradientBorderHeader items={navItems} />
-            </div>
-          </div>
-          
-          {/* Nav Link Animations */}
-          <p className="text-white/50 text-sm mb-4">Nav link animations</p>
-          <div className="space-y-4">
-            <ShowcaseRow label="Magnetic"><MagneticNav items={navItems} /></ShowcaseRow>
-            <ShowcaseRow label="Underline"><UnderlineNav items={navItems} /></ShowcaseRow>
-            <ShowcaseRow label="Highlight"><HighlightNav items={navItems} /></ShowcaseRow>
-            <ShowcaseRow label="Split Text"><SplitTextNav items={navItems} /></ShowcaseRow>
-            <ShowcaseRow label="Rotate"><RotateNav items={navItems} /></ShowcaseRow>
-            <ShowcaseRow label="Blur"><BlurNav items={navItems} /></ShowcaseRow>
-            <ShowcaseRow label="Stagger"><StaggerNav items={navItems} /></ShowcaseRow>
+            {/* Buttons Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="buttons"
+                title="Buttons" 
+                description="Interactive button components with hover effects, animations, and unique visual styles."
+                count={17}
+              />
+              <ComponentGrid cols={3}>
+                <ComponentPreview 
+                  name="Pill Indicator" 
+                  description="Gradient pill with ring indicator"
+                  code={`<PillIndicatorButton>Get Started</PillIndicatorButton>`}
+                >
+                  <PillIndicatorButton>Get Started</PillIndicatorButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Pill Gradient" 
+                  description="Flowing gradient animation"
+                  code={`<PillGradientButton>Explore</PillGradientButton>`}
+                >
+                  <PillGradientButton>Explore</PillGradientButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Glassmorphism" 
+                  description="Frosted glass effect"
+                  code={`<GlassmorphismButton>Glass</GlassmorphismButton>`}
+                >
+                  <GlassmorphismButton>Glass</GlassmorphismButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Neumorphic" 
+                  description="Soft UI pressed effect"
+                  code={`<NeumorphicButton>Soft UI</NeumorphicButton>`}
+                >
+                  <NeumorphicButton>Soft UI</NeumorphicButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Aurora" 
+                  description="Northern lights gradient"
+                  code={`<AuroraButton>Aurora</AuroraButton>`}
+                >
+                  <AuroraButton>Aurora</AuroraButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Holographic" 
+                  description="Iridescent shimmer"
+                  code={`<HolographicButton>Holo</HolographicButton>`}
+                >
+                  <HolographicButton>Holo</HolographicButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Underline Text" 
+                  description="Animated underline on hover"
+                  code={`<UnderlineTextButton>Underline</UnderlineTextButton>`}
+                >
+                  <UnderlineTextButton>Underline</UnderlineTextButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Ghost Outline" 
+                  description="Fills on hover"
+                  code={`<GhostOutlineButton>Ghost</GhostOutlineButton>`}
+                >
+                  <GhostOutlineButton>Ghost</GhostOutlineButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="3D Layers" 
+                  description="Stacked depth effect"
+                  code={`<LayeredDepthButton>Layers</LayeredDepthButton>`}
+                >
+                  <LayeredDepthButton>Layers</LayeredDepthButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Magnetic" 
+                  description="Follows cursor"
+                  code={`<MagneticPremiumButton>Magnetic</MagneticPremiumButton>`}
+                >
+                  <MagneticPremiumButton>Magnetic</MagneticPremiumButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Liquid Metal" 
+                  description="Chrome reflection"
+                  code={`<LiquidMetalButton>Chrome</LiquidMetalButton>`}
+                >
+                  <LiquidMetalButton>Chrome</LiquidMetalButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Blob Morph" 
+                  description="Organic shape animation"
+                  code={`<MorphingBlobButton>Blob</MorphingBlobButton>`}
+                >
+                  <MorphingBlobButton>Blob</MorphingBlobButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Cyberpunk" 
+                  description="Neon glow effect"
+                  code={`<CyberpunkNeonButton>Neon</CyberpunkNeonButton>`}
+                >
+                  <CyberpunkNeonButton>Neon</CyberpunkNeonButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Particles" 
+                  description="Burst on click"
+                  code={`<ParticleBurstButton>Burst</ParticleBurstButton>`}
+                >
+                  <ParticleBurstButton>Burst</ParticleBurstButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Text Scramble" 
+                  description="Decode animation"
+                  code={`<TextScrambleButton>Decode</TextScrambleButton>`}
+                >
+                  <TextScrambleButton>Decode</TextScrambleButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Border Flow" 
+                  description="Animated gradient border"
+                  code={`<BorderFlowButton>Flow</BorderFlowButton>`}
+                >
+                  <BorderFlowButton>Flow</BorderFlowButton>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Depth Shadow" 
+                  description="3D press effect"
+                  code={`<DepthShadowButton>Depth</DepthShadowButton>`}
+                >
+                  <DepthShadowButton>Depth</DepthShadowButton>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <ComponentCard label="Hamburger" className="h-28">
-                <MorphingHamburger isOpen={hamburgerOpen} onToggle={() => setHamburgerOpen(!hamburgerOpen)} />
-              </ComponentCard>
-              <ComponentCard label="Circle Menu" className="h-28">
-                <div className="relative" style={{ height: 100 }}>
-                  <CircleMenu items={navItems} isOpen={isCircleMenuOpen} onToggle={() => setIsCircleMenuOpen(!isCircleMenuOpen)} />
-                </div>
-              </ComponentCard>
-              <ComponentCard label="Drawer" className="h-28">
-                <button onClick={() => setIsDrawerOpen(true)} className="px-4 py-2 rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
-                  Open
+            {/* Headers Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="headers"
+                title="Headers & Navigation" 
+                description="Full header components and nav link animations for websites and applications."
+                count={14}
+              />
+              
+              {/* Full Headers - Larger previews */}
+              <div className="space-y-6 mb-10">
+                <h3 className="text-lg font-semibold text-white/80">Full Headers</h3>
+                <ComponentPreview 
+                  name="Glass Header" 
+                  description="Frosted glass with logo, nav links, and CTA"
+                  code={`<GlassHeader items={[{ label: 'Home' }, { label: 'About' }]} />`}
+                >
+                  <div className="w-full">
+                    <GlassHeader items={navItems} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Minimal Header" 
+                  description="Clean Vercel-inspired style"
+                  code={`<MinimalHeader items={[{ label: 'Home' }, { label: 'About' }]} />`}
+                >
+                  <div className="w-full">
+                    <MinimalHeader items={navItems} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview 
+                  name="Gradient Border Header" 
+                  description="Animated gradient border accent"
+                  code={`<GradientBorderHeader items={[{ label: 'Home' }]} />`}
+                >
+                  <div className="w-full">
+                    <GradientBorderHeader items={navItems} />
+                  </div>
+                </ComponentPreview>
+              </div>
+
+              {/* Nav Link Animations */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-white/80">Nav Link Animations</h3>
+                <ComponentGrid cols={2}>
+                  <ComponentPreview name="Magnetic" description="Links follow cursor">
+                    <MagneticNav items={navItems} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Underline" description="Animated underline">
+                    <UnderlineNav items={navItems} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Highlight" description="Background highlight">
+                    <HighlightNav items={navItems} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Split Text" description="Text splits on hover">
+                    <SplitTextNav items={navItems} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Rotate" description="3D rotation">
+                    <RotateNav items={navItems} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Blur" description="Focus blur effect">
+                    <BlurNav items={navItems} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Stagger" description="Staggered animation">
+                    <StaggerNav items={navItems} />
+                  </ComponentPreview>
+                </ComponentGrid>
+
+                {/* Menu Components */}
+                <h3 className="text-lg font-semibold text-white/80 mt-10">Menu Components</h3>
+                <ComponentGrid cols={3}>
+                  <ComponentPreview name="Hamburger" description="Morphing icon">
+                    <MorphingHamburger isOpen={hamburgerOpen} onToggle={() => setHamburgerOpen(!hamburgerOpen)} />
+                  </ComponentPreview>
+                  <ComponentPreview name="Circle Menu" description="Radial expand">
+                    <div className="relative h-24 w-24">
+                      <CircleMenu items={navItems} isOpen={isCircleMenuOpen} onToggle={() => setIsCircleMenuOpen(!isCircleMenuOpen)} />
+                    </div>
+                  </ComponentPreview>
+                  <ComponentPreview name="Sliding Drawer" description="Side panel">
+                    <button onClick={() => setIsDrawerOpen(true)} className="px-4 py-2 rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
+                      Open Drawer
+                    </button>
+                    <SlidingDrawer items={navItems} isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+                  </ComponentPreview>
+                </ComponentGrid>
+              </div>
+            </section>
+
+            {/* Form Inputs Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="inputs"
+                title="Form Inputs" 
+                description="Animated form inputs with validation states, floating labels, and micro-interactions."
+                count={8}
+              />
+              <ComponentGrid cols={2}>
+                <ComponentPreview name="Floating Label" description="Label animates up on focus">
+                  <div className="w-full max-w-xs">
+                    <FloatingLabel label="Email address" value={inputValues.floating} onChange={v => setInputValues(p => ({ ...p, floating: v }))} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Underline" description="Animated underline">
+                  <div className="w-full max-w-xs">
+                    <UnderlineInput placeholder="Type something..." value={inputValues.underline} onChange={v => setInputValues(p => ({ ...p, underline: v }))} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Border Draw" description="Border draws on focus">
+                  <div className="w-full max-w-xs">
+                    <BorderInput placeholder="Focus me" value={inputValues.border} onChange={v => setInputValues(p => ({ ...p, border: v }))} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Shake Error" description="Shakes on invalid (type 'error')">
+                  <div className="w-full max-w-xs">
+                    <ShakeInput placeholder="Type 'error'" value={inputValues.shake} onChange={v => { setInputValues(p => ({ ...p, shake: v })); setShakeInvalid(v.toLowerCase() === 'error') }} isInvalid={shakeInvalid} errorMessage="Invalid input!" />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Success State" description="Checkmark on valid (5+ chars)">
+                  <div className="w-full max-w-xs">
+                    <SuccessInput placeholder="Type 5+ characters" value={inputValues.success} onChange={v => setInputValues(p => ({ ...p, success: v }))} isValid={inputValues.success.length >= 5} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Search Expand" description="Expands on focus">
+                  <div className="w-full max-w-xs">
+                    <SearchExpand value={inputValues.search} onChange={v => setInputValues(p => ({ ...p, search: v }))} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Tag Input" description="Add/remove tags">
+                  <div className="w-full max-w-xs">
+                    <TagInput tags={tags} onTagsChange={setTags} placeholder="Add tag..." />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Password Strength" description="Visual strength meter">
+                  <div className="w-full max-w-xs">
+                    <PasswordStrength value={inputValues.password} onChange={v => setInputValues(p => ({ ...p, password: v }))} />
+                  </div>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Cards Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="cards"
+                title="Cards" 
+                description="Interactive card components with 3D effects, reveals, and hover animations."
+                count={8}
+              />
+              <ComponentGrid cols={4}>
+                <ComponentPreview name="Tilt Card" description="3D tilt on hover">
+                  <TiltCard className="h-32 w-full">
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className="text-2xl mb-1">🎯</span>
+                      <span className="text-sm text-white/60">Move cursor</span>
+                    </div>
+                  </TiltCard>
+                </ComponentPreview>
+                <ComponentPreview name="Flip Card" description="Click to flip">
+                  <FlipCard 
+                    className="h-32 w-full" 
+                    front={<div className="h-full flex flex-col items-center justify-center"><span className="text-2xl mb-1">🔄</span><span className="text-sm text-white/60">Click me</span></div>} 
+                    back={<div className="h-full flex items-center justify-center"><span className="text-2xl">✨ Back!</span></div>} 
+                  />
+                </ComponentPreview>
+                <ComponentPreview name="Shine Card" description="Shine on hover">
+                  <ShineCard className="h-32 w-full">
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className="text-2xl mb-1">✨</span>
+                      <span className="text-sm text-white/60">Hover</span>
+                    </div>
+                  </ShineCard>
+                </ComponentPreview>
+                <ComponentPreview name="Lift Card" description="Lifts on hover">
+                  <LiftCard className="h-32 w-full">
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className="text-2xl mb-1">🚀</span>
+                      <span className="text-sm text-white/60">Hover</span>
+                    </div>
+                  </LiftCard>
+                </ComponentPreview>
+                <ComponentPreview name="Border Card" description="Gradient border">
+                  <BorderCard className="h-32 w-full">
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className="text-2xl mb-1">🌈</span>
+                      <span className="text-sm text-white/60">Gradient</span>
+                    </div>
+                  </BorderCard>
+                </ComponentPreview>
+                <ComponentPreview name="Reveal Card" description="Content reveal">
+                  <RevealCard className="h-32 w-full" title="Reveal" description="Hidden content" image="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop" />
+                </ComponentPreview>
+                <ComponentPreview name="Stack Card" description="Stacked cards">
+                  <StackCard className="h-32 w-full" cards={[
+                    { id: 1, content: <div className="flex items-center justify-center h-full"><span className="text-xl">📚 Stack</span></div> },
+                    { id: 2, content: <div className="flex items-center justify-center h-full">2</div> },
+                    { id: 3, content: <div className="flex items-center justify-center h-full">3</div> }
+                  ]} />
+                </ComponentPreview>
+                <ComponentPreview name="Magnetic Card" description="Follows cursor">
+                  <MagneticCard className="h-32 w-full">
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className="text-2xl mb-1">🧲</span>
+                      <span className="text-sm text-white/60">Follow</span>
+                    </div>
+                  </MagneticCard>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Toggles Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="toggles"
+                title="Toggles" 
+                description="Switch components with smooth animations and visual feedback."
+                count={6}
+              />
+              <ComponentGrid cols={3}>
+                <ComponentPreview name="Smooth" description="Smooth slide">
+                  <SmoothToggle checked={toggleStates.smooth} onChange={v => setToggleStates(p => ({ ...p, smooth: v }))} />
+                </ComponentPreview>
+                <ComponentPreview name="Bounce" description="Bouncy animation">
+                  <BounceToggle checked={toggleStates.bounce} onChange={v => setToggleStates(p => ({ ...p, bounce: v }))} />
+                </ComponentPreview>
+                <ComponentPreview name="Morph" description="Shape morph">
+                  <MorphToggle checked={toggleStates.morph} onChange={v => setToggleStates(p => ({ ...p, morph: v }))} />
+                </ComponentPreview>
+                <ComponentPreview name="Day/Night" description="Icon toggle">
+                  <IconToggle checked={toggleStates.icon} onChange={v => setToggleStates(p => ({ ...p, icon: v }))} />
+                </ComponentPreview>
+                <ComponentPreview name="Liquid" description="Liquid animation">
+                  <LiquidToggle checked={toggleStates.liquid} onChange={v => setToggleStates(p => ({ ...p, liquid: v }))} />
+                </ComponentPreview>
+                <ComponentPreview name="Segmented" description="Multiple options">
+                  <SegmentedToggle options={['A', 'B', 'C']} value={segmentValue} onChange={setSegmentValue} />
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Loaders Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="loaders"
+                title="Loaders" 
+                description="Loading indicators and progress animations."
+                count={8}
+              />
+              <ComponentGrid cols={4}>
+                <ComponentPreview name="Pulse" description="Pulsing dots">
+                  <PulseLoader />
+                </ComponentPreview>
+                <ComponentPreview name="Orbit" description="Orbiting dots">
+                  <OrbitLoader />
+                </ComponentPreview>
+                <ComponentPreview name="Morph" description="Shape morphing">
+                  <MorphLoader />
+                </ComponentPreview>
+                <ComponentPreview name="Text" description="Loading text">
+                  <TextLoader />
+                </ComponentPreview>
+                <ComponentPreview name="Progress" description="Progress bar">
+                  <div className="w-full max-w-xs">
+                    <ProgressLoader progress={65} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Skeleton" description="Content skeleton">
+                  <div className="w-full max-w-xs">
+                    <SkeletonLoader />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Spinner" description="Classic spinner">
+                  <SpinnerLoader />
+                </ComponentPreview>
+                <ComponentPreview name="Bar" description="Bar animation">
+                  <BarLoader />
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
+
+            {/* Badges Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="badges"
+                title="Badges" 
+                description="Notification badges and status indicators with animations."
+                count={7}
+              />
+              <div className="mb-4 flex items-center gap-4">
+                <button 
+                  onClick={() => setShowBadge(!showBadge)}
+                  className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg text-white/70"
+                >
+                  Toggle Badges
                 </button>
-                <SlidingDrawer items={navItems} isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
-              </ComponentCard>
-            </div>
-          </div>
-        </Section>
+                <button 
+                  onClick={() => setBadgeCount(c => c + 1)}
+                  className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg text-white/70"
+                >
+                  + Count
+                </button>
+              </div>
+              <ComponentGrid cols={4}>
+                <ComponentPreview name="Pulse" description="Pulsing indicator">
+                  <PulseBadge>
+                    <div className="w-10 h-10 bg-white/10 rounded-lg" />
+                  </PulseBadge>
+                </ComponentPreview>
+                <ComponentPreview name="Count" description="Animated count">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-white/10 rounded-lg" />
+                    <CountBadge count={badgeCount} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Shimmer" description="Shimmer effect">
+                  <ShimmerBadge>New</ShimmerBadge>
+                </ComponentPreview>
+                <ComponentPreview name="Pop" description="Pop animation">
+                  <PopBadge show={showBadge}>!</PopBadge>
+                </ComponentPreview>
+                <ComponentPreview name="Slide" description="Slide in">
+                  <SlideBadge show={showBadge}>Update</SlideBadge>
+                </ComponentPreview>
+                <ComponentPreview name="Status" description="Status dot">
+                  <div className="flex gap-4">
+                    <StatusBadge status="online" />
+                    <StatusBadge status="away" />
+                    <StatusBadge status="offline" />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Tag" description="Removable tag">
+                  <TagBadge onRemove={() => {}}>React</TagBadge>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
 
-        {/* Form Inputs Section */}
-        <Section title="Form Inputs" count={8}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Floating Label</p>
-              <FloatingLabel label="Email" value={inputValues.floating} onChange={v => setInputValues(p => ({ ...p, floating: v }))} />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Underline</p>
-              <UnderlineInput placeholder="Type..." value={inputValues.underline} onChange={v => setInputValues(p => ({ ...p, underline: v }))} />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Border Draw</p>
-              <BorderInput placeholder="Focus me" value={inputValues.border} onChange={v => setInputValues(p => ({ ...p, border: v }))} />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Shake (type "error")</p>
-              <ShakeInput placeholder="Type error" value={inputValues.shake} onChange={v => { setInputValues(p => ({ ...p, shake: v })); setShakeInvalid(v.toLowerCase() === 'error') }} isInvalid={shakeInvalid} errorMessage="Invalid!" />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Success (5+ chars)</p>
-              <SuccessInput placeholder="5+ chars" value={inputValues.success} onChange={v => setInputValues(p => ({ ...p, success: v }))} isValid={inputValues.success.length >= 5} />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Search Expand</p>
-              <SearchExpand value={inputValues.search} onChange={v => setInputValues(p => ({ ...p, search: v }))} />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Tag Input</p>
-              <TagInput tags={tags} onTagsChange={setTags} placeholder="Add tags" />
-            </div>
-            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-              <p className="text-xs text-white/40 mb-3">Password Strength</p>
-              <PasswordStrength value={inputValues.password} onChange={v => setInputValues(p => ({ ...p, password: v }))} />
-            </div>
-          </div>
-        </Section>
+            {/* Tooltips Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="tooltips"
+                title="Tooltips" 
+                description="Informational tooltips with various animation styles."
+                count={5}
+              />
+              <ComponentGrid cols={3}>
+                <ComponentPreview name="Fade" description="Fade in/out">
+                  <FadeTooltip content="Fade tooltip">
+                    <button className="px-4 py-2 bg-white/10 rounded-lg">Hover me</button>
+                  </FadeTooltip>
+                </ComponentPreview>
+                <ComponentPreview name="Scale" description="Scale animation">
+                  <ScaleTooltip content="Scale tooltip">
+                    <button className="px-4 py-2 bg-white/10 rounded-lg">Hover me</button>
+                  </ScaleTooltip>
+                </ComponentPreview>
+                <ComponentPreview name="Slide" description="Slide in">
+                  <SlideTooltip content="Slide tooltip">
+                    <button className="px-4 py-2 bg-white/10 rounded-lg">Hover me</button>
+                  </SlideTooltip>
+                </ComponentPreview>
+                <ComponentPreview name="Magnetic" description="Follows cursor">
+                  <MagneticTooltip content="Magnetic tooltip">
+                    <button className="px-4 py-2 bg-white/10 rounded-lg">Hover me</button>
+                  </MagneticTooltip>
+                </ComponentPreview>
+                <ComponentPreview name="Rich" description="Rich content">
+                  <RichTooltip content={<div><strong>Rich Tooltip</strong><p className="text-xs text-white/60 mt-1">With formatted content</p></div>}>
+                    <button className="px-4 py-2 bg-white/10 rounded-lg">Hover me</button>
+                  </RichTooltip>
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
 
-        {/* Cards Section */}
-        <Section title="Cards" count={8}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <TiltCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🎯</span><h3 className="font-bold">Tilt</h3><p className="text-white/50 text-sm">Move cursor</p></div></TiltCard>
-              <p className="text-xs text-white/40 text-center">Tilt Card</p>
-            </div>
-            <div className="space-y-2">
-              <FlipCard className="h-40" front={<div className="h-full flex flex-col items-center justify-center"><span className="text-2xl mb-2">🔄</span><h3 className="font-bold">Flip</h3><p className="text-white/50 text-sm">Click me</p></div>} back={<div className="h-full flex flex-col items-center justify-center"><span className="text-2xl mb-2">✨</span><h3 className="font-bold">Back!</h3></div>} />
-              <p className="text-xs text-white/40 text-center">Flip Card</p>
-            </div>
-            <div className="space-y-2">
-              <ShineCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">✨</span><h3 className="font-bold">Shine</h3><p className="text-white/50 text-sm">Hover</p></div></ShineCard>
-              <p className="text-xs text-white/40 text-center">Shine Card</p>
-            </div>
-            <div className="space-y-2">
-              <LiftCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🚀</span><h3 className="font-bold">Lift</h3><p className="text-white/50 text-sm">Hover</p></div></LiftCard>
-              <p className="text-xs text-white/40 text-center">Lift Card</p>
-            </div>
-            <div className="space-y-2">
-              <BorderCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🌈</span><h3 className="font-bold">Border</h3><p className="text-white/50 text-sm">Gradient</p></div></BorderCard>
-              <p className="text-xs text-white/40 text-center">Border Card</p>
-            </div>
-            <div className="space-y-2">
-              <RevealCard className="h-40" title="Reveal" description="Hidden content" image="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop" />
-              <p className="text-xs text-white/40 text-center">Reveal Card</p>
-            </div>
-            <div className="space-y-2">
-              <StackCard className="h-40" cards={[{ id: 1, content: <div className="flex flex-col items-center justify-center h-full"><span className="text-2xl mb-2">📚</span><h3 className="font-bold">Stack</h3></div> }, { id: 2, content: <div className="flex items-center justify-center h-full">2</div> }, { id: 3, content: <div className="flex items-center justify-center h-full">3</div> }]} />
-              <p className="text-xs text-white/40 text-center">Stack Card</p>
-            </div>
-            <div className="space-y-2">
-              <MagneticCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🧲</span><h3 className="font-bold">Magnetic</h3><p className="text-white/50 text-sm">Follow</p></div></MagneticCard>
-              <p className="text-xs text-white/40 text-center">Magnetic Card</p>
-            </div>
-          </div>
-        </Section>
+            {/* Menus Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="menus"
+                title="Menus" 
+                description="Dropdown and context menus with smooth animations."
+                count={5}
+              />
+              <ComponentGrid cols={3}>
+                <ComponentPreview name="Fade" description="Fade animation">
+                  <FadeMenu items={menuItems} trigger={<button className="px-4 py-2 bg-white/10 rounded-lg">Open Menu</button>} />
+                </ComponentPreview>
+                <ComponentPreview name="Slide" description="Slide down">
+                  <SlideMenu items={menuItems} trigger={<button className="px-4 py-2 bg-white/10 rounded-lg">Open Menu</button>} />
+                </ComponentPreview>
+                <ComponentPreview name="Scale" description="Scale from origin">
+                  <ScaleMenu items={menuItems} trigger={<button className="px-4 py-2 bg-white/10 rounded-lg">Open Menu</button>} />
+                </ComponentPreview>
+                <ComponentPreview name="Blur" description="Blur backdrop">
+                  <BlurMenu items={menuItems} trigger={<button className="px-4 py-2 bg-white/10 rounded-lg">Open Menu</button>} />
+                </ComponentPreview>
+                <ComponentPreview name="Stagger" description="Staggered items">
+                  <StaggerMenu items={menuItems} trigger={<button className="px-4 py-2 bg-white/10 rounded-lg">Open Menu</button>} />
+                </ComponentPreview>
+              </ComponentGrid>
+            </section>
 
-        {/* Toggles Section */}
-        <Section title="Toggles" count={6}>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Smooth"><SmoothToggle checked={toggleStates.smooth} onChange={v => setToggleStates(p => ({ ...p, smooth: v }))} /></ComponentCard>
-            <ComponentCard label="Bounce"><BounceToggle checked={toggleStates.bounce} onChange={v => setToggleStates(p => ({ ...p, bounce: v }))} /></ComponentCard>
-            <ComponentCard label="Morph"><MorphToggle checked={toggleStates.morph} onChange={v => setToggleStates(p => ({ ...p, morph: v }))} /></ComponentCard>
-            <ComponentCard label="Day/Night"><IconToggle checked={toggleStates.icon} onChange={v => setToggleStates(p => ({ ...p, icon: v }))} /></ComponentCard>
-            <ComponentCard label="Liquid"><LiquidToggle checked={toggleStates.liquid} onChange={v => setToggleStates(p => ({ ...p, liquid: v }))} /></ComponentCard>
-          </div>
-          <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-            <p className="text-sm text-white/40 mb-4">Segmented Toggle</p>
-            <SegmentedToggle options={['Option 1', 'Option 2', 'Option 3']} value={segmentValue} onChange={setSegmentValue} />
-          </div>
-        </Section>
+            {/* Tabs Section */}
+            <section className="mb-20">
+              <SectionHeader 
+                id="tabs"
+                title="Tabs" 
+                description="Tab components with different animation styles."
+                count={5}
+              />
+              <div className="space-y-6">
+                <ComponentPreview name="Slide Tabs" description="Sliding indicator">
+                  <div className="w-full max-w-md">
+                    <SlideTabs tabs={tabData} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Fade Tabs" description="Fade transition">
+                  <div className="w-full max-w-md">
+                    <FadeTabs tabs={tabData} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Underline Tabs" description="Underline indicator">
+                  <div className="w-full max-w-md">
+                    <UnderlineTabs tabs={tabData} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Pill Tabs" description="Pill-shaped indicator">
+                  <div className="w-full max-w-md">
+                    <PillTabs tabs={tabData} />
+                  </div>
+                </ComponentPreview>
+                <ComponentPreview name="Vertical Tabs" description="Vertical layout">
+                  <div className="w-full max-w-md">
+                    <VerticalTabs tabs={tabData} />
+                  </div>
+                </ComponentPreview>
+              </div>
+            </section>
 
-        {/* Loaders Section */}
-        <Section title="Loaders" count={8}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <ComponentCard label="Pulse"><PulseLoader /></ComponentCard>
-            <ComponentCard label="Orbit"><OrbitLoader /></ComponentCard>
-            <ComponentCard label="Morph"><MorphLoader /></ComponentCard>
-            <ComponentCard label="Text"><TextLoader /></ComponentCard>
-            <ComponentCard label="Spinner"><SpinnerLoader variant="default" /></ComponentCard>
-            <ComponentCard label="Dots"><SpinnerLoader variant="dots" /></ComponentCard>
-            <ComponentCard label="Bar"><BarLoader /></ComponentCard>
-            <ComponentCard label="Progress"><div className="w-full px-2"><ProgressLoader progress={65} showPercentage /></div></ComponentCard>
-          </div>
-          <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
-            <p className="text-sm text-white/40 mb-4">Skeleton</p>
-            <div className="flex gap-4 items-start">
-              <SkeletonLoader width={48} height={48} rounded />
-              <div className="flex-1 space-y-2"><SkeletonLoader height={16} /><SkeletonLoader width="60%" height={16} /></div>
-            </div>
-          </div>
-        </Section>
-
-        {/* Badges Section */}
-        <Section title="Badges" count={7}>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-            <ComponentCard label="Pulse"><PulseBadge count={3}><div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">📬</div></PulseBadge></ComponentCard>
-            <ComponentCard label="Count"><div className="flex flex-col items-center gap-2"><CountBadge count={badgeCount} /><button onClick={() => setBadgeCount(p => p + 5)} className="text-xs text-white/50">+5</button></div></ComponentCard>
-            <ComponentCard label="Shimmer"><ShimmerBadge>Shimmer</ShimmerBadge></ComponentCard>
-            <ComponentCard label="Pop"><div className="flex flex-col items-center gap-2"><div className="h-6"><PopBadge show={showBadge}>Pop!</PopBadge></div><button onClick={() => setShowBadge(!showBadge)} className="text-xs text-white/50">Toggle</button></div></ComponentCard>
-            <ComponentCard label="Slide"><SlideBadge show>Slide</SlideBadge></ComponentCard>
-            <ComponentCard label="Status"><StatusBadge status="online" label="Online" /></ComponentCard>
-            <ComponentCard label="Tag"><TagBadge onRemove={() => {}}>Tag</TagBadge></ComponentCard>
-          </div>
-        </Section>
-
-        {/* Tooltips Section */}
-        <Section title="Tooltips" count={5}>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Glassmorphism"><FadeTooltip content="Frosted glass effect">Hover me</FadeTooltip></ComponentCard>
-            <ComponentCard label="Aurora"><ScaleTooltip content="Flowing gradient">Hover me</ScaleTooltip></ComponentCard>
-            <ComponentCard label="Neumorphic"><SlideTooltip content="Soft 3D depth">Hover me</SlideTooltip></ComponentCard>
-            <ComponentCard label="Magnetic"><MagneticTooltip content="Follows cursor">Hover me</MagneticTooltip></ComponentCard>
-            <ComponentCard label="Holographic"><RichTooltip content="Iridescent effect">Hover me</RichTooltip></ComponentCard>
-          </div>
-        </Section>
-
-        {/* Menus Section */}
-        <Section title="Menus" count={5}>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Glassmorphism"><FadeMenu items={menuItems} trigger="Menu" /></ComponentCard>
-            <ComponentCard label="Aurora"><SlideMenu items={menuItems} trigger="Menu" /></ComponentCard>
-            <ComponentCard label="Neumorphic"><ScaleMenu items={menuItems} trigger="Menu" /></ComponentCard>
-            <ComponentCard label="Cyberpunk"><BlurMenu items={menuItems} trigger="Menu" /></ComponentCard>
-            <ComponentCard label="Layered"><StaggerMenu items={menuItems} trigger="Menu" /></ComponentCard>
-          </div>
-        </Section>
-
-        {/* Tabs Section */}
-        <Section title="Tabs" count={5}>
-          <div className="space-y-4">
-            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Glassmorphism Tabs</p><SlideTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Aurora Tabs</p><FadeTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Neumorphic Tabs</p><UnderlineTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Cyberpunk Tabs</p><PillTabs tabs={tabData} /></div>
-            <div className="p-6 bg-neutral-900/50 rounded-2xl border border-white/5"><p className="text-xs text-white/40 mb-4">Vertical Premium Tabs</p><VerticalTabs tabs={tabData} /></div>
-          </div>
-        </Section>
-
-        {/* Footer */}
-        <div className="text-center pt-8 border-t border-white/5">
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border" style={{ borderColor: 'rgba(var(--color-primary-rgb), 0.2)', background: 'linear-gradient(to right, rgba(var(--color-primary-rgb), 0.1), rgba(var(--color-secondary-rgb), 0.1))' }}>
-            <span className="text-2xl">✨</span>
-            <p className="text-white/70">Total: <span className="text-white font-bold">72 micro-components</span> across <span className="font-semibold" style={{ color: 'var(--color-primary)' }}>10 categories</span></p>
-          </div>
+          </main>
         </div>
-      </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-white/5 py-8">
+        <div className="max-w-7xl mx-auto px-6 text-center text-white/40 text-sm">
+          <p>Built with React, TypeScript, Tailwind CSS, and Framer Motion</p>
+        </div>
+      </footer>
     </div>
   )
 }
