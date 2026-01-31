@@ -23,6 +23,7 @@ const ParallaxDepth = lazy(() => import('./interactions/parallax-depth').then(m 
 const ElasticPhysics = lazy(() => import('./interactions/elastic-physics').then(m => ({ default: m.ElasticPhysics })))
 const ScrollScrub = lazy(() => import('./interactions/scroll-scrub').then(m => ({ default: m.ScrollScrub })))
 const ThreeDCards = lazy(() => import('./interactions/3d-cards').then(m => ({ default: m.ThreeDCards })))
+const LayeredZoomScroll = lazy(() => import('./interactions/layered-zoom-scroll').then(m => ({ default: m.LayeredZoomScroll })))
 
 // Shader-based interactions
 const ShaderHero = lazy(() => import('./interactions/shader-hero').then(m => ({ default: m.ShaderHero })))
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/elastic-physics" element={<ElasticPhysics />} />
           <Route path="/scroll-scrub" element={<ScrollScrub />} />
           <Route path="/3d-cards" element={<ThreeDCards />} />
+          <Route path="/layered-zoom-scroll" element={<LayeredZoomScroll />} />
           
           {/* Shader interactions */}
           <Route path="/shader-hero" element={

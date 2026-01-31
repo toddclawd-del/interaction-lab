@@ -4,6 +4,49 @@ This file captures techniques, gotchas, and insights from recreating web interac
 
 ---
 
+## 2026-01-31 — Layered Zoom Scroll Effect
+
+**Source:** [Codrops Tutorial](https://tympanus.net/codrops/2025/10/29/building-a-layered-zoom-scroll-effect-with-gsap-scrollsmoother-and-scrolltrigger/) — Inspired by [Telescope](https://telescope.fyi/)
+
+### Techniques Learned
+
+1. **CSS Variables as Animation Drivers**
+   - Instead of animating multiple properties directly, animate a single `--progress` CSS variable (0 → 1)
+   - Multiple elements can reference this variable via `calc()` for synchronized animations
+   - Cleaner than managing multiple GSAP tweens for tightly-coupled animations
+
+2. **Perspective + Z-axis for 3D Depth**
+   - Set `perspective: 100vh` on parent container
+   - Animate `z` property to make elements "fly toward camera"
+   - Combined with `stagger` and `from: 'center'` for organic scatter effect
+
+3. **Trailing Zoom with Stacked Layers**
+   - Multiple identical images stacked with decreasing initial scales: `[1, 0.85, 0.6, 0.45, 0.3, 0.15]`
+   - All layers animate to `scale: 1` with staggered timing
+   - Initial `blur(2px)` animating to `blur(0px)` adds atmospheric depth
+
+4. **Radial Gradient Masks for Subject Focus**
+   - Use `mask-image: radial-gradient(ellipse at center, ...)` to create "subject popping out" effect
+   - Adjust ellipse proportions for responsive design: wider on mobile, taller on ultra-wide
+
+5. **Split Text with calc()**
+   - Text elements move apart using `transform: translateX(calc(var(--progress) * offset))`
+   - On mobile, switch to vertical split (`translateY`) for better visual balance
+
+### Gotchas
+
+- **Double height for scroll pinning:** Section needs `height: 200vh` (or more) to give ScrollTrigger room to scrub through the animation
+- **Floating image positioning:** Use mix of `top/bottom` and `left/right` to avoid conflicts — don't use all four
+- **Mobile image count:** Hide some floating images on mobile to prevent crowding
+
+### Would Do Differently
+
+- Add ScrollSmoother for even smoother scroll inertia (requires GSAP premium or Club membership, now free)
+- Use actual subject mask (PNG with alpha) instead of radial gradient for more precise "popping out" effect
+- Consider lazy-loading the main image for better initial load performance
+
+---
+
 ## 2026-01-29 — Wavy Infinite Carousel
 
 **Source:** [Codrops Tutorial](https://tympanus.net/codrops/2025/11/26/creating-wavy-infinite-carousels-in-react-three-fiber-with-glsl-shaders/)
