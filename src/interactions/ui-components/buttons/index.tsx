@@ -870,6 +870,109 @@ export function DepthShadowButton({ children, className = '', onClick }: ButtonP
   )
 }
 
+// ============================================================================
+// 16. PillIndicatorButton - Pill shape with ring indicator (premium CTA style)
+// ============================================================================
+export function PillIndicatorButton({ children, className = '', onClick }: ButtonProps) {
+  const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative flex items-center gap-4 pl-8 pr-3 py-3 
+        rounded-full font-semibold text-white
+        min-h-[56px] overflow-hidden
+        ${className}
+      `}
+      style={{
+        background: 'linear-gradient(135deg, var(--color-accent, #06b6d4) 0%, var(--color-primary, #6366f1) 50%, var(--color-secondary, #8b5cf6) 100%)',
+      }}
+    >
+      {/* Subtle inner glow */}
+      <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent rounded-full" />
+      
+      {/* Text */}
+      <span className="relative z-10">{children}</span>
+      
+      {/* Ring indicator */}
+      <motion.span
+        className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full"
+        style={{
+          background: 'rgba(0, 0, 0, 0.2)',
+          border: '2px solid rgba(255, 255, 255, 0.3)',
+        }}
+        animate={prefersReducedMotion ? {} : {
+          borderColor: isHovered ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.3)',
+          scale: isHovered ? 1.05 : 1,
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        {/* Inner dot or arrow */}
+        <motion.span
+          className="w-2 h-2 rounded-full bg-white/60"
+          animate={prefersReducedMotion ? {} : {
+            scale: isHovered ? 1.2 : 1,
+            opacity: isHovered ? 1 : 0.6,
+          }}
+          transition={{ duration: 0.2 }}
+        />
+      </motion.span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 17. PillGradientButton - Simple pill with flowing gradient (no indicator)
+// ============================================================================
+export function PillGradientButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -1 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-10 py-4 rounded-full font-semibold text-white
+        min-h-[56px] overflow-hidden
+        ${className}
+      `}
+      style={{
+        background: 'linear-gradient(135deg, var(--color-accent, #06b6d4), var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6))',
+        backgroundSize: '200% 200%',
+      }}
+    >
+      {/* Animated gradient on hover */}
+      <motion.span
+        className={`absolute inset-0 ${prefersReducedMotion ? '' : 'animate-gradient-shift'}`}
+        style={{
+          background: 'linear-gradient(135deg, var(--color-accent, #06b6d4), var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6))',
+          backgroundSize: '200% 200%',
+        }}
+      />
+      
+      {/* Shine overlay */}
+      <span className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
+      
+      <span className="relative z-10">{children}</span>
+      
+      <style>{`
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-shift { animation: gradient-shift 4s ease-in-out infinite; }
+      `}</style>
+    </motion.button>
+  )
+}
+
 // Legacy exports for backwards compatibility - map old names to new implementations
 export const MagneticButton = MagneticPremiumButton
 export const RippleButton = ParticleBurstButton
@@ -904,6 +1007,8 @@ export const Buttons = {
   TextScrambleButton,
   BorderFlowButton,
   DepthShadowButton,
+  PillIndicatorButton,
+  PillGradientButton,
   // Legacy names
   MagneticButton,
   RippleButton,

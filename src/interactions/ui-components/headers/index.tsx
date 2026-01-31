@@ -449,6 +449,322 @@ export function SlidingDrawer({ items, isOpen, onClose, onSelect }: SlidingDrawe
   )
 }
 
+// ============================================================================
+// 11. GlassHeader - Full header with logo, nav links, and CTA
+// ============================================================================
+interface FullHeaderProps {
+  logo?: React.ReactNode
+  items: NavItem[]
+  ctaLabel?: string
+  onCtaClick?: () => void
+  onSelect?: (item: NavItem, index: number) => void
+  className?: string
+}
+
+export function GlassHeader({ 
+  logo = '✦', 
+  items, 
+  ctaLabel = 'Get Started',
+  onCtaClick,
+  onSelect,
+  className = '' 
+}: FullHeaderProps) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.header
+      initial={prefersReducedMotion ? {} : { y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6 }}
+      className={`
+        flex items-center justify-between px-6 py-4
+        backdrop-blur-xl bg-white/5 
+        border border-white/10 rounded-2xl
+        ${className}
+      `}
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+          {typeof logo === 'string' ? logo : logo}
+        </div>
+        <span className="text-white font-semibold text-lg hidden sm:block">Brand</span>
+      </div>
+
+      {/* Nav Links */}
+      <nav className="hidden md:flex items-center gap-1">
+        {items.map((item, index) => (
+          <motion.button
+            key={item.label}
+            onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
+            whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+            className={`
+              px-4 py-2 rounded-lg transition-colors
+              ${activeIndex === index 
+                ? 'text-white bg-white/10' 
+                : 'text-neutral-400 hover:text-white hover:bg-white/5'}
+            `}
+          >
+            {item.label}
+          </motion.button>
+        ))}
+      </nav>
+
+      {/* CTA Button */}
+      <motion.button
+        onClick={onCtaClick}
+        whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+        whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+        className="
+          flex items-center gap-3 pl-5 pr-2 py-2 
+          rounded-full font-medium text-white
+          bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500
+        "
+      >
+        <span>{ctaLabel}</span>
+        <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+          <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+        </span>
+      </motion.button>
+    </motion.header>
+  )
+}
+
+// ============================================================================
+// 12. MinimalHeader - Clean minimal header (Vercel-style)
+// ============================================================================
+export function MinimalHeader({ 
+  logo = '▲', 
+  items, 
+  ctaLabel = 'Sign Up',
+  onCtaClick,
+  onSelect,
+  className = '' 
+}: FullHeaderProps) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <header className={`flex items-center justify-between py-4 ${className}`}>
+      {/* Logo */}
+      <div className="flex items-center gap-6">
+        <div className="text-white text-2xl font-bold">
+          {logo}
+        </div>
+        
+        {/* Nav Links */}
+        <nav className="hidden md:flex items-center gap-6">
+          {items.map((item, index) => (
+            <motion.button
+              key={item.label}
+              onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
+              className={`
+                text-sm transition-colors
+                ${activeIndex === index ? 'text-white' : 'text-neutral-500 hover:text-white'}
+              `}
+            >
+              {item.label}
+            </motion.button>
+          ))}
+        </nav>
+      </div>
+
+      {/* CTA */}
+      <div className="flex items-center gap-4">
+        <button className="text-sm text-neutral-400 hover:text-white transition-colors hidden sm:block">
+          Log In
+        </button>
+        <motion.button
+          onClick={onCtaClick}
+          whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+          whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+          className="
+            px-4 py-2 rounded-lg font-medium text-sm
+            bg-white text-black hover:bg-neutral-200 transition-colors
+          "
+        >
+          {ctaLabel}
+        </motion.button>
+      </div>
+    </header>
+  )
+}
+
+// ============================================================================
+// 13. FloatingHeader - Header that appears/transforms on scroll
+// ============================================================================
+export function FloatingHeader({ 
+  logo = '◆', 
+  items, 
+  ctaLabel = 'Get Started',
+  onCtaClick,
+  onSelect,
+  className = '' 
+}: FullHeaderProps) {
+  const [scrolled, setScrolled] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const prefersReducedMotion = useReducedMotion()
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    <motion.header
+      initial={prefersReducedMotion ? {} : { y: -100 }}
+      animate={{ y: 0 }}
+      className={`
+        fixed top-4 left-4 right-4 z-50
+        flex items-center justify-between px-6 py-3
+        rounded-2xl transition-all duration-300
+        ${scrolled 
+          ? 'bg-neutral-900/90 backdrop-blur-xl border border-white/10 shadow-2xl' 
+          : 'bg-transparent'}
+        ${className}
+      `}
+    >
+      {/* Logo */}
+      <motion.div 
+        className="flex items-center gap-3"
+        animate={prefersReducedMotion ? {} : { scale: scrolled ? 0.9 : 1 }}
+      >
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-indigo-500 flex items-center justify-center text-white font-bold text-xl">
+          {logo}
+        </div>
+        <span className={`text-white font-semibold transition-opacity ${scrolled ? 'opacity-0 w-0' : 'opacity-100'}`}>
+          Brand
+        </span>
+      </motion.div>
+
+      {/* Nav Links */}
+      <nav className="hidden md:flex items-center gap-1">
+        {items.map((item, index) => (
+          <motion.button
+            key={item.label}
+            onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
+            className={`
+              px-4 py-2 rounded-full text-sm transition-all
+              ${activeIndex === index 
+                ? 'text-white bg-white/10' 
+                : 'text-neutral-400 hover:text-white'}
+            `}
+          >
+            {item.label}
+          </motion.button>
+        ))}
+      </nav>
+
+      {/* CTA */}
+      <motion.button
+        onClick={onCtaClick}
+        whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+        whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+        animate={prefersReducedMotion ? {} : { 
+          paddingLeft: scrolled ? 16 : 20,
+          paddingRight: scrolled ? 16 : 8,
+        }}
+        className="
+          flex items-center gap-2 py-2 
+          rounded-full font-medium text-white text-sm
+          bg-gradient-to-r from-cyan-500 to-indigo-500
+        "
+        style={{ paddingLeft: 20, paddingRight: 8 }}
+      >
+        <span>{ctaLabel}</span>
+        <motion.span 
+          className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center"
+          animate={prefersReducedMotion ? {} : { 
+            opacity: scrolled ? 0 : 1,
+            width: scrolled ? 0 : 28,
+          }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+        </motion.span>
+      </motion.button>
+    </motion.header>
+  )
+}
+
+// ============================================================================
+// 14. GradientBorderHeader - Header with animated gradient border
+// ============================================================================
+export function GradientBorderHeader({ 
+  logo = '★', 
+  items, 
+  ctaLabel = 'Get Started',
+  onCtaClick,
+  onSelect,
+  className = '' 
+}: FullHeaderProps) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <div className={`relative p-[1px] rounded-2xl ${className}`}>
+      {/* Animated border */}
+      <div 
+        className={`absolute inset-0 rounded-2xl ${prefersReducedMotion ? '' : 'animate-border-rotate'}`}
+        style={{
+          background: 'conic-gradient(from 0deg, #06b6d4, #6366f1, #8b5cf6, #06b6d4)',
+          backgroundSize: '400% 400%',
+        }}
+      />
+      
+      {/* Inner content */}
+      <header className="relative flex items-center justify-between px-6 py-4 bg-neutral-950 rounded-2xl">
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white font-bold">
+            {logo}
+          </div>
+          <span className="text-white font-semibold">Brand</span>
+        </div>
+
+        {/* Nav Links */}
+        <nav className="hidden md:flex items-center gap-6">
+          {items.map((item, index) => (
+            <button
+              key={item.label}
+              onClick={() => { setActiveIndex(index); onSelect?.(item, index) }}
+              className={`
+                text-sm transition-colors
+                ${activeIndex === index ? 'text-white' : 'text-neutral-500 hover:text-white'}
+              `}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* CTA */}
+        <motion.button
+          onClick={onCtaClick}
+          whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+          whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+          className="
+            px-5 py-2.5 rounded-xl font-medium text-white text-sm
+            bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500
+          "
+        >
+          {ctaLabel}
+        </motion.button>
+      </header>
+
+      <style>{`
+        @keyframes border-rotate {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-border-rotate { animation: border-rotate 4s linear infinite; }
+      `}</style>
+    </div>
+  )
+}
+
 // Export all
 export const Headers = {
   MagneticNav,
@@ -461,4 +777,8 @@ export const Headers = {
   MorphingHamburger,
   CircleMenu,
   SlidingDrawer,
+  GlassHeader,
+  MinimalHeader,
+  FloatingHeader,
+  GradientBorderHeader,
 }
