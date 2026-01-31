@@ -172,17 +172,16 @@ export function LiftCard({ children, className = '', onClick }: CardProps) {
 // ============================================================================
 export function BorderCard({ children, className = '' }: CardProps) {
   return (
-    <div className={`relative p-[2px] rounded-xl overflow-hidden ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 animate-gradient-rotate" />
-      <div className="relative bg-neutral-900 rounded-xl p-6">{children}</div>
+    <div className={`relative p-[2px] rounded-xl ${className}`} style={{ background: 'linear-gradient(var(--border-angle), #ec4899, #8b5cf6, #06b6d4, #ec4899)', animation: 'border-rotate 4s linear infinite' }}>
+      <div className="relative bg-neutral-900 rounded-[10px] p-6 h-full">{children}</div>
       <style>{`
-        @keyframes gradient-rotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @property --border-angle {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
         }
-        .animate-gradient-rotate {
-          animation: gradient-rotate 4s linear infinite;
-          background-size: 200% 200%;
+        @keyframes border-rotate {
+          to { --border-angle: 360deg; }
         }
       `}</style>
     </div>
@@ -200,31 +199,50 @@ interface RevealCardProps {
 }
 
 export function RevealCard({ title, description, image, className = '' }: RevealCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
   return (
     <motion.div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative overflow-hidden rounded-xl h-64 cursor-pointer ${className}`}
+      initial="idle"
+      whileHover="hover"
+      className={`relative overflow-hidden rounded-xl h-64 cursor-pointer group ${className}`}
     >
       {image && (
         <motion.img
           src={image}
           alt={title}
-          animate={{ scale: isHovered ? 1.1 : 1 }}
+          variants={{
+            idle: { scale: 1 },
+            hover: { scale: 1.1 }
+          }}
           transition={{ duration: 0.4 }}
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"
+        variants={{
+          idle: { opacity: 0.7 },
+          hover: { opacity: 1 }
+        }}
+        transition={{ duration: 0.3 }}
+      />
       
       <div className="absolute bottom-0 left-0 right-0 p-6">
-        <h3 className="text-xl font-bold text-white">{title}</h3>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
+        <motion.h3 
+          className="text-xl font-bold text-white"
+          variants={{
+            idle: { y: 0 },
+            hover: { y: -8 }
+          }}
           transition={{ duration: 0.3 }}
+        >
+          {title}
+        </motion.h3>
+        <motion.p
+          variants={{
+            idle: { opacity: 0, y: 20 },
+            hover: { opacity: 1, y: 0 }
+          }}
+          transition={{ duration: 0.3, delay: 0.1 }}
           className="text-neutral-300 mt-2"
         >
           {description}
@@ -244,29 +262,34 @@ interface StackCardProps {
 
 export function StackCard({ cards, className = '' }: StackCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const displayCards = cards.slice(0, 3).reverse() // Reverse so first card renders on top
 
   return (
     <div
-      className={`relative ${className}`}
+      className={`relative h-40 w-full ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {cards.slice(0, 3).map((card, index) => (
-        <motion.div
-          key={card.id}
-          initial={false}
-          animate={{
-            rotate: isHovered ? (index - 1) * 6 : (index - 1) * 2,
-            y: isHovered ? (index - 1) * -8 : index * 4,
-            scale: 1 - index * 0.02,
-          }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className={`${index === 0 ? '' : 'absolute inset-0'} p-6 bg-neutral-800 rounded-xl shadow-lg`}
-          style={{ zIndex: cards.length - index }}
-        >
-          {card.content}
-        </motion.div>
-      ))}
+      {displayCards.map((card, renderIndex) => {
+        const stackIndex = displayCards.length - 1 - renderIndex // 0 = top card
+        return (
+          <motion.div
+            key={card.id}
+            initial={false}
+            animate={{
+              rotate: isHovered ? (stackIndex - 1) * -8 : 0,
+              x: isHovered ? (stackIndex - 1) * -30 : 0,
+              y: stackIndex * 6,
+              scale: 1 - stackIndex * 0.05,
+            }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="absolute inset-x-0 top-0 p-4 bg-neutral-800 rounded-xl shadow-lg border border-white/10"
+            style={{ zIndex: displayCards.length - stackIndex }}
+          >
+            {card.content}
+          </motion.div>
+        )
+      })}
     </div>
   )
 }
