@@ -1,19 +1,19 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion'
 
 // Custom hook for reduced motion preference
 function useReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     setPrefersReducedMotion(mediaQuery.matches)
-    
+
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
-  
+
   return prefersReducedMotion
 }
 
@@ -26,14 +26,355 @@ interface ButtonProps {
 }
 
 // ============================================================================
-// 1. MagneticButton - follows cursor slightly
+// 1. GlassmorphismButton - Frosted glass effect with depth
 // ============================================================================
-export function MagneticButton({ children, className = '', onClick }: ButtonProps) {
+export function GlassmorphismButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -2 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-2xl font-semibold text-white
+        backdrop-blur-xl bg-white/10 
+        border border-white/20
+        shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]
+        overflow-hidden group min-h-[56px]
+        ${className}
+      `}
+    >
+      {/* Inner glow */}
+      <span className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
+      
+      {/* Hover shine effect */}
+      {!prefersReducedMotion && (
+        <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        </span>
+      )}
+      
+      {/* Subtle color tint from theme */}
+      <span 
+        className="absolute inset-0 opacity-30 mix-blend-overlay"
+        style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}
+      />
+      
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        {children}
+      </span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 2. NeumorphicButton - Soft UI with realistic shadows
+// ============================================================================
+export function NeumorphicButton({ children, className = '', onClick }: ButtonProps) {
+  const [isPressed, setIsPressed] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsPressed(false)}
+      animate={prefersReducedMotion ? {} : {
+        boxShadow: isPressed 
+          ? 'inset 4px 4px 12px rgba(0,0,0,0.4), inset -4px -4px 12px rgba(255,255,255,0.05)'
+          : '8px 8px 20px rgba(0,0,0,0.4), -8px -8px 20px rgba(255,255,255,0.05), inset 0 0 0 rgba(0,0,0,0)',
+      }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className={`
+        relative px-8 py-4 rounded-2xl font-semibold
+        bg-neutral-800 text-white/90
+        min-h-[56px]
+        ${className}
+      `}
+    >
+      <span className={`relative z-10 transition-transform duration-150 block ${isPressed ? 'scale-95' : ''}`}>
+        {children}
+      </span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 3. AuroraButton - Flowing northern lights gradient
+// ============================================================================
+export function AuroraButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-2xl font-semibold text-white
+        overflow-hidden min-h-[56px] group
+        ${className}
+      `}
+    >
+      {/* Aurora gradient background */}
+      <span 
+        className={`absolute inset-0 ${prefersReducedMotion ? '' : 'animate-aurora'}`}
+        style={{
+          background: `linear-gradient(
+            135deg,
+            var(--color-primary) 0%,
+            var(--color-secondary) 25%,
+            var(--color-accent) 50%,
+            var(--color-secondary) 75%,
+            var(--color-primary) 100%
+          )`,
+          backgroundSize: '400% 400%',
+        }}
+      />
+      
+      {/* Glow effect */}
+      <span 
+        className="absolute inset-0 blur-xl opacity-50 group-hover:opacity-70 transition-opacity"
+        style={{
+          background: `linear-gradient(135deg, var(--color-primary), var(--color-accent))`,
+        }}
+      />
+      
+      {/* Glass overlay */}
+      <span className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+      
+      <span className="relative z-10">{children}</span>
+      
+      <style>{`
+        @keyframes aurora {
+          0%, 100% { background-position: 0% 50%; }
+          25% { background-position: 50% 100%; }
+          50% { background-position: 100% 50%; }
+          75% { background-position: 50% 0%; }
+        }
+        .animate-aurora { animation: aurora 8s ease-in-out infinite; }
+      `}</style>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 4. HolographicButton - Iridescent color-shifting effect
+// ============================================================================
+export function HolographicButton({ children, className = '', onClick }: ButtonProps) {
   const ref = useRef<HTMLButtonElement>(null)
   const prefersReducedMotion = useReducedMotion()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!ref.current || prefersReducedMotion) return
+    const rect = ref.current.getBoundingClientRect()
+    x.set((e.clientX - rect.left) / rect.width)
+    y.set((e.clientY - rect.top) / rect.height)
+  }, [x, y, prefersReducedMotion])
+
+  const background = useTransform(
+    [x, y],
+    ([latestX, latestY]: number[]) => `
+      linear-gradient(
+        ${135 + latestX * 90}deg,
+        hsl(${280 + latestY * 60}, 100%, 70%) 0%,
+        hsl(${200 + latestX * 80}, 100%, 60%) 33%,
+        hsl(${160 + latestY * 40}, 100%, 50%) 66%,
+        hsl(${320 + latestX * 60}, 100%, 65%) 100%
+      )
+    `
+  )
+
+  return (
+    <motion.button
+      ref={ref}
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-2xl font-semibold text-white
+        overflow-hidden min-h-[56px]
+        shadow-[0_0_30px_rgba(200,100,255,0.3)]
+        ${className}
+      `}
+    >
+      {/* Holographic gradient */}
+      <motion.span 
+        className="absolute inset-0"
+        style={prefersReducedMotion ? { 
+          background: 'linear-gradient(135deg, hsl(280, 100%, 70%), hsl(200, 100%, 60%), hsl(160, 100%, 50%))' 
+        } : { background }}
+      />
+      
+      {/* Shimmer lines */}
+      <span className="absolute inset-0 opacity-30">
+        {[...Array(5)].map((_, i) => (
+          <span
+            key={i}
+            className="absolute h-px bg-white/50"
+            style={{
+              top: `${20 + i * 15}%`,
+              left: '-10%',
+              right: '-10%',
+              transform: `rotate(${-15 + i * 5}deg)`,
+            }}
+          />
+        ))}
+      </span>
+      
+      <span className="relative z-10 mix-blend-difference">{children}</span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 5. UnderlineTextButton - Minimal text button with animated underline
+// ============================================================================
+export function UnderlineTextButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? undefined : 'hover'}
+      className={`
+        relative px-2 py-2 font-semibold text-white
+        group min-h-[48px]
+        ${className}
+      `}
+    >
+      <span className="relative">
+        {children}
+        
+        {/* Animated underline */}
+        <motion.span
+          className="absolute -bottom-1 left-0 h-[2px] rounded-full"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+          initial={{ width: 0 }}
+          variants={{
+            hover: { width: '100%' }
+          }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        />
+        
+        {/* Dot that travels */}
+        {!prefersReducedMotion && (
+          <motion.span
+            className="absolute -bottom-1 w-1 h-1 rounded-full"
+            style={{ backgroundColor: 'var(--color-accent)' }}
+            initial={{ left: 0, opacity: 0 }}
+            variants={{
+              hover: { 
+                left: '100%', 
+                opacity: [0, 1, 1, 0],
+                transition: { duration: 0.5, ease: 'easeOut' }
+              }
+            }}
+          />
+        )}
+      </span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 6. GhostOutlineButton - Outline that fills on hover
+// ============================================================================
+export function GhostOutlineButton({ children, className = '', onClick }: ButtonProps) {
+  const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-xl font-semibold
+        border-2 overflow-hidden min-h-[56px]
+        ${className}
+      `}
+      style={{ 
+        borderColor: 'var(--color-primary)',
+        color: isHovered ? 'white' : 'var(--color-primary)',
+      }}
+    >
+      {/* Fill animation from center */}
+      <motion.span
+        className="absolute inset-0"
+        style={{ backgroundColor: 'var(--color-primary)' }}
+        initial={{ scale: 0, borderRadius: '100%' }}
+        animate={prefersReducedMotion 
+          ? { scale: isHovered ? 1 : 0, borderRadius: isHovered ? '0%' : '100%' }
+          : { scale: isHovered ? 1.5 : 0, borderRadius: isHovered ? '0%' : '100%' }
+        }
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      />
+      
+      <span className="relative z-10">{children}</span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 7. LayeredDepthButton - 3D with stacked layers
+// ============================================================================
+export function LayeredDepthButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? undefined : 'hover'}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`relative min-h-[56px] ${className}`}
+    >
+      {/* Bottom layer (shadow) */}
+      <motion.span
+        className="absolute inset-0 rounded-xl"
+        style={{ backgroundColor: 'var(--color-secondary)', opacity: 0.5 }}
+        variants={{ hover: { y: 8, x: 4 } }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        initial={{ y: 6, x: 3 }}
+      />
+      
+      {/* Middle layer */}
+      <motion.span
+        className="absolute inset-0 rounded-xl"
+        style={{ backgroundColor: 'var(--color-secondary)', opacity: 0.7 }}
+        variants={{ hover: { y: 4, x: 2 } }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        initial={{ y: 3, x: 1.5 }}
+      />
+      
+      {/* Top layer (main) */}
+      <motion.span
+        className="relative block px-8 py-4 rounded-xl font-semibold text-white"
+        style={{ backgroundColor: 'var(--color-primary)' }}
+        variants={{ hover: { y: -2 } }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      >
+        {children}
+      </motion.span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 8. MagneticPremiumButton - Enhanced magnetic with glow trail
+// ============================================================================
+export function MagneticPremiumButton({ children, className = '', onClick }: ButtonProps) {
+  const ref = useRef<HTMLButtonElement>(null)
+  const prefersReducedMotion = useReducedMotion()
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
   const springConfig = { stiffness: 150, damping: 15 }
   const springX = useSpring(x, springConfig)
   const springY = useSpring(y, springConfig)
@@ -43,8 +384,8 @@ export function MagneticButton({ children, className = '', onClick }: ButtonProp
     const rect = ref.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
-    x.set((e.clientX - centerX) * 0.3)
-    y.set((e.clientY - centerY) * 0.3)
+    x.set((e.clientX - centerX) * 0.4)
+    y.set((e.clientY - centerY) * 0.4)
   }, [x, y, prefersReducedMotion])
 
   const handleMouseLeave = useCallback(() => {
@@ -52,31 +393,265 @@ export function MagneticButton({ children, className = '', onClick }: ButtonProp
     y.set(0)
   }, [x, y])
 
+  // Transform for glow position
+  const glowX = useTransform(springX, (v) => v * 0.5)
+  const glowY = useTransform(springY, (v) => v * 0.5)
+
+  return (
+    <div className="relative">
+      {/* Glow that follows slightly behind */}
+      {!prefersReducedMotion && (
+        <motion.span
+          className="absolute inset-0 rounded-2xl blur-xl opacity-60 pointer-events-none"
+          style={{
+            x: glowX,
+            y: glowY,
+            background: `linear-gradient(135deg, var(--color-primary), var(--color-accent))`,
+          }}
+        />
+      )}
+      
+      <motion.button
+        ref={ref}
+        style={prefersReducedMotion ? {} : { x: springX, y: springY }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={onClick}
+        whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+        className={`
+          relative px-8 py-4 rounded-2xl font-semibold text-white
+          min-h-[56px] overflow-hidden
+          shadow-lg
+          ${className}
+        `}
+      >
+        {/* Gradient background */}
+        <span 
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}
+        />
+        
+        {/* Shine on top */}
+        <span className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+        
+        <span className="relative z-10">{children}</span>
+      </motion.button>
+    </div>
+  )
+}
+
+// ============================================================================
+// 9. LiquidMetalButton - Chrome/liquid metal effect
+// ============================================================================
+export function LiquidMetalButton({ children, className = '', onClick }: ButtonProps) {
+  const ref = useRef<HTMLButtonElement>(null)
+  const prefersReducedMotion = useReducedMotion()
+  const mouseX = useMotionValue(0.5)
+  const mouseY = useMotionValue(0.5)
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!ref.current || prefersReducedMotion) return
+    const rect = ref.current.getBoundingClientRect()
+    mouseX.set((e.clientX - rect.left) / rect.width)
+    mouseY.set((e.clientY - rect.top) / rect.height)
+  }, [mouseX, mouseY, prefersReducedMotion])
+
+  const background = useTransform(
+    [mouseX, mouseY],
+    ([x, y]: number[]) => `
+      radial-gradient(
+        circle at ${x * 100}% ${y * 100}%,
+        #e8e8e8 0%,
+        #a8a8a8 20%,
+        #888888 40%,
+        #a8a8a8 60%,
+        #c8c8c8 80%,
+        #e8e8e8 100%
+      )
+    `
+  )
+
   return (
     <motion.button
       ref={ref}
-      style={prefersReducedMotion ? {} : { x: springX, y: springY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       onClick={onClick}
-      className={`px-6 py-3 bg-white text-black rounded-lg font-medium transition-colors hover:bg-neutral-200 min-h-[48px] ${className}`}
+      onMouseMove={handleMouseMove}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-2xl font-bold text-neutral-800
+        min-h-[56px] overflow-hidden
+        shadow-[0_10px_40px_rgba(0,0,0,0.3),inset_0_2px_0_rgba(255,255,255,0.8),inset_0_-2px_0_rgba(0,0,0,0.2)]
+        ${className}
+      `}
     >
-      {children}
+      {/* Metallic gradient that follows cursor */}
+      <motion.span 
+        className="absolute inset-0"
+        style={prefersReducedMotion ? {
+          background: 'linear-gradient(135deg, #e8e8e8, #a8a8a8, #c8c8c8, #e8e8e8)'
+        } : { background }}
+      />
+      
+      {/* Top highlight */}
+      <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent" />
+      
+      <span className="relative z-10">{children}</span>
     </motion.button>
   )
 }
 
 // ============================================================================
-// 2. RippleButton - material design ripple on click
+// 10. MorphingBlobButton - Organic blob shape
 // ============================================================================
-interface Ripple {
+export function MorphingBlobButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+  const [isHovered, setIsHovered] = useState(false)
+
+  const blobVariants = {
+    idle: {
+      borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
+    },
+    hover: {
+      borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%',
+    }
+  }
+
+  return (
+    <motion.button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+      className={`relative min-h-[56px] ${className}`}
+    >
+      {/* Blob background */}
+      <motion.span
+        className="absolute inset-0 -m-2"
+        style={{ backgroundColor: 'var(--color-primary)' }}
+        animate={prefersReducedMotion ? {} : (isHovered ? 'hover' : 'idle')}
+        variants={blobVariants}
+        transition={{
+          duration: 0.8,
+          ease: 'easeInOut',
+          repeat: isHovered ? Infinity : 0,
+          repeatType: 'reverse',
+        }}
+      />
+      
+      {/* Glow */}
+      <motion.span
+        className="absolute inset-0 -m-2 blur-xl opacity-50"
+        style={{ backgroundColor: 'var(--color-primary)' }}
+        animate={prefersReducedMotion ? {} : (isHovered ? 'hover' : 'idle')}
+        variants={blobVariants}
+        transition={{
+          duration: 0.8,
+          ease: 'easeInOut',
+          repeat: isHovered ? Infinity : 0,
+          repeatType: 'reverse',
+          delay: 0.1,
+        }}
+      />
+      
+      <span className="relative z-10 px-8 py-4 text-white font-semibold block">
+        {children}
+      </span>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 11. CyberpunkNeonButton - Neon with scan lines
+// ============================================================================
+export function CyberpunkNeonButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 font-bold uppercase tracking-wider
+        min-h-[56px] overflow-hidden group
+        ${className}
+      `}
+      style={{
+        background: 'linear-gradient(135deg, #0a0a0a, #1a1a2e)',
+        border: '2px solid',
+        borderColor: 'var(--color-primary)',
+        color: 'var(--color-primary)',
+        clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))',
+        boxShadow: `
+          0 0 10px var(--color-primary),
+          0 0 20px var(--color-primary),
+          inset 0 0 10px rgba(var(--color-primary-rgb), 0.1)
+        `,
+      }}
+    >
+      {/* Corner accents */}
+      <span 
+        className="absolute top-0 right-0 w-3 h-3"
+        style={{ 
+          background: 'var(--color-primary)',
+          clipPath: 'polygon(100% 0, 0 100%, 100% 100%)',
+        }}
+      />
+      <span 
+        className="absolute bottom-0 left-0 w-3 h-3"
+        style={{ 
+          background: 'var(--color-primary)',
+          clipPath: 'polygon(0 0, 0 100%, 100% 100%)',
+        }}
+      />
+      
+      {/* Scan line effect */}
+      {!prefersReducedMotion && (
+        <span className="absolute inset-0 pointer-events-none">
+          <span 
+            className="absolute inset-x-0 h-px bg-white/30 animate-scan"
+            style={{ top: '0%' }}
+          />
+        </span>
+      )}
+      
+      {/* Flicker effect on hover */}
+      <span className={`relative z-10 ${prefersReducedMotion ? '' : 'group-hover:animate-flicker'}`}>
+        {children}
+      </span>
+      
+      <style>{`
+        @keyframes scan {
+          0% { top: 0%; opacity: 1; }
+          100% { top: 100%; opacity: 0.3; }
+        }
+        @keyframes flicker {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+          52% { opacity: 1; }
+          54% { opacity: 0.9; }
+        }
+        .animate-scan { animation: scan 2s linear infinite; }
+        .animate-flicker { animation: flicker 0.15s ease-in-out infinite; }
+      `}</style>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 12. ParticleBurstButton - Particles explode on click
+// ============================================================================
+interface Particle {
   id: number
   x: number
   y: number
+  angle: number
+  color: string
 }
 
-export function RippleButton({ children, className = '', onClick }: ButtonProps) {
-  const [ripples, setRipples] = useState<Ripple[]>([])
+export function ParticleBurstButton({ children, className = '', onClick }: ButtonProps) {
+  const [particles, setParticles] = useState<Particle[]>([])
   const prefersReducedMotion = useReducedMotion()
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -84,11 +659,18 @@ export function RippleButton({ children, className = '', onClick }: ButtonProps)
       const rect = e.currentTarget.getBoundingClientRect()
       const x = e.clientX - rect.left
       const y = e.clientY - rect.top
-      const id = Date.now()
       
-      setRipples(prev => [...prev, { id, x, y }])
+      const newParticles = Array.from({ length: 12 }, (_, i) => ({
+        id: Date.now() + i,
+        x,
+        y,
+        angle: (i * 30) * (Math.PI / 180),
+        color: ['var(--color-primary)', 'var(--color-secondary)', 'var(--color-accent)'][i % 3],
+      }))
+      
+      setParticles(prev => [...prev, ...newParticles])
       setTimeout(() => {
-        setRipples(prev => prev.filter(r => r.id !== id))
+        setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)))
       }, 600)
     }
     
@@ -96,32 +678,166 @@ export function RippleButton({ children, className = '', onClick }: ButtonProps)
   }
 
   return (
-    <button
+    <motion.button
       onClick={handleClick}
-      className={`relative overflow-hidden px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium min-h-[48px] ${className}`}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+      className={`
+        relative px-8 py-4 rounded-2xl font-semibold text-white
+        min-h-[56px] overflow-visible
+        ${className}
+      `}
+      style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}
     >
-      {!prefersReducedMotion && ripples.map(ripple => (
-        <motion.span
-          key={ripple.id}
-          initial={{ scale: 0, opacity: 0.5 }}
-          animate={{ scale: 4, opacity: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="absolute w-12 h-12 bg-white/30 rounded-full pointer-events-none"
-          style={{
-            left: ripple.x - 24,
-            top: ripple.y - 24,
-          }}
-        />
-      ))}
+      {/* Particles */}
+      <AnimatePresence>
+        {particles.map(particle => (
+          <motion.span
+            key={particle.id}
+            initial={{ 
+              x: particle.x, 
+              y: particle.y, 
+              scale: 1,
+              opacity: 1,
+            }}
+            animate={{ 
+              x: particle.x + Math.cos(particle.angle) * 60,
+              y: particle.y + Math.sin(particle.angle) * 60,
+              scale: 0,
+              opacity: 0,
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="absolute w-2 h-2 rounded-full pointer-events-none"
+            style={{ 
+              backgroundColor: particle.color,
+              left: 0,
+              top: 0,
+              boxShadow: `0 0 6px ${particle.color}`,
+            }}
+          />
+        ))}
+      </AnimatePresence>
+      
       <span className="relative z-10">{children}</span>
-    </button>
+    </motion.button>
   )
 }
 
 // ============================================================================
-// 3. MorphButton - morphs shape on hover (pill to square)
+// 13. TextScrambleButton - Text decodes on hover
 // ============================================================================
-export function MorphButton({ children, className = '', onClick }: ButtonProps) {
+export function TextScrambleButton({ children, className = '', onClick }: ButtonProps) {
+  const [displayText, setDisplayText] = useState(String(children))
+  const [isHovered, setIsHovered] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+  const originalText = String(children)
+  const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?'
+
+  useEffect(() => {
+    if (prefersReducedMotion || !isHovered) {
+      setDisplayText(originalText)
+      return
+    }
+
+    let iteration = 0
+    const interval = setInterval(() => {
+      setDisplayText(
+        originalText
+          .split('')
+          .map((_, index) => {
+            if (index < iteration) return originalText[index]
+            return chars[Math.floor(Math.random() * chars.length)]
+          })
+          .join('')
+      )
+      
+      if (iteration >= originalText.length) {
+        clearInterval(interval)
+      }
+      iteration += 1/3
+    }, 30)
+
+    return () => clearInterval(interval)
+  }, [isHovered, originalText, prefersReducedMotion])
+
+  return (
+    <motion.button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-xl font-mono font-bold
+        min-h-[56px] uppercase tracking-wider
+        ${className}
+      `}
+      style={{ 
+        background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
+        color: 'white',
+      }}
+    >
+      {displayText}
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 14. BorderFlowButton - Animated flowing border
+// ============================================================================
+export function BorderFlowButton({ children, className = '', onClick }: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      className={`
+        relative px-8 py-4 rounded-xl font-semibold text-white
+        min-h-[56px] bg-neutral-900
+        ${className}
+      `}
+    >
+      {/* Animated border container */}
+      <span className="absolute inset-0 rounded-xl overflow-hidden">
+        <span 
+          className={`absolute inset-[-200%] ${prefersReducedMotion ? '' : 'animate-border-flow'}`}
+          style={{
+            background: `conic-gradient(
+              from 0deg,
+              transparent 0deg,
+              var(--color-primary) 60deg,
+              var(--color-secondary) 120deg,
+              var(--color-accent) 180deg,
+              var(--color-secondary) 240deg,
+              var(--color-primary) 300deg,
+              transparent 360deg
+            )`,
+          }}
+        />
+      </span>
+      
+      {/* Inner background */}
+      <span className="absolute inset-[2px] rounded-[10px] bg-neutral-900" />
+      
+      <span className="relative z-10">{children}</span>
+      
+      <style>{`
+        @keyframes border-flow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-border-flow { animation: border-flow 3s linear infinite; }
+      `}</style>
+    </motion.button>
+  )
+}
+
+// ============================================================================
+// 15. DepthShadowButton - Realistic 3D shadow with hover lift
+// ============================================================================
+export function DepthShadowButton({ children, className = '', onClick }: ButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
@@ -131,443 +847,64 @@ export function MorphButton({ children, className = '', onClick }: ButtonProps) 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       animate={prefersReducedMotion ? {} : {
-        borderRadius: isHovered ? 4 : 50,
-        scale: isHovered ? 1.05 : 1,
+        y: isHovered ? -6 : 0,
+        boxShadow: isHovered 
+          ? '0 20px 40px -10px rgba(0,0,0,0.5), 0 10px 20px -10px var(--color-primary)'
+          : '0 10px 20px -10px rgba(0,0,0,0.4), 0 4px 10px -5px var(--color-primary)',
       }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className={`px-6 py-3 bg-emerald-500 text-white font-medium min-h-[48px] rounded-full ${className}`}
+      className={`
+        relative px-8 py-4 rounded-2xl font-semibold text-white
+        min-h-[56px]
+        ${className}
+      `}
+      style={{ 
+        background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
+      }}
     >
-      {children}
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 4. GlowButton - animated glow border
-// ============================================================================
-export function GlowButton({ children, className = '', onClick }: ButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-      className={`relative px-6 py-3 rounded-lg font-medium group min-h-[48px] ${className}`}
-    >
-      <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 opacity-75 blur-md group-hover:opacity-100 transition-opacity ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
-      <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" />
-      <span className="absolute inset-[2px] rounded-lg bg-neutral-900" />
-      <span className="relative z-10 text-white">{children}</span>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 5. ShimmerButton - shimmer sweep effect
-// ============================================================================
-export function ShimmerButton({ children, className = '', onClick }: ButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-      className={`relative overflow-hidden px-6 py-3 bg-neutral-800 text-white rounded-lg font-medium group min-h-[48px] ${className}`}
-    >
-      {!prefersReducedMotion && (
-        <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      )}
+      {/* Top shine */}
+      <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent rounded-t-2xl" />
+      
       <span className="relative z-10">{children}</span>
     </motion.button>
   )
 }
 
-// ============================================================================
-// 6. ElasticButton - bouncy press effect
-// ============================================================================
-export function ElasticButton({ children, className = '', onClick }: ButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
-      whileTap={prefersReducedMotion ? {} : { scale: 0.85 }}
-      transition={{
-        type: 'spring',
-        stiffness: 500,
-        damping: 15,
-      }}
-      className={`px-6 py-3 bg-orange-500 text-white rounded-xl font-medium min-h-[48px] ${className}`}
-    >
-      {children}
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 7. BorderButton - animated border draw on hover
-// ============================================================================
-export function BorderButton({ children, className = '', onClick }: ButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
-
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 bg-transparent text-white font-medium min-h-[48px] ${className}`}
-    >
-      <svg className="absolute inset-0 w-full h-full">
-        <motion.rect
-          x="1"
-          y="1"
-          width="calc(100% - 2px)"
-          height="calc(100% - 2px)"
-          rx="8"
-          fill="none"
-          stroke="white"
-          strokeWidth="2"
-          initial={{ pathLength: prefersReducedMotion ? 1 : 0 }}
-          animate={{ pathLength: prefersReducedMotion ? 1 : (isHovered ? 1 : 0) }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.4, ease: 'easeInOut' }}
-          style={{
-            strokeDasharray: 1,
-            strokeDashoffset: 0,
-          }}
-        />
-      </svg>
-      <span className="relative z-10">{children}</span>
-    </button>
-  )
-}
-
-// ============================================================================
-// 8. GradientButton - shifting gradient background
-// ============================================================================
-export function GradientButton({ children, className = '', onClick }: ButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-      className={`relative px-6 py-3 rounded-lg font-medium overflow-hidden group min-h-[48px] ${className}`}
-    >
-      <span className={`absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-[length:200%_100%] ${prefersReducedMotion ? '' : 'animate-gradient'}`} />
-      <span className="relative z-10 text-white">{children}</span>
-      <style>{`
-        @keyframes gradient {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient { animation: gradient 3s ease infinite; }
-      `}</style>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 9. TextSwapButton - text changes on hover with animation
-// ============================================================================
-interface TextSwapButtonProps extends ButtonProps {
-  hoverText?: string
-}
-
-export function TextSwapButton({ children, hoverText = 'Clicked!', className = '', onClick }: TextSwapButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
-
-  return (
-    <motion.button
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 bg-cyan-600 text-white rounded-lg font-medium overflow-hidden min-h-[48px] ${className}`}
-    >
-      <span className="block relative h-6">
-        {prefersReducedMotion ? (
-          <span className="flex items-center justify-center">{isHovered ? hoverText : children}</span>
-        ) : (
-          <>
-            <motion.span
-              className="absolute inset-0 flex items-center justify-center"
-              initial={false}
-              animate={{ y: isHovered ? -30 : 0, opacity: isHovered ? 0 : 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              {children}
-            </motion.span>
-            <motion.span
-              className="absolute inset-0 flex items-center justify-center"
-              initial={false}
-              animate={{ y: isHovered ? 0 : 30, opacity: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {hoverText}
-            </motion.span>
-          </>
-        )}
-      </span>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 10. IconRevealButton - icon slides in on hover
-// ============================================================================
-interface IconRevealButtonProps extends ButtonProps {
-  icon?: React.ReactNode
-}
-
-export function IconRevealButton({ children, icon = '→', className = '', onClick }: IconRevealButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? undefined : 'hover'}
-      className={`group relative px-6 py-3 bg-violet-600 text-white rounded-lg font-medium overflow-hidden min-h-[48px] ${className}`}
-    >
-      <span className="flex items-center gap-2">
-        <span>{children}</span>
-        {prefersReducedMotion ? (
-          <span className="inline-block group-hover:opacity-100 opacity-0 transition-opacity">{icon}</span>
-        ) : (
-          <motion.span
-            variants={{
-              hover: { x: 0, opacity: 1 }
-            }}
-            initial={{ x: -20, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            {icon}
-          </motion.span>
-        )}
-      </span>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 11. SplitButton - splits apart on hover
-// ============================================================================
-export function SplitButton({ children, className = '', onClick }: ButtonProps) {
-  const text = String(children)
-  const midpoint = Math.ceil(text.length / 2)
-  const leftText = text.slice(0, midpoint)
-  const rightText = text.slice(midpoint)
-  const prefersReducedMotion = useReducedMotion()
-
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? undefined : 'hover'}
-      className={`relative px-6 py-3 bg-rose-600 text-white rounded-lg font-medium min-h-[48px] ${className}`}
-    >
-      <span className="flex items-center justify-center">
-        {prefersReducedMotion ? (
-          <span>{children}</span>
-        ) : (
-          <>
-            <motion.span
-              variants={{ hover: { x: -4 } }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            >
-              {leftText}
-            </motion.span>
-            <motion.span
-              variants={{ hover: { x: 4 } }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            >
-              {rightText}
-            </motion.span>
-          </>
-        )}
-      </span>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 12. LiquidButton - SVG liquid fill effect
-// ============================================================================
-export function LiquidButton({ children, className = '', onClick }: ButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
-
-  return (
-    <motion.button
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 rounded-lg font-medium overflow-hidden border-2 border-blue-500 min-h-[48px] ${className}`}
-    >
-      {!prefersReducedMotion && (
-        <>
-          <motion.div
-            className="absolute inset-0 bg-blue-500"
-            initial={{ y: '100%' }}
-            animate={{ y: isHovered ? '0%' : '100%' }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          />
-          <motion.div
-            className="absolute inset-0 bg-blue-400"
-            initial={{ y: '100%' }}
-            animate={{ y: isHovered ? '0%' : '100%' }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1], delay: 0.05 }}
-            style={{ clipPath: 'ellipse(80% 50% at 50% 100%)' }}
-          />
-        </>
-      )}
-      {prefersReducedMotion && isHovered && (
-        <div className="absolute inset-0 bg-blue-500" />
-      )}
-      <span className={`relative z-10 transition-colors duration-300 ${isHovered ? 'text-white' : 'text-blue-500'}`}>
-        {children}
-      </span>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 13. NeonButton - neon glow with flicker
-// ============================================================================
-export function NeonButton({ children, className = '', onClick }: ButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-      className={`relative px-6 py-3 bg-transparent border-2 border-green-400 text-green-400 rounded-lg font-medium group min-h-[48px] ${className}`}
-      style={{
-        textShadow: '0 0 5px #4ade80, 0 0 10px #4ade80, 0 0 20px #4ade80',
-        boxShadow: '0 0 5px #4ade80, 0 0 10px #4ade80, inset 0 0 10px rgba(74, 222, 128, 0.1)',
-      }}
-    >
-      <span className={`relative z-10 ${prefersReducedMotion ? '' : 'group-hover:animate-pulse'}`}>{children}</span>
-      {!prefersReducedMotion && (
-        <motion.span
-          className="absolute inset-0 bg-green-400/10 rounded-lg"
-          animate={{
-            opacity: [0.5, 1, 0.5, 1, 0.5],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatType: 'loop',
-          }}
-        />
-      )}
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 14. GlitchButton - glitch effect on hover
-// ============================================================================
-export function GlitchButton({ children, className = '', onClick }: ButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
-
-  return (
-    <motion.button
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative px-6 py-3 bg-red-600 text-white rounded-lg font-medium min-h-[48px] ${className}`}
-    >
-      <span className="relative">
-        {isHovered && !prefersReducedMotion && (
-          <>
-            <span className="absolute inset-0 text-cyan-400 animate-glitch-1 clip-glitch-1">
-              {children}
-            </span>
-            <span className="absolute inset-0 text-red-400 animate-glitch-2 clip-glitch-2">
-              {children}
-            </span>
-          </>
-        )}
-        <span className={isHovered && !prefersReducedMotion ? 'opacity-0' : ''}>{children}</span>
-      </span>
-      <style>{`
-        @keyframes glitch-1 {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
-        }
-        @keyframes glitch-2 {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(2px, -2px); }
-          40% { transform: translate(2px, 2px); }
-          60% { transform: translate(-2px, -2px); }
-          80% { transform: translate(-2px, 2px); }
-        }
-        .animate-glitch-1 { animation: glitch-1 0.3s infinite; }
-        .animate-glitch-2 { animation: glitch-2 0.3s infinite; }
-        .clip-glitch-1 { clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); }
-        .clip-glitch-2 { clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); }
-      `}</style>
-    </motion.button>
-  )
-}
-
-// ============================================================================
-// 15. ThreeDButton - perspective tilt on hover
-// ============================================================================
-export function ThreeDButton({ children, className = '', onClick }: ButtonProps) {
-  const prefersReducedMotion = useReducedMotion()
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-
-  const rotateX = useTransform(y, [-50, 50], [15, -15])
-  const rotateY = useTransform(x, [-50, 50], [-15, 15])
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (prefersReducedMotion) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
-    x.set(e.clientX - centerX)
-    y.set(e.clientY - centerY)
-  }
-
-  const handleMouseLeave = () => {
-    x.set(0)
-    y.set(0)
-  }
-
-  return (
-    <motion.button
-      onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={prefersReducedMotion ? {} : {
-        rotateX,
-        rotateY,
-        transformStyle: 'preserve-3d',
-        perspective: 1000,
-      }}
-      whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className={`px-6 py-3 bg-gradient-to-br from-amber-400 to-orange-600 text-white rounded-xl font-medium shadow-lg min-h-[48px] ${className}`}
-    >
-      <span style={prefersReducedMotion ? {} : { transform: 'translateZ(20px)', display: 'block' }}>{children}</span>
-    </motion.button>
-  )
-}
+// Legacy exports for backwards compatibility - map old names to new implementations
+export const MagneticButton = MagneticPremiumButton
+export const RippleButton = ParticleBurstButton
+export const MorphButton = MorphingBlobButton
+export const GlowButton = AuroraButton
+export const ShimmerButton = GlassmorphismButton
+export const ElasticButton = NeumorphicButton
+export const BorderButton = BorderFlowButton
+export const GradientButton = HolographicButton
+export const TextSwapButton = TextScrambleButton
+export const IconRevealButton = UnderlineTextButton
+export const SplitButton = LayeredDepthButton
+export const LiquidButton = LiquidMetalButton
+export const NeonButton = CyberpunkNeonButton
+export const GlitchButton = GhostOutlineButton
+export const ThreeDButton = DepthShadowButton
 
 // Export all buttons
 export const Buttons = {
+  GlassmorphismButton,
+  NeumorphicButton,
+  AuroraButton,
+  HolographicButton,
+  UnderlineTextButton,
+  GhostOutlineButton,
+  LayeredDepthButton,
+  MagneticPremiumButton,
+  LiquidMetalButton,
+  MorphingBlobButton,
+  CyberpunkNeonButton,
+  ParticleBurstButton,
+  TextScrambleButton,
+  BorderFlowButton,
+  DepthShadowButton,
+  // Legacy names
   MagneticButton,
   RippleButton,
   MorphButton,

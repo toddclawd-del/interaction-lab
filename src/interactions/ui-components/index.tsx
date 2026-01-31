@@ -1,23 +1,24 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ThemeProvider, useTheme } from './ThemeContext'
 
 // Import all components
 import {
-  MagneticButton,
-  RippleButton,
-  MorphButton,
-  GlowButton,
-  ShimmerButton,
-  ElasticButton,
-  BorderButton,
-  GradientButton,
-  TextSwapButton,
-  IconRevealButton,
-  SplitButton,
-  LiquidButton,
-  NeonButton,
-  GlitchButton,
-  ThreeDButton,
+  GlassmorphismButton,
+  NeumorphicButton,
+  AuroraButton,
+  HolographicButton,
+  UnderlineTextButton,
+  GhostOutlineButton,
+  LayeredDepthButton,
+  MagneticPremiumButton,
+  LiquidMetalButton,
+  MorphingBlobButton,
+  CyberpunkNeonButton,
+  ParticleBurstButton,
+  TextScrambleButton,
+  BorderFlowButton,
+  DepthShadowButton,
 } from './buttons'
 
 import {
@@ -109,44 +110,104 @@ import {
   VerticalTabs,
 } from './tabs'
 
-// Section component with premium styling
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+// Color Controls Component
+function ColorControls() {
+  const { colors, setColor, setPreset, currentPreset } = useTheme()
+
   return (
-    <section className="mb-20">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="h-8 w-1 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full" />
-        <h2 className="text-2xl font-bold text-white tracking-tight">
-          {title}
-        </h2>
+    <div className="sticky top-0 z-50 bg-neutral-950/90 backdrop-blur-md border-b border-white/10">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center gap-6">
+        <span className="text-sm font-medium text-white/50">Theme</span>
+
+        {/* Color pickers */}
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 text-xs text-white/60 cursor-pointer">
+            Primary
+            <input
+              type="color"
+              value={colors.primary}
+              onChange={(e) => setColor('primary', e.target.value)}
+              className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent"
+            />
+          </label>
+          <label className="flex items-center gap-2 text-xs text-white/60 cursor-pointer">
+            Secondary
+            <input
+              type="color"
+              value={colors.secondary}
+              onChange={(e) => setColor('secondary', e.target.value)}
+              className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent"
+            />
+          </label>
+          <label className="flex items-center gap-2 text-xs text-white/60 cursor-pointer">
+            Accent
+            <input
+              type="color"
+              value={colors.accent}
+              onChange={(e) => setColor('accent', e.target.value)}
+              className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent"
+            />
+          </label>
+        </div>
+
+        {/* Preset buttons */}
+        <div className="flex gap-2">
+          {(['indigo', 'rose', 'cyan', 'emerald', 'orange'] as const).map((preset) => (
+            <button
+              key={preset}
+              onClick={() => setPreset(preset)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all capitalize ${
+                currentPreset === preset
+                  ? 'bg-white/20 text-white ring-1 ring-white/30'
+                  : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white'
+              }`}
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="space-y-8">{children}</div>
-    </section>
+    </div>
   )
 }
 
-// Component showcase wrapper with label
-function ShowcaseRow({ label, children }: { label: string; children: React.ReactNode }) {
+// Section component with premium styling
+function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 p-4 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-      <span className="w-36 text-sm text-neutral-400 font-medium shrink-0">{label}</span>
-      {children}
-    </div>
+    <section className="mb-16">
+      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+        <span className="w-1 h-6 rounded-full" style={{ backgroundColor: 'var(--color-primary)' }} />
+        {title}
+        <span className="text-sm font-normal text-white/40">({count})</span>
+      </h2>
+      <div className="space-y-6">{children}</div>
+    </section>
   )
 }
 
 // Component card wrapper for grid items
 function ComponentCard({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`flex flex-col items-center justify-center p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 hover:border-neutral-700/50 transition-colors ${className}`}>
-      <div className="flex-1 flex items-center justify-center w-full">
+    <div className={`flex flex-col items-center justify-center p-6 bg-neutral-900 rounded-xl border border-white/5 hover:border-white/10 transition-colors ${className}`}>
+      <div className="flex-1 flex items-center justify-center w-full min-h-[60px]">
         {children}
       </div>
-      <span className="mt-4 text-xs text-neutral-500 font-medium">{label}</span>
+      <span className="mt-4 text-xs text-white/40 font-medium">{label}</span>
     </div>
   )
 }
 
-export function UIComponents() {
+// Showcase row for inline components
+function ShowcaseRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center gap-4 p-5 bg-neutral-900 rounded-xl border border-white/5">
+      <span className="w-32 text-sm text-white/50 font-medium shrink-0">{label}</span>
+      {children}
+    </div>
+  )
+}
+
+function UIComponentsContent() {
   // State for interactive demos
   const [toggleStates, setToggleStates] = useState({
     smooth: false,
@@ -188,627 +249,261 @@ export function UIComponents() {
   ]
 
   const tabData = [
-    { id: 'tab1', label: 'Overview', content: <p className="text-neutral-400">Overview content goes here. This is the first tab.</p> },
-    { id: 'tab2', label: 'Features', content: <p className="text-neutral-400">Features content goes here. This is the second tab.</p> },
-    { id: 'tab3', label: 'Pricing', content: <p className="text-neutral-400">Pricing content goes here. This is the third tab.</p> },
+    { id: 'tab1', label: 'Overview', content: <p className="text-white/60">Overview content goes here.</p> },
+    { id: 'tab2', label: 'Features', content: <p className="text-white/60">Features content goes here.</p> },
+    { id: 'tab3', label: 'Pricing', content: <p className="text-white/60">Pricing content goes here.</p> },
   ]
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
+      <ColorControls />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800/50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group">
-              <span className="group-hover:-translate-x-1 transition-transform">←</span>
-              <span>Back</span>
-            </Link>
-            <div className="h-6 w-px bg-neutral-800" />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-              UI Components
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-            <p className="text-indigo-300 text-sm font-medium">72 micro-interactions</p>
-          </div>
+      <header className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors group">
+            <span className="group-hover:-translate-x-1 transition-transform">←</span>
+            <span>Back</span>
+          </Link>
+          <div className="h-6 w-px bg-white/10" />
+          <h1 className="text-3xl font-bold">UI Components</h1>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10" style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}>
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-primary)' }} />
+          <p className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>72 micro-interactions</p>
         </div>
       </header>
 
       {/* Content */}
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        
+      <main className="max-w-6xl mx-auto px-6 pb-16">
+
         {/* Buttons Section */}
-        <Section title="Buttons (15)">
+        <Section title="Buttons" count={15}>
+          <p className="text-white/50 text-sm mb-6 -mt-2">Hover, click, and interact with each button to see the effects</p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Magnetic">
-              <MagneticButton>Magnetic</MagneticButton>
-            </ComponentCard>
-            <ComponentCard label="Ripple">
-              <RippleButton>Ripple</RippleButton>
-            </ComponentCard>
-            <ComponentCard label="Morph">
-              <MorphButton>Morph</MorphButton>
-            </ComponentCard>
-            <ComponentCard label="Glow">
-              <GlowButton>Glow</GlowButton>
-            </ComponentCard>
-            <ComponentCard label="Shimmer">
-              <ShimmerButton>Shimmer</ShimmerButton>
-            </ComponentCard>
-            <ComponentCard label="Elastic">
-              <ElasticButton>Elastic</ElasticButton>
-            </ComponentCard>
-            <ComponentCard label="Border Draw">
-              <BorderButton>Border Draw</BorderButton>
-            </ComponentCard>
-            <ComponentCard label="Gradient">
-              <GradientButton>Gradient</GradientButton>
-            </ComponentCard>
-            <ComponentCard label="Text Swap">
-              <TextSwapButton hoverText="Nice!">Text Swap</TextSwapButton>
-            </ComponentCard>
-            <ComponentCard label="Icon Reveal">
-              <IconRevealButton icon="→">Icon Reveal</IconRevealButton>
-            </ComponentCard>
-            <ComponentCard label="Split">
-              <SplitButton>Split Me</SplitButton>
-            </ComponentCard>
-            <ComponentCard label="Liquid">
-              <LiquidButton>Liquid</LiquidButton>
-            </ComponentCard>
-            <ComponentCard label="Neon">
-              <NeonButton>Neon</NeonButton>
-            </ComponentCard>
-            <ComponentCard label="Glitch">
-              <GlitchButton>Glitch</GlitchButton>
-            </ComponentCard>
-            <ComponentCard label="3D Tilt">
-              <ThreeDButton>3D Tilt</ThreeDButton>
-            </ComponentCard>
+            <ComponentCard label="Glassmorphism"><GlassmorphismButton>Glass</GlassmorphismButton></ComponentCard>
+            <ComponentCard label="Neumorphic"><NeumorphicButton>Soft UI</NeumorphicButton></ComponentCard>
+            <ComponentCard label="Aurora"><AuroraButton>Aurora</AuroraButton></ComponentCard>
+            <ComponentCard label="Holographic"><HolographicButton>Holo</HolographicButton></ComponentCard>
+            <ComponentCard label="Underline"><UnderlineTextButton>Underline</UnderlineTextButton></ComponentCard>
+            <ComponentCard label="Ghost Fill"><GhostOutlineButton>Ghost</GhostOutlineButton></ComponentCard>
+            <ComponentCard label="3D Layers"><LayeredDepthButton>Layers</LayeredDepthButton></ComponentCard>
+            <ComponentCard label="Magnetic"><MagneticPremiumButton>Magnetic</MagneticPremiumButton></ComponentCard>
+            <ComponentCard label="Liquid Metal"><LiquidMetalButton>Chrome</LiquidMetalButton></ComponentCard>
+            <ComponentCard label="Blob Morph"><MorphingBlobButton>Blob</MorphingBlobButton></ComponentCard>
+            <ComponentCard label="Cyberpunk"><CyberpunkNeonButton>Neon</CyberpunkNeonButton></ComponentCard>
+            <ComponentCard label="Particles"><ParticleBurstButton>Burst</ParticleBurstButton></ComponentCard>
+            <ComponentCard label="Scramble"><TextScrambleButton>Decode</TextScrambleButton></ComponentCard>
+            <ComponentCard label="Border Flow"><BorderFlowButton>Flow</BorderFlowButton></ComponentCard>
+            <ComponentCard label="Depth"><DepthShadowButton>Depth</DepthShadowButton></ComponentCard>
           </div>
         </Section>
 
         {/* Navigation Section */}
-        <Section title="Navigation (10)">
+        <Section title="Navigation" count={10}>
           <div className="space-y-4">
-            <ShowcaseRow label="Magnetic Nav">
-              <MagneticNav items={navItems} />
-            </ShowcaseRow>
-            
-            <ShowcaseRow label="Underline Nav">
-              <UnderlineNav items={navItems} />
-            </ShowcaseRow>
-            
-            <ShowcaseRow label="Highlight Nav">
-              <HighlightNav items={navItems} />
-            </ShowcaseRow>
-            
-            <ShowcaseRow label="Split Text Nav">
-              <SplitTextNav items={navItems} />
-            </ShowcaseRow>
-            
-            <ShowcaseRow label="Rotate Nav">
-              <RotateNav items={navItems} />
-            </ShowcaseRow>
-            
-            <ShowcaseRow label="Blur Nav">
-              <BlurNav items={navItems} />
-            </ShowcaseRow>
-            
-            <ShowcaseRow label="Stagger Nav">
-              <StaggerNav items={navItems} />
-            </ShowcaseRow>
-            
+            <ShowcaseRow label="Magnetic"><MagneticNav items={navItems} /></ShowcaseRow>
+            <ShowcaseRow label="Underline"><UnderlineNav items={navItems} /></ShowcaseRow>
+            <ShowcaseRow label="Highlight"><HighlightNav items={navItems} /></ShowcaseRow>
+            <ShowcaseRow label="Split Text"><SplitTextNav items={navItems} /></ShowcaseRow>
+            <ShowcaseRow label="Rotate"><RotateNav items={navItems} /></ShowcaseRow>
+            <ShowcaseRow label="Blur"><BlurNav items={navItems} /></ShowcaseRow>
+            <ShowcaseRow label="Stagger"><StaggerNav items={navItems} /></ShowcaseRow>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <ComponentCard label="Hamburger Menu" className="h-24">
+              <ComponentCard label="Hamburger" className="h-28">
                 <MorphingHamburger isOpen={hamburgerOpen} onToggle={() => setHamburgerOpen(!hamburgerOpen)} />
               </ComponentCard>
-              
-              <ComponentCard label="Circle Menu" className="h-24">
+              <ComponentCard label="Circle Menu" className="h-28">
                 <div className="relative" style={{ height: 100 }}>
-                  <CircleMenu 
-                    items={navItems}
-                    isOpen={isCircleMenuOpen}
-                    onToggle={() => setIsCircleMenuOpen(!isCircleMenuOpen)}
-                  />
+                  <CircleMenu items={navItems} isOpen={isCircleMenuOpen} onToggle={() => setIsCircleMenuOpen(!isCircleMenuOpen)} />
                 </div>
               </ComponentCard>
-              
-              <ComponentCard label="Sliding Drawer" className="h-24">
-                <button
-                  onClick={() => setIsDrawerOpen(true)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors text-white font-medium"
-                >
-                  Open Drawer
+              <ComponentCard label="Drawer" className="h-28">
+                <button onClick={() => setIsDrawerOpen(true)} className="px-4 py-2 rounded-lg font-medium text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
+                  Open
                 </button>
-                <SlidingDrawer
-                  items={navItems}
-                  isOpen={isDrawerOpen}
-                  onClose={() => setIsDrawerOpen(false)}
-                />
+                <SlidingDrawer items={navItems} isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
               </ComponentCard>
             </div>
           </div>
         </Section>
 
         {/* Form Inputs Section */}
-        <Section title="Form Inputs (8)">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Floating Label Input</p>
-              <FloatingLabel
-                label="Email Address"
-                value={inputValues.floating}
-                onChange={v => setInputValues(prev => ({ ...prev, floating: v }))}
-              />
+        <Section title="Form Inputs" count={8}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Floating Label</p>
+              <FloatingLabel label="Email" value={inputValues.floating} onChange={v => setInputValues(p => ({ ...p, floating: v }))} />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Underline Input</p>
-              <UnderlineInput
-                placeholder="Type something..."
-                value={inputValues.underline}
-                onChange={v => setInputValues(prev => ({ ...prev, underline: v }))}
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Underline</p>
+              <UnderlineInput placeholder="Type..." value={inputValues.underline} onChange={v => setInputValues(p => ({ ...p, underline: v }))} />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Border Draw Input</p>
-              <BorderInput
-                placeholder="Focus to see border animation"
-                value={inputValues.border}
-                onChange={v => setInputValues(prev => ({ ...prev, border: v }))}
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Border Draw</p>
+              <BorderInput placeholder="Focus me" value={inputValues.border} onChange={v => setInputValues(p => ({ ...p, border: v }))} />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Shake Input (type "error")</p>
-              <ShakeInput
-                placeholder="Type 'error' to shake"
-                value={inputValues.shake}
-                onChange={v => {
-                  setInputValues(prev => ({ ...prev, shake: v }))
-                  setShakeInvalid(v.toLowerCase() === 'error')
-                }}
-                isInvalid={shakeInvalid}
-                errorMessage="This field is invalid!"
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Shake (type "error")</p>
+              <ShakeInput placeholder="Type error" value={inputValues.shake} onChange={v => { setInputValues(p => ({ ...p, shake: v })); setShakeInvalid(v.toLowerCase() === 'error') }} isInvalid={shakeInvalid} errorMessage="Invalid!" />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Success Input (5+ chars)</p>
-              <SuccessInput
-                placeholder="Type 5+ characters"
-                value={inputValues.success}
-                onChange={v => setInputValues(prev => ({ ...prev, success: v }))}
-                isValid={inputValues.success.length >= 5}
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Success (5+ chars)</p>
+              <SuccessInput placeholder="5+ chars" value={inputValues.success} onChange={v => setInputValues(p => ({ ...p, success: v }))} isValid={inputValues.success.length >= 5} />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Expandable Search</p>
-              <SearchExpand
-                value={inputValues.search}
-                onChange={v => setInputValues(prev => ({ ...prev, search: v }))}
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Search Expand</p>
+              <SearchExpand value={inputValues.search} onChange={v => setInputValues(p => ({ ...p, search: v }))} />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Tag Input</p>
-              <TagInput
-                tags={tags}
-                onTagsChange={setTags}
-                placeholder="Add tags (press Enter)"
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Tag Input</p>
+              <TagInput tags={tags} onTagsChange={setTags} placeholder="Add tags" />
             </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 space-y-2">
-              <p className="text-xs text-neutral-500 font-medium mb-3">Password Strength</p>
-              <PasswordStrength
-                value={inputValues.password}
-                onChange={v => setInputValues(prev => ({ ...prev, password: v }))}
-              />
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+              <p className="text-xs text-white/40 mb-3">Password Strength</p>
+              <PasswordStrength value={inputValues.password} onChange={v => setInputValues(p => ({ ...p, password: v }))} />
             </div>
           </div>
         </Section>
 
         {/* Cards Section */}
-        <Section title="Cards (8)">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Section title="Cards" count={8}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <TiltCard className="h-40 border border-neutral-700/50">
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <span className="text-2xl mb-2">🎯</span>
-                  <h3 className="font-bold text-lg">Tilt Card</h3>
-                  <p className="text-neutral-400 text-sm mt-1">Move cursor around</p>
-                </div>
-              </TiltCard>
-              <p className="text-xs text-neutral-500 text-center font-medium">Tilt Card</p>
+              <TiltCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🎯</span><h3 className="font-bold">Tilt</h3><p className="text-white/50 text-sm">Move cursor</p></div></TiltCard>
+              <p className="text-xs text-white/40 text-center">Tilt Card</p>
             </div>
-            
             <div className="space-y-2">
-              <FlipCard
-                className="h-40"
-                front={
-                  <div className="h-full flex flex-col items-center justify-center border border-neutral-700/50 rounded-xl">
-                    <span className="text-2xl mb-2">🔄</span>
-                    <h3 className="font-bold text-lg">Flip Card</h3>
-                    <p className="text-neutral-400 text-sm mt-1">Click to flip</p>
-                  </div>
-                }
-                back={
-                  <div className="h-full flex flex-col items-center justify-center text-white">
-                    <span className="text-2xl mb-2">✨</span>
-                    <h3 className="font-bold text-lg">Back Side!</h3>
-                    <p className="text-indigo-200 text-sm mt-1">Click again</p>
-                  </div>
-                }
-              />
-              <p className="text-xs text-neutral-500 text-center font-medium">Flip Card</p>
+              <FlipCard className="h-40" front={<div className="h-full flex flex-col items-center justify-center"><span className="text-2xl mb-2">🔄</span><h3 className="font-bold">Flip</h3><p className="text-white/50 text-sm">Click me</p></div>} back={<div className="h-full flex flex-col items-center justify-center"><span className="text-2xl mb-2">✨</span><h3 className="font-bold">Back!</h3></div>} />
+              <p className="text-xs text-white/40 text-center">Flip Card</p>
             </div>
-            
             <div className="space-y-2">
-              <ShineCard className="h-40 border border-neutral-700/50">
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <span className="text-2xl mb-2">✨</span>
-                  <h3 className="font-bold text-lg">Shine Card</h3>
-                  <p className="text-neutral-400 text-sm mt-1">Hover for shine</p>
-                </div>
-              </ShineCard>
-              <p className="text-xs text-neutral-500 text-center font-medium">Shine Card</p>
+              <ShineCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">✨</span><h3 className="font-bold">Shine</h3><p className="text-white/50 text-sm">Hover</p></div></ShineCard>
+              <p className="text-xs text-white/40 text-center">Shine Card</p>
             </div>
-            
             <div className="space-y-2">
-              <LiftCard className="h-40 border border-neutral-700/50">
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <span className="text-2xl mb-2">🚀</span>
-                  <h3 className="font-bold text-lg">Lift Card</h3>
-                  <p className="text-neutral-400 text-sm mt-1">Hover to lift</p>
-                </div>
-              </LiftCard>
-              <p className="text-xs text-neutral-500 text-center font-medium">Lift Card</p>
+              <LiftCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🚀</span><h3 className="font-bold">Lift</h3><p className="text-white/50 text-sm">Hover</p></div></LiftCard>
+              <p className="text-xs text-white/40 text-center">Lift Card</p>
             </div>
-            
             <div className="space-y-2">
-              <BorderCard className="h-40">
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <span className="text-2xl mb-2">🌈</span>
-                  <h3 className="font-bold text-lg">Border Card</h3>
-                  <p className="text-neutral-400 text-sm mt-1">Gradient border</p>
-                </div>
-              </BorderCard>
-              <p className="text-xs text-neutral-500 text-center font-medium">Border Card</p>
+              <BorderCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🌈</span><h3 className="font-bold">Border</h3><p className="text-white/50 text-sm">Gradient</p></div></BorderCard>
+              <p className="text-xs text-white/40 text-center">Border Card</p>
             </div>
-            
             <div className="space-y-2">
-              <RevealCard
-                className="h-40"
-                title="Reveal Card"
-                description="Hidden content reveals on hover"
-                image="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop"
-              />
-              <p className="text-xs text-neutral-500 text-center font-medium">Reveal Card</p>
+              <RevealCard className="h-40" title="Reveal" description="Hidden content" image="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop" />
+              <p className="text-xs text-white/40 text-center">Reveal Card</p>
             </div>
-            
             <div className="space-y-2">
-              <StackCard
-                className="h-40"
-                cards={[
-                  { id: 1, content: <div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">📚</span><h3 className="font-bold">Stack Card</h3><p className="text-neutral-400 text-sm mt-1">Hover to spread</p></div> },
-                  { id: 2, content: <div className="flex items-center justify-center h-full">Card 2</div> },
-                  { id: 3, content: <div className="flex items-center justify-center h-full">Card 3</div> },
-                ]}
-              />
-              <p className="text-xs text-neutral-500 text-center font-medium">Stack Card</p>
+              <StackCard className="h-40" cards={[{ id: 1, content: <div className="flex flex-col items-center justify-center h-full"><span className="text-2xl mb-2">📚</span><h3 className="font-bold">Stack</h3></div> }, { id: 2, content: <div className="flex items-center justify-center h-full">2</div> }, { id: 3, content: <div className="flex items-center justify-center h-full">3</div> }]} />
+              <p className="text-xs text-white/40 text-center">Stack Card</p>
             </div>
-            
             <div className="space-y-2">
-              <MagneticCard className="h-40 border border-neutral-700/50">
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <span className="text-2xl mb-2">🧲</span>
-                  <h3 className="font-bold text-lg">Magnetic Card</h3>
-                  <p className="text-neutral-400 text-sm mt-1">Follows cursor</p>
-                </div>
-              </MagneticCard>
-              <p className="text-xs text-neutral-500 text-center font-medium">Magnetic Card</p>
+              <MagneticCard className="h-40"><div className="flex flex-col items-center justify-center h-full text-center"><span className="text-2xl mb-2">🧲</span><h3 className="font-bold">Magnetic</h3><p className="text-white/50 text-sm">Follow</p></div></MagneticCard>
+              <p className="text-xs text-white/40 text-center">Magnetic Card</p>
             </div>
           </div>
         </Section>
 
         {/* Toggles Section */}
-        <Section title="Toggles (6)">
+        <Section title="Toggles" count={6}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Smooth Toggle">
-              <SmoothToggle
-                checked={toggleStates.smooth}
-                onChange={v => setToggleStates(prev => ({ ...prev, smooth: v }))}
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Bounce Toggle">
-              <BounceToggle
-                checked={toggleStates.bounce}
-                onChange={v => setToggleStates(prev => ({ ...prev, bounce: v }))}
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Morph Toggle">
-              <MorphToggle
-                checked={toggleStates.morph}
-                onChange={v => setToggleStates(prev => ({ ...prev, morph: v }))}
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Day/Night Toggle">
-              <IconToggle
-                checked={toggleStates.icon}
-                onChange={v => setToggleStates(prev => ({ ...prev, icon: v }))}
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Liquid Toggle">
-              <LiquidToggle
-                checked={toggleStates.liquid}
-                onChange={v => setToggleStates(prev => ({ ...prev, liquid: v }))}
-              />
-            </ComponentCard>
+            <ComponentCard label="Smooth"><SmoothToggle checked={toggleStates.smooth} onChange={v => setToggleStates(p => ({ ...p, smooth: v }))} /></ComponentCard>
+            <ComponentCard label="Bounce"><BounceToggle checked={toggleStates.bounce} onChange={v => setToggleStates(p => ({ ...p, bounce: v }))} /></ComponentCard>
+            <ComponentCard label="Morph"><MorphToggle checked={toggleStates.morph} onChange={v => setToggleStates(p => ({ ...p, morph: v }))} /></ComponentCard>
+            <ComponentCard label="Day/Night"><IconToggle checked={toggleStates.icon} onChange={v => setToggleStates(p => ({ ...p, icon: v }))} /></ComponentCard>
+            <ComponentCard label="Liquid"><LiquidToggle checked={toggleStates.liquid} onChange={v => setToggleStates(p => ({ ...p, liquid: v }))} /></ComponentCard>
           </div>
-          
-          <div className="mt-4 p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-            <p className="text-sm text-neutral-400 font-medium mb-4">Segmented Toggle</p>
-            <SegmentedToggle
-              options={['Option 1', 'Option 2', 'Option 3']}
-              value={segmentValue}
-              onChange={setSegmentValue}
-            />
+          <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+            <p className="text-sm text-white/40 mb-4">Segmented Toggle</p>
+            <SegmentedToggle options={['Option 1', 'Option 2', 'Option 3']} value={segmentValue} onChange={setSegmentValue} />
           </div>
         </Section>
 
         {/* Loaders Section */}
-        <Section title="Loaders (8)">
+        <Section title="Loaders" count={8}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <ComponentCard label="Pulse">
-              <PulseLoader />
-            </ComponentCard>
-            <ComponentCard label="Orbit">
-              <OrbitLoader />
-            </ComponentCard>
-            <ComponentCard label="Morph">
-              <MorphLoader />
-            </ComponentCard>
-            <ComponentCard label="Text">
-              <TextLoader />
-            </ComponentCard>
-            <ComponentCard label="Spinner">
-              <SpinnerLoader variant="default" />
-            </ComponentCard>
-            <ComponentCard label="Dots Spinner">
-              <SpinnerLoader variant="dots" />
-            </ComponentCard>
-            <ComponentCard label="Bar">
-              <BarLoader />
-            </ComponentCard>
-            <ComponentCard label="Progress" className="col-span-1">
-              <div className="w-full px-2">
-                <ProgressLoader progress={65} showPercentage />
-              </div>
-            </ComponentCard>
+            <ComponentCard label="Pulse"><PulseLoader /></ComponentCard>
+            <ComponentCard label="Orbit"><OrbitLoader /></ComponentCard>
+            <ComponentCard label="Morph"><MorphLoader /></ComponentCard>
+            <ComponentCard label="Text"><TextLoader /></ComponentCard>
+            <ComponentCard label="Spinner"><SpinnerLoader variant="default" /></ComponentCard>
+            <ComponentCard label="Dots"><SpinnerLoader variant="dots" /></ComponentCard>
+            <ComponentCard label="Bar"><BarLoader /></ComponentCard>
+            <ComponentCard label="Progress"><div className="w-full px-2"><ProgressLoader progress={65} showPercentage /></div></ComponentCard>
           </div>
-          
-          <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50 mt-4">
-            <p className="text-sm text-neutral-400 font-medium mb-4">Skeleton Loader</p>
+          <div className="p-6 bg-neutral-900 rounded-xl border border-white/5">
+            <p className="text-sm text-white/40 mb-4">Skeleton</p>
             <div className="flex gap-4 items-start">
               <SkeletonLoader width={48} height={48} rounded />
-              <div className="flex-1 space-y-2">
-                <SkeletonLoader height={16} />
-                <SkeletonLoader width="60%" height={16} />
-              </div>
+              <div className="flex-1 space-y-2"><SkeletonLoader height={16} /><SkeletonLoader width="60%" height={16} /></div>
             </div>
           </div>
         </Section>
 
         {/* Badges Section */}
-        <Section title="Badges (7)">
+        <Section title="Badges" count={7}>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-            <ComponentCard label="Pulse Badge">
-              <PulseBadge count={3}>
-                <div className="w-10 h-10 bg-neutral-700 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">📬</span>
-                </div>
-              </PulseBadge>
-            </ComponentCard>
-            
-            <ComponentCard label="Count Badge">
-              <div className="flex flex-col items-center gap-2">
-                <CountBadge count={badgeCount} />
-                <button
-                  onClick={() => setBadgeCount(prev => prev + 5)}
-                  className="text-xs text-neutral-500 hover:text-indigo-400 transition-colors"
-                >
-                  Click +5
-                </button>
-              </div>
-            </ComponentCard>
-            
-            <ComponentCard label="Shimmer Badge">
-              <ShimmerBadge>Shimmer</ShimmerBadge>
-            </ComponentCard>
-            
-            <ComponentCard label="Pop Badge">
-              <div className="flex flex-col items-center gap-2">
-                <div className="h-6">
-                  <PopBadge show={showBadge}>Pop!</PopBadge>
-                </div>
-                <button
-                  onClick={() => setShowBadge(!showBadge)}
-                  className="text-xs text-neutral-500 hover:text-indigo-400 transition-colors"
-                >
-                  Toggle
-                </button>
-              </div>
-            </ComponentCard>
-            
-            <ComponentCard label="Slide Badge">
-              <SlideBadge show={true}>Slide</SlideBadge>
-            </ComponentCard>
-            
-            <ComponentCard label="Status Badge">
-              <StatusBadge status="online" label="Online" />
-            </ComponentCard>
-            
-            <ComponentCard label="Tag Badge">
-              <TagBadge onRemove={() => {}}>Tag Badge</TagBadge>
-            </ComponentCard>
+            <ComponentCard label="Pulse"><PulseBadge count={3}><div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">📬</div></PulseBadge></ComponentCard>
+            <ComponentCard label="Count"><div className="flex flex-col items-center gap-2"><CountBadge count={badgeCount} /><button onClick={() => setBadgeCount(p => p + 5)} className="text-xs text-white/50">+5</button></div></ComponentCard>
+            <ComponentCard label="Shimmer"><ShimmerBadge>Shimmer</ShimmerBadge></ComponentCard>
+            <ComponentCard label="Pop"><div className="flex flex-col items-center gap-2"><div className="h-6"><PopBadge show={showBadge}>Pop!</PopBadge></div><button onClick={() => setShowBadge(!showBadge)} className="text-xs text-white/50">Toggle</button></div></ComponentCard>
+            <ComponentCard label="Slide"><SlideBadge show>Slide</SlideBadge></ComponentCard>
+            <ComponentCard label="Status"><StatusBadge status="online" label="Online" /></ComponentCard>
+            <ComponentCard label="Tag"><TagBadge onRemove={() => {}}>Tag</TagBadge></ComponentCard>
           </div>
         </Section>
 
         {/* Tooltips Section */}
-        <Section title="Tooltips (5)">
+        <Section title="Tooltips" count={5}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Fade Tooltip">
-              <FadeTooltip content="Fade tooltip appears smoothly">
-                <button className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors text-white font-medium">
-                  Hover Me
-                </button>
-              </FadeTooltip>
-            </ComponentCard>
-            
-            <ComponentCard label="Scale Tooltip">
-              <ScaleTooltip content="Scale tooltip pops in">
-                <button className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors text-white font-medium">
-                  Hover Me
-                </button>
-              </ScaleTooltip>
-            </ComponentCard>
-            
-            <ComponentCard label="Slide Tooltip">
-              <SlideTooltip content="Slide tooltip slides in">
-                <button className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors text-white font-medium">
-                  Hover Me
-                </button>
-              </SlideTooltip>
-            </ComponentCard>
-            
-            <ComponentCard label="Magnetic Tooltip">
-              <MagneticTooltip content="I follow your cursor!">
-                <button className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 rounded-lg transition-colors text-white font-medium">
-                  Hover Me
-                </button>
-              </MagneticTooltip>
-            </ComponentCard>
-            
-            <ComponentCard label="Rich Tooltip">
-              <RichTooltip title="Rich Tooltip" content="Has title, arrow, and shadow">
-                <button className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 rounded-lg transition-colors text-white font-medium">
-                  Hover Me
-                </button>
-              </RichTooltip>
-            </ComponentCard>
+            <ComponentCard label="Fade"><FadeTooltip content="Fade tooltip"><button className="px-4 py-2 rounded-lg text-white" style={{ backgroundColor: 'var(--color-primary)' }}>Hover</button></FadeTooltip></ComponentCard>
+            <ComponentCard label="Scale"><ScaleTooltip content="Scale tooltip"><button className="px-4 py-2 rounded-lg text-white" style={{ backgroundColor: 'var(--color-secondary)' }}>Hover</button></ScaleTooltip></ComponentCard>
+            <ComponentCard label="Slide"><SlideTooltip content="Slide tooltip"><button className="px-4 py-2 rounded-lg text-white" style={{ backgroundColor: 'var(--color-accent)' }}>Hover</button></SlideTooltip></ComponentCard>
+            <ComponentCard label="Magnetic"><MagneticTooltip content="Follows cursor"><button className="px-4 py-2 rounded-lg text-white bg-amber-600">Hover</button></MagneticTooltip></ComponentCard>
+            <ComponentCard label="Rich"><RichTooltip title="Title" content="Rich content"><button className="px-4 py-2 rounded-lg text-white bg-rose-600">Hover</button></RichTooltip></ComponentCard>
           </div>
         </Section>
 
         {/* Menus Section */}
-        <Section title="Dropdown Menus (5)">
+        <Section title="Menus" count={5}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <ComponentCard label="Fade Menu">
-              <FadeMenu
-                items={menuItems}
-                trigger={
-                  <button className="px-5 py-2.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors text-white font-medium flex items-center gap-2">
-                    Fade <span className="text-xs">▼</span>
-                  </button>
-                }
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Slide Menu">
-              <SlideMenu
-                items={menuItems}
-                trigger={
-                  <button className="px-5 py-2.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors text-white font-medium flex items-center gap-2">
-                    Slide <span className="text-xs">▼</span>
-                  </button>
-                }
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Scale Menu">
-              <ScaleMenu
-                items={menuItems}
-                trigger={
-                  <button className="px-5 py-2.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors text-white font-medium flex items-center gap-2">
-                    Scale <span className="text-xs">▼</span>
-                  </button>
-                }
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Blur Menu">
-              <BlurMenu
-                items={menuItems}
-                trigger={
-                  <button className="px-5 py-2.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors text-white font-medium flex items-center gap-2">
-                    Blur <span className="text-xs">▼</span>
-                  </button>
-                }
-              />
-            </ComponentCard>
-            
-            <ComponentCard label="Stagger Menu">
-              <StaggerMenu
-                items={menuItems}
-                trigger={
-                  <button className="px-5 py-2.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors text-white font-medium flex items-center gap-2">
-                    Stagger <span className="text-xs">▼</span>
-                  </button>
-                }
-              />
-            </ComponentCard>
+            <ComponentCard label="Fade"><FadeMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Fade ▼</button>} /></ComponentCard>
+            <ComponentCard label="Slide"><SlideMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Slide ▼</button>} /></ComponentCard>
+            <ComponentCard label="Scale"><ScaleMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Scale ▼</button>} /></ComponentCard>
+            <ComponentCard label="Blur"><BlurMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Blur ▼</button>} /></ComponentCard>
+            <ComponentCard label="Stagger"><StaggerMenu items={menuItems} trigger={<button className="px-4 py-2 bg-neutral-800 rounded-lg text-white">Stagger ▼</button>} /></ComponentCard>
           </div>
         </Section>
 
         {/* Tabs Section */}
-        <Section title="Tabs (5)">
-          <div className="space-y-6">
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-              <p className="text-xs text-neutral-500 font-medium mb-4">Slide Tabs</p>
-              <SlideTabs tabs={tabData} />
-            </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-              <p className="text-xs text-neutral-500 font-medium mb-4">Fade Tabs</p>
-              <FadeTabs tabs={tabData} />
-            </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-              <p className="text-xs text-neutral-500 font-medium mb-4">Underline Tabs</p>
-              <UnderlineTabs tabs={tabData} />
-            </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-              <p className="text-xs text-neutral-500 font-medium mb-4">Pill Tabs</p>
-              <PillTabs tabs={tabData} />
-            </div>
-            
-            <div className="p-6 bg-neutral-900/50 rounded-xl border border-neutral-800/50">
-              <p className="text-xs text-neutral-500 font-medium mb-4">Vertical Tabs</p>
-              <VerticalTabs tabs={tabData} />
-            </div>
+        <Section title="Tabs" count={5}>
+          <div className="space-y-4">
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Slide Tabs</p><SlideTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Fade Tabs</p><FadeTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Underline Tabs</p><UnderlineTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Pill Tabs</p><PillTabs tabs={tabData} /></div>
+            <div className="p-6 bg-neutral-900 rounded-xl border border-white/5"><p className="text-xs text-white/40 mb-4">Vertical Tabs</p><VerticalTabs tabs={tabData} /></div>
           </div>
         </Section>
 
-        {/* Component Count */}
-        <div className="text-center py-16 border-t border-neutral-800/50">
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-full border border-indigo-500/20">
+        {/* Footer */}
+        <div className="text-center pt-8 border-t border-white/5">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border" style={{ borderColor: 'rgba(var(--color-primary-rgb), 0.2)', background: 'linear-gradient(to right, rgba(var(--color-primary-rgb), 0.1), rgba(var(--color-secondary-rgb), 0.1))' }}>
             <span className="text-2xl">✨</span>
-            <p className="text-neutral-300">
-              Total: <span className="text-white font-bold">72 micro-components</span> across <span className="text-indigo-400 font-semibold">10 categories</span>
-            </p>
+            <p className="text-white/70">Total: <span className="text-white font-bold">72 micro-components</span> across <span className="font-semibold" style={{ color: 'var(--color-primary)' }}>10 categories</span></p>
           </div>
         </div>
       </main>
     </div>
+  )
+}
+
+export function UIComponents() {
+  return (
+    <ThemeProvider>
+      <UIComponentsContent />
+    </ThemeProvider>
   )
 }
 
