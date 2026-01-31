@@ -26,7 +26,7 @@ const experiments: Experiment[] = [
     size: 'hero',
     accent: '#6366f1',
     icon: '🧩',
-    tags: ['Framer Motion', 'Micro-interactions', 'Components'],
+    tags: ['Components'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/ui-components'
   },
   {
@@ -37,7 +37,7 @@ const experiments: Experiment[] = [
     size: 'large',
     accent: '#22c55e',
     icon: '⌨️',
-    tags: ['GSAP', 'Typography', 'Hover'],
+    tags: ['Typography'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/terminal-text-hover'
   },
   {
@@ -48,7 +48,7 @@ const experiments: Experiment[] = [
     size: 'large',
     accent: '#a855f7',
     icon: '✨',
-    tags: ['GSAP', 'SplitType', 'Typography'],
+    tags: ['Typography'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/text-reveal'
   },
   {
@@ -59,7 +59,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#6366f1',
     icon: '🌊',
-    tags: ['Three.js', 'GLSL', 'Scroll'],
+    tags: ['Shaders', 'Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/wavy-carousel'
   },
   {
@@ -70,7 +70,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#f97316',
     icon: '⚡',
-    tags: ['GSAP', 'Scroll', 'Velocity'],
+    tags: ['Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/scroll-velocity'
   },
   {
@@ -81,7 +81,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#14b8a6',
     icon: '🧲',
-    tags: ['GSAP', 'Cursor', 'Physics'],
+    tags: ['Cursor'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/magnetic-elements'
   },
   {
@@ -92,7 +92,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#6366f1',
     icon: '↔️',
-    tags: ['GSAP', 'ScrollTrigger', 'Pin'],
+    tags: ['Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/horizontal-scroll'
   },
   {
@@ -103,7 +103,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#f59e0b',
     icon: '🔲',
-    tags: ['GSAP', 'Animation'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/grid-flip'
   },
   {
@@ -114,7 +114,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#ec4899',
     icon: '🖼️',
-    tags: ['GSAP', 'Clip-path', 'Scroll'],
+    tags: ['Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/image-reveal'
   },
   {
@@ -125,7 +125,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#22c55e',
     icon: '🔢',
-    tags: ['GSAP', 'Numbers', 'Animation'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/counter-lab'
   },
   {
@@ -136,7 +136,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#8b5cf6',
     icon: '🖱️',
-    tags: ['GSAP', 'Cursor', 'Interactive'],
+    tags: ['Cursor'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/cursor-playground'
   },
   {
@@ -147,7 +147,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#0ea5e9',
     icon: '🎯',
-    tags: ['GSAP', 'Stagger', 'Grid'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/stagger-patterns'
   },
   {
@@ -158,7 +158,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#6366f1',
     icon: '🎭',
-    tags: ['GSAP', 'Parallax', '3D'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/parallax-depth'
   },
   {
@@ -169,7 +169,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#f43f5e',
     icon: '🪀',
-    tags: ['GSAP', 'Elastic', 'Bounce'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/elastic-physics'
   },
   {
@@ -180,7 +180,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#0891b2',
     icon: '📜',
-    tags: ['GSAP', 'ScrollTrigger', 'Scrub'],
+    tags: ['Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/scroll-scrub'
   },
   {
@@ -191,7 +191,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#d946ef',
     icon: '🃏',
-    tags: ['GSAP', 'CSS 3D', 'Transform'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/3d-cards'
   },
   {
@@ -202,7 +202,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#10b981',
     icon: '🔄',
-    tags: ['CSS', '3D'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/cylinder-text'
   },
   {
@@ -213,7 +213,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#ec4899',
     icon: '〰️',
-    tags: ['Animation', 'Scroll'],
+    tags: ['Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/dual-wave-text'
   },
   {
@@ -224,7 +224,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#8b5cf6',
     icon: '∞',
-    tags: ['Canvas', 'Gestures'],
+    tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/infinite-canvas'
   },
   // Shader-based interactions
@@ -236,7 +236,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#7c3aed',
     icon: '✨',
-    tags: ['GLSL', 'Three.js', 'Hero'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-hero'
   },
   {
@@ -247,7 +247,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#f72585',
     icon: '🌟',
-    tags: ['GLSL', 'Three.js', 'Particles'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-particles'
   },
   {
@@ -258,7 +258,7 @@ const experiments: Experiment[] = [
     size: 'medium',
     accent: '#4cc9f0',
     icon: '💧',
-    tags: ['GLSL', 'Three.js', 'Interactive'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-liquid'
   },
   {
@@ -269,7 +269,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#667eea',
     icon: '🎴',
-    tags: ['GLSL', 'Three.js', 'Cards'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-cards'
   },
   {
@@ -280,7 +280,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#f093fb',
     icon: '🌈',
-    tags: ['GLSL', 'Background'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-gradient'
   },
   {
@@ -291,7 +291,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#38f9d7',
     icon: '📺',
-    tags: ['GLSL', 'Noise'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-noise'
   },
   {
@@ -302,7 +302,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#1a1a2e',
     icon: '🔃',
-    tags: ['GLSL', 'Transition'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-transition'
   },
   {
@@ -313,7 +313,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#ff6b6b',
     icon: '🌀',
-    tags: ['GLSL', 'Distortion'],
+    tags: ['Shaders'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-distortion'
   },
   {
@@ -324,7 +324,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#764ba2',
     icon: '👁️',
-    tags: ['GLSL', 'Scroll'],
+    tags: ['Shaders', 'Scroll'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-reveal'
   },
   {
@@ -335,7 +335,7 @@ const experiments: Experiment[] = [
     size: 'small',
     accent: '#f72585',
     icon: '👆',
-    tags: ['GLSL', 'Cursor'],
+    tags: ['Shaders', 'Cursor'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-cursor'
   }
 ]
