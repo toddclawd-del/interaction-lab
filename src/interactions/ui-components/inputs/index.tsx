@@ -42,7 +42,7 @@ export function FloatingLabel({ value, onChange, label = 'Label', className = ''
         onChange={e => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="w-full px-4 pt-6 pb-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors min-h-[56px]"
+        className="w-full px-4 pt-6 pb-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus-visible:ring-2 focus-visible:ring-indigo-500/50 transition-colors min-h-[56px]"
         aria-label={label}
       />
       <motion.label
@@ -76,7 +76,7 @@ export function UnderlineInput({ value, onChange, placeholder = '', className = 
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="w-full px-2 py-3 bg-transparent text-white outline-none border-b border-neutral-700 placeholder:text-neutral-600 min-h-[48px]"
+        className="w-full px-2 py-3 bg-transparent text-white outline-none border-b border-neutral-700 placeholder:text-neutral-600 min-h-[48px] focus-visible:ring-2 focus-visible:ring-indigo-500/50"
         aria-label={placeholder || 'Text input'}
       />
       <motion.div
@@ -110,7 +110,8 @@ export function BorderInput({ value, onChange, placeholder = '', className = '' 
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 bg-neutral-800 text-white outline-none rounded-lg placeholder:text-neutral-600"
+        aria-label={placeholder || 'Text input'}
+        className="w-full px-4 py-3 bg-neutral-800 text-white outline-none rounded-lg placeholder:text-neutral-600 focus-visible:ring-2 focus-visible:ring-indigo-500/50"
       />
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <motion.rect
@@ -151,7 +152,9 @@ export function ShakeInput({ value, onChange, placeholder = '', isInvalid = fals
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full px-4 py-3 bg-neutral-800 text-white outline-none rounded-lg border-2 transition-colors placeholder:text-neutral-600 ${
+          aria-label={placeholder || 'Text input'}
+          aria-invalid={isInvalid}
+          className={`w-full px-4 py-3 bg-neutral-800 text-white outline-none rounded-lg border-2 transition-colors placeholder:text-neutral-600 focus-visible:ring-2 focus-visible:ring-indigo-500/50 ${
             isInvalid ? 'border-red-500' : 'border-transparent focus:border-indigo-500'
           }`}
         />
@@ -187,7 +190,8 @@ export function SuccessInput({ value, onChange, placeholder = '', isValid = fals
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full px-4 py-3 pr-12 bg-neutral-800 text-white outline-none rounded-lg border-2 transition-colors placeholder:text-neutral-600 ${
+        aria-label={placeholder || 'Text input'}
+        className={`w-full px-4 py-3 pr-12 bg-neutral-800 text-white outline-none rounded-lg border-2 transition-colors placeholder:text-neutral-600 focus-visible:ring-2 focus-visible:ring-indigo-500/50 ${
           isValid ? 'border-green-500' : 'border-transparent focus:border-indigo-500'
         }`}
       />
@@ -249,7 +253,8 @@ export function SearchExpand({ value, onChange, placeholder = 'Search...', class
       >
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-white"
+          aria-label={isExpanded ? 'Close search' : 'Open search'}
+          className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-white focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded-full"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -267,6 +272,7 @@ export function SearchExpand({ value, onChange, placeholder = 'Search...', class
               onChange={e => onChange(e.target.value)}
               onBlur={() => !value && setIsExpanded(false)}
               placeholder={placeholder}
+              aria-label="Search"
               className="flex-1 bg-transparent text-white outline-none pr-4 placeholder:text-neutral-600"
             />
           )}
@@ -318,7 +324,7 @@ export function TagInput({ tags, onTagsChange, placeholder = 'Add tag...', class
             className="flex items-center gap-1 px-3 py-1 bg-indigo-500 text-white rounded-full text-sm"
           >
             {tag}
-            <button onClick={() => removeTag(index)} className="hover:text-indigo-200">
+            <button onClick={() => removeTag(index)} aria-label={`Remove ${tag}`} className="hover:text-indigo-200 focus-visible:ring-1 focus-visible:ring-white/50 rounded">
               ×
             </button>
           </motion.span>
@@ -330,6 +336,7 @@ export function TagInput({ tags, onTagsChange, placeholder = 'Add tag...', class
         onChange={e => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={tags.length === 0 ? placeholder : ''}
+        aria-label="Add tag"
         className="flex-1 min-w-[100px] bg-transparent text-white outline-none placeholder:text-neutral-600"
       />
     </div>
@@ -372,12 +379,14 @@ export function PasswordStrength({ value, onChange, className = '' }: PasswordSt
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder="Enter password"
-          className="w-full px-4 py-3 pr-12 bg-neutral-800 text-white outline-none rounded-lg border-2 border-transparent focus:border-indigo-500 placeholder:text-neutral-600"
+          aria-label="Password"
+          className="w-full px-4 py-3 pr-12 bg-neutral-800 text-white outline-none rounded-lg border-2 border-transparent focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/50 placeholder:text-neutral-600"
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded"
         >
           {showPassword ? '🙈' : '👁️'}
         </button>

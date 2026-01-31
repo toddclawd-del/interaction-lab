@@ -151,7 +151,7 @@ function CodeBlock({ code }: { code: string }) {
       </pre>
       <button
         onClick={handleCopy}
-        className="absolute top-3 right-3 px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors text-white/60 hover:text-white"
+        className="absolute top-3 right-3 px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors text-white/60 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
       >
         {copied ? '✓ Copied' : 'Copy'}
       </button>
@@ -186,7 +186,7 @@ function ComponentPreview({
         {code && (
           <button
             onClick={() => setShowCode(!showCode)}
-            className="px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-white/60 hover:text-white flex items-center gap-2"
+            className="px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-white/60 hover:text-white flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-white/50"
           >
             <span>{showCode ? '</>' : '</>'}</span>
             {showCode ? 'Hide Code' : 'View Code'}
@@ -247,7 +247,7 @@ function Sidebar({ activeSection }: { activeSection: string }) {
               <button
                 key={preset}
                 onClick={() => setPreset(preset)}
-                className={`w-8 h-8 rounded-lg transition-all capitalize ${
+                className={`w-8 h-8 rounded-lg transition-all capitalize focus-visible:ring-2 focus-visible:ring-white/50 ${
                   currentPreset === preset
                     ? 'ring-2 ring-white/30 ring-offset-2 ring-offset-neutral-950'
                     : 'hover:scale-110'
@@ -272,7 +272,7 @@ function Sidebar({ activeSection }: { activeSection: string }) {
             <a
               key={cat.id}
               href={`#${cat.id}`}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${
                 activeSection === cat.id
                   ? 'bg-white/10 text-white'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -297,7 +297,7 @@ function MobileTabs({ activeSection }: { activeSection: string }) {
           <a
             key={cat.id}
             href={`#${cat.id}`}
-            className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${
               activeSection === cat.id
                 ? 'bg-white/10 text-white'
                 : 'text-white/60 hover:text-white'
