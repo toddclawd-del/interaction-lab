@@ -178,11 +178,11 @@ function highlightJSX(code: string): React.ReactNode[] {
     // Arrow functions
     [/^(=>)/, 'text-yellow-300'],
     // Parentheses and brackets
-    [/^([[\](),:])/, 'text-white/50'],
+    [/^([[\](),:])/, 'text-white/60'],
     // Spread operator
     [/^(\.\.\.)/, 'text-yellow-300'],
     // Comments
-    [/^(\/\/[^\n]*|\/\*[\s\S]*?\*\/)/, 'text-white/30'],
+    [/^(\/\/[^\n]*|\/\*[\s\S]*?\*\/)/, 'text-white/50'],
     // Regular text/identifiers
     [/^([a-zA-Z_$][a-zA-Z0-9_$]*)/, 'text-white/70'],
     // Whitespace
@@ -235,7 +235,7 @@ function CodeBlock({ code }: { code: string }) {
       </pre>
       <button
         onClick={handleCopy}
-        className="absolute top-3 right-3 px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors text-white/60 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
+        className="absolute top-3 right-3 px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors text-white/60 hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900"
       >
         {copied ? '✓ Copied' : 'Copy'}
       </button>
@@ -260,26 +260,26 @@ function ComponentPreview({
   const [showCode, setShowCode] = useState(false)
 
   return (
-    <div className={`bg-neutral-900/50 border border-white/5 rounded-2xl overflow-hidden ${className}`}>
+    <div className={`bg-neutral-900/50 border border-white/5 rounded-2xl overflow-hidden transition-all duration-200 hover:border-white/10 border-l-2 border-l-transparent hover:border-l-[var(--color-primary)] group ${className}`}>
       {/* Preview Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+      <div className="flex items-start justify-between px-6 py-5 border-b border-white/5 gap-4">
         <div>
-          <h3 className="font-semibold text-white">{name}</h3>
-          {description && <p className="text-sm text-white/50 mt-0.5">{description}</p>}
+          <h3 className="font-semibold text-white text-lg">{name}</h3>
+          {description && <p className="text-sm text-white/60 mt-1 leading-relaxed">{description}</p>}
         </div>
         {code && (
           <button
             onClick={() => setShowCode(!showCode)}
-            className="px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-white/60 hover:text-white flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-white/50"
+            className="shrink-0 px-3 py-1.5 text-xs font-medium bg-white/5 border border-white/10 rounded-lg transition-all text-white/70 hover:text-white hover:bg-[var(--color-primary)] hover:border-transparent flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
           >
-            <span>{showCode ? '</>' : '</>'}</span>
-            {showCode ? 'Hide Code' : 'View Code'}
+            <span className="opacity-60">&lt;/&gt;</span>
+            {showCode ? 'Hide' : 'Code'}
           </button>
         )}
       </div>
       
       {/* Preview Area */}
-      <div className="p-8 min-h-[120px] flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,transparent_100%)]">
+      <div className="p-8 min-h-[140px] flex items-center justify-center">
         {children}
       </div>
 
@@ -296,12 +296,20 @@ function ComponentPreview({
 // Section Header
 function SectionHeader({ id, title, description, count }: { id: string; title: string; description: string; count: number }) {
   return (
-    <div id={id} className="scroll-mt-24 mb-8">
-      <div className="flex items-center gap-4 mb-2">
-        <h2 className="text-3xl font-bold text-white">{title}</h2>
-        <span className="px-2.5 py-1 text-xs font-medium bg-white/10 rounded-full text-white/60">{count} components</span>
+    <div id={id} className="scroll-mt-24 mb-10 pb-4 border-b border-white/10">
+      <div className="flex items-baseline gap-4 mb-3">
+        <h2 className="text-4xl font-bold text-white tracking-tight">{title}</h2>
+        <span 
+          className="px-3 py-1 text-sm font-semibold rounded-full"
+          style={{ 
+            backgroundColor: 'rgba(var(--color-primary-rgb), 0.15)',
+            color: 'var(--color-primary)' 
+          }}
+        >
+          {count}
+        </span>
       </div>
-      <p className="text-white/50 text-lg max-w-2xl">{description}</p>
+      <p className="text-white/70 text-lg max-w-2xl leading-relaxed">{description}</p>
     </div>
   )
 }
@@ -325,15 +333,15 @@ function Sidebar({ activeSection }: { activeSection: string }) {
       <div className="sticky top-6 space-y-6">
         {/* Theme selector */}
         <div className="p-4 bg-neutral-900/50 border border-white/5 rounded-xl">
-          <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3">Theme</p>
+          <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-3">Theme</p>
           <div className="flex flex-wrap gap-2">
             {(['indigo', 'rose', 'cyan', 'emerald', 'orange'] as const).map((preset) => (
               <button
                 key={preset}
                 onClick={() => setPreset(preset)}
-                className={`w-8 h-8 rounded-lg transition-all capitalize focus-visible:ring-2 focus-visible:ring-white/50 ${
+                className={`w-8 h-8 rounded-lg transition-all capitalize focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                   currentPreset === preset
-                    ? 'ring-2 ring-white/30 ring-offset-2 ring-offset-neutral-950'
+                    ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-neutral-950 scale-110'
                     : 'hover:scale-110'
                 }`}
                 style={{ 
@@ -351,19 +359,29 @@ function Sidebar({ activeSection }: { activeSection: string }) {
 
         {/* Navigation */}
         <nav className="space-y-1">
-          <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3 px-3">Components</p>
+          <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-3 px-3">Components</p>
           {categories.map((cat) => (
             <a
               key={cat.id}
               href={`#${cat.id}`}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${
+              className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                 activeSection === cat.id
-                  ? 'bg-white/10 text-white'
+                  ? 'text-white border-l-2 border-l-[var(--color-primary)]'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
               }`}
+              style={activeSection === cat.id ? { backgroundColor: 'rgba(var(--color-primary-rgb), 0.15)' } : undefined}
             >
-              <span>{cat.label}</span>
-              <span className="text-xs text-white/30">{cat.count}</span>
+              <span className="font-medium">{cat.label}</span>
+              <span 
+                className={`text-xs px-2 py-0.5 rounded-full ${
+                  activeSection === cat.id
+                    ? 'text-[var(--color-primary)]'
+                    : 'bg-white/10 text-white/50'
+                }`}
+                style={activeSection === cat.id ? { backgroundColor: 'rgba(var(--color-primary-rgb), 0.25)' } : undefined}
+              >
+                {cat.count}
+              </span>
             </a>
           ))}
         </nav>
@@ -415,11 +433,12 @@ function MobileTabs({ activeSection }: { activeSection: string }) {
             <a
               key={cat.id}
               href={`#${cat.id}`}
-              className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-white/50 ${
+              className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                 activeSection === cat.id
-                  ? 'bg-white/10 text-white'
+                  ? 'text-white font-medium'
                   : 'text-white/60 hover:text-white'
               }`}
+              style={activeSection === cat.id ? { backgroundColor: 'rgba(var(--color-primary-rgb), 0.15)' } : undefined}
             >
               {cat.label}
             </a>
@@ -584,7 +603,7 @@ function UIComponentsContent() {
       <header className="border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex items-center gap-4 mb-6">
-            <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors group">
+            <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors group rounded-lg px-2 py-1 -ml-2 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950">
               <span className="group-hover:-translate-x-1 transition-transform">←</span>
               <span>Back to Lab</span>
             </Link>
@@ -594,7 +613,7 @@ function UIComponentsContent() {
             <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
               UI Components
             </h1>
-            <p className="text-xl text-white/60 mb-6">
+            <p className="text-xl text-white/70 mb-6 leading-relaxed">
               A curated collection of animated, production-ready React components. 
               Beautiful interactions, smooth animations, and clean code.
             </p>
@@ -603,7 +622,7 @@ function UIComponentsContent() {
                 <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-primary)' }} />
                 <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>116 Components</span>
               </div>
-              <div className="flex items-center gap-2 text-white/40 text-sm">
+              <div className="flex items-center gap-2 text-white/60 text-sm">
                 <span>React</span>
                 <span>•</span>
                 <span>TypeScript</span>
@@ -1309,7 +1328,7 @@ function UIComponentsContent() {
               
               {/* Full Headers - Larger previews */}
               <div className="space-y-6 mb-10">
-                <h3 className="text-lg font-semibold text-white/80">Full Headers</h3>
+                <h3 className="text-lg font-semibold text-white">Full Headers</h3>
                 <ComponentPreview 
                   name="Glass Header" 
                   description="Frosted glass with logo, nav links, and CTA"
@@ -1341,7 +1360,7 @@ function UIComponentsContent() {
 
               {/* Nav Link Animations */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-white/80">Nav Link Animations</h3>
+                <h3 className="text-lg font-semibold text-white">Nav Link Animations</h3>
                 <ComponentGrid cols={2}>
                   <ComponentPreview name="Magnetic" description="Links follow cursor">
                     <MagneticNav items={navItems} />
@@ -1367,7 +1386,7 @@ function UIComponentsContent() {
                 </ComponentGrid>
 
                 {/* Menu Components */}
-                <h3 className="text-lg font-semibold text-white/80 mt-10">Menu Components</h3>
+                <h3 className="text-lg font-semibold text-white mt-10">Menu Components</h3>
                 <ComponentGrid cols={3}>
                   <ComponentPreview name="Hamburger" description="Morphing icon">
                     <MorphingHamburger isOpen={hamburgerOpen} onToggle={() => setHamburgerOpen(!hamburgerOpen)} />
@@ -1589,13 +1608,13 @@ function UIComponentsContent() {
               <div className="mb-4 flex items-center gap-4">
                 <button 
                   onClick={() => setShowBadge(!showBadge)}
-                  className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg text-white/70"
+                  className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
                 >
                   Toggle Badges
                 </button>
                 <button 
                   onClick={() => setBadgeCount(c => c + 1)}
-                  className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg text-white/70"
+                  className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
                 >
                   + Count
                 </button>
@@ -1741,7 +1760,7 @@ function UIComponentsContent() {
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-8">
-        <div className="max-w-7xl mx-auto px-6 text-center text-white/40 text-sm">
+        <div className="max-w-7xl mx-auto px-6 text-center text-white/60 text-sm">
           <p>Built with React, TypeScript, Tailwind CSS, and Framer Motion</p>
         </div>
       </footer>

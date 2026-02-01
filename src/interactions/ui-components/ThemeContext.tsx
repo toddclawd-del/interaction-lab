@@ -61,6 +61,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           '--color-primary-rgb': hexToRgb(colors.primary),
           '--color-secondary-rgb': hexToRgb(colors.secondary),
           '--color-accent-rgb': hexToRgb(colors.accent),
+          // Alpha variants for backgrounds
+          '--color-primary-alpha-10': `rgba(${hexToRgb(colors.primary)}, 0.1)`,
+          '--color-primary-alpha-15': `rgba(${hexToRgb(colors.primary)}, 0.15)`,
+          '--color-primary-alpha-25': `rgba(${hexToRgb(colors.primary)}, 0.25)`,
         } as React.CSSProperties}
       >
         {children}
