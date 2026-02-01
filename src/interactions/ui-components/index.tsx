@@ -361,14 +361,13 @@ function Sidebar({ activeSection }: { activeSection: string }) {
         <nav className="space-y-1">
           <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-3 px-3">Components</p>
           {categories.map((cat) => (
-            <a
+            <button
               key={cat.id}
-              href={`#${cat.id}`}
-              onClick={(e) => {
-                e.preventDefault()
+              type="button"
+              onClick={() => {
                 document.getElementById(cat.id)?.scrollIntoView({ behavior: 'smooth' })
               }}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                 activeSection === cat.id
                   ? 'text-white border-l-2 border-l-[var(--color-primary)]'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -386,7 +385,7 @@ function Sidebar({ activeSection }: { activeSection: string }) {
               >
                 {cat.count}
               </span>
-            </a>
+            </button>
           ))}
         </nav>
       </div>
@@ -434,11 +433,10 @@ function MobileTabs({ activeSection }: { activeSection: string }) {
       >
         <div className="flex gap-2 min-w-max">
           {categories.map((cat) => (
-            <a
+            <button
               key={cat.id}
-              href={`#${cat.id}`}
-              onClick={(e) => {
-                e.preventDefault()
+              type="button"
+              onClick={() => {
                 document.getElementById(cat.id)?.scrollIntoView({ behavior: 'smooth' })
               }}
               className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
@@ -449,7 +447,7 @@ function MobileTabs({ activeSection }: { activeSection: string }) {
               style={activeSection === cat.id ? { backgroundColor: 'rgba(var(--color-primary-rgb), 0.15)' } : undefined}
             >
               {cat.label}
-            </a>
+            </button>
           ))}
         </div>
       </div>
