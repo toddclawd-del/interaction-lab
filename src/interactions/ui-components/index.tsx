@@ -364,6 +364,10 @@ function Sidebar({ activeSection }: { activeSection: string }) {
             <a
               key={cat.id}
               href={`#${cat.id}`}
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById(cat.id)?.scrollIntoView({ behavior: 'smooth' })
+              }}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                 activeSection === cat.id
                   ? 'text-white border-l-2 border-l-[var(--color-primary)]'
@@ -433,6 +437,10 @@ function MobileTabs({ activeSection }: { activeSection: string }) {
             <a
               key={cat.id}
               href={`#${cat.id}`}
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById(cat.id)?.scrollIntoView({ behavior: 'smooth' })
+              }}
               className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                 activeSection === cat.id
                   ? 'text-white font-medium'
