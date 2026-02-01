@@ -219,4 +219,58 @@ This file captures techniques, gotchas, and insights from recreating web interac
 
 ---
 
-*Last updated: 2026-01-30*
+## 2026-02-01 — Curved Path Animation
+
+**Source:** [Codrops Tutorial](https://tympanus.net/codrops/2025/12/17/building-responsive-scroll-triggered-curved-path-animations-with-gsap/) — Inspired by Lando Norris's website
+
+### Techniques Learned
+
+1. **GSAP MotionPath Plugin**
+   - Register with `gsap.registerPlugin(MotionPathPlugin)`
+   - Pass SVG path string to `motionPath.path` property
+   - Automatically interpolates position along the Bezier curve
+   - Use `autoRotate: false` for non-rotating elements
+
+2. **Cubic Bezier Path Construction**
+   - SVG path syntax: `M start C cp1 cp2 mid C cp3 cp4 end`
+   - Two curves for an S-shape (4 control points total)
+   - Control points "pull" the curve — further = more dramatic curve
+   - Can chain multiple curves for complex paths
+
+3. **Dynamic Control Point Calculation**
+   - Measure actual DOM positions with `getBoundingClientRect()`
+   - Calculate control points as percentages of segment distances
+   - Use multipliers like 0.75, 0.3 to shape the curve feel
+   - `Math.min()` prevents extreme values on large screens
+
+4. **Progress-Based Size Interpolation**
+   - Use `this.progress()` in GSAP's `onUpdate` callback
+   - Split animation at midpoint for three-position paths
+   - Normalize progress per segment: `progress * 2` for first half, `(progress - 0.5) * 2` for second
+   - Apply interpolated size directly to element style
+
+5. **Debug Visualization Pattern**
+   - SVG overlay with pointer-events: none
+   - Draw path, anchors, control points, and handle lines
+   - Enable pointer-events on control point circles for dragging
+   - Use pointer capture for smooth drag handling
+   - Export coordinates to clipboard for production use
+
+### Gotchas
+
+- **ScrollTrigger cleanup:** Always kill existing timeline before rebuilding — avoids stacking animations
+- **Transform origin:** Use `xPercent: -50, yPercent: -50` to center element on path coordinates
+- **Resize handling:** Debounce resize events, recalculate positions and control points
+- **Mobile positioning:** Position markers need separate media queries — percentage-based positioning breaks on narrow viewports
+- **Path invalidation:** Use `invalidateOnRefresh: true` on ScrollTrigger for responsive paths
+
+### Would Do Differently
+
+- Add option to pass custom control points directly (skip auto-calculation)
+- Consider using `gsap.quickTo()` for size interpolation instead of direct style manipulation
+- Add Lenis smooth scroll integration for smoother scrubbing
+- Could add `ease` curves between waypoints instead of linear interpolation
+
+---
+
+*Last updated: 2026-02-01*

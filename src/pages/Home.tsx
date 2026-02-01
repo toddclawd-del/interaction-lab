@@ -227,6 +227,17 @@ const experiments: Experiment[] = [
     tags: ['Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/infinite-canvas'
   },
+  {
+    slug: 'curved-path',
+    title: 'Curved Path',
+    description: 'Scroll-triggered Bezier curve animation with GSAP MotionPath. Elements follow smooth S-curves between waypoints.',
+    date: '2026-02-01',
+    size: 'medium',
+    accent: '#ff0040',
+    icon: '〰️',
+    tags: ['Scroll', 'Animation'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/curved-path'
+  },
   // Shader-based interactions
   {
     slug: 'shader-hero',

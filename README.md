@@ -34,6 +34,7 @@ npm run dev
 | Cylinder Text | CSS 3D Transforms | ✅ Ready | — |
 | Dual Wave Text | GSAP + Lenis | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/15/building-a-scroll-driven-dual-wave-text-animation-with-gsap/) |
 | Infinite Canvas | React Three Fiber | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/) |
+| Curved Path | GSAP MotionPath | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/12/17/building-responsive-scroll-triggered-curved-path-animations-with-gsap/) |
 
 ## Adding to Your Project
 
