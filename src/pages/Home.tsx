@@ -238,6 +238,17 @@ const experiments: Experiment[] = [
     tags: ['Scroll', 'Animation'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/curved-path'
   },
+  {
+    slug: 'gradient-carousel',
+    title: '3D Gradient Carousel',
+    description: 'Infinite looping 3D carousel where background gradients dynamically adapt to each image\'s colors. Momentum physics for natural drag feel.',
+    date: '2026-02-02',
+    size: 'large',
+    accent: '#f093fb',
+    icon: '🎠',
+    tags: ['Animation', 'Canvas'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/gradient-carousel'
+  },
   // Shader-based interactions
   {
     slug: 'shader-hero',

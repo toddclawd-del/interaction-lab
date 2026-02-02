@@ -273,4 +273,65 @@ This file captures techniques, gotchas, and insights from recreating web interac
 
 ---
 
-*Last updated: 2026-02-01*
+## 2026-02-02 — 3D Gradient Carousel with Reactive Backgrounds
+
+**Source:** [Codrops Tutorial](https://tympanus.net/codrops/2025/11/11/building-a-3d-infinite-carousel-with-reactive-background-gradients/)
+
+### Techniques Learned
+
+1. **CSS 3D Transforms for Carousel**
+   - Set `perspective: 1800px` on parent stage for depth
+   - Use `transform-style: preserve-3d` on cards container
+   - Combine `translateZ`, `rotateY`, and `scale` based on distance from center
+   - `backface-visibility: hidden` prevents rendering when rotated away
+
+2. **Normalized Position → Transform Calculation**
+   - Normalize screen position to -1..1 range: `screenX / viewportHalf`
+   - Inverse of absolute norm (1 - |norm|) drives depth and scale
+   - Cards closer to center get larger scale and more Z depth
+   - Rotation proportional to raw norm creates natural "page-flip" effect
+
+3. **Canvas Color Extraction from Images**
+   - Create small offscreen canvas (48px max dimension)
+   - Draw scaled image with `ctx.drawImage()`
+   - Use `getImageData()` to access pixel RGBA values
+   - Sample from center and corners for representative colors
+   - Keep canvas tiny for performance — color data doesn't need resolution
+
+4. **Radial Gradients for Ambient Background**
+   - Use `createRadialGradient(x, y, 0, x, y, radius)` for soft blobs
+   - Color stop at 0: full color with ~0.7 opacity
+   - Color stop at 1: transparent for soft edges
+   - Layer multiple gradients with different positions
+   - Animate blob positions with sine/cosine for organic drift
+
+5. **Momentum Physics for Drag/Scroll**
+   - Store velocity, apply friction each frame: `velocity *= friction^(dt * 60)`
+   - Friction 0.92 gives natural deceleration
+   - Clamp tiny velocities to zero to prevent micro-jitter
+   - Use pointer capture for smooth drag handling across element boundaries
+
+6. **Infinite Loop via Modulo**
+   - Custom mod function for negative numbers: `((n % m) + m) % m`
+   - Wrap scroll position around track length
+   - Wrap individual card positions with half-track offset check
+
+### Gotchas
+
+- **CORS for color extraction:** Images must have `crossOrigin: 'anonymous'` or extraction fails
+- **Canvas sizing:** Set canvas width/height attributes (not just CSS) for proper resolution
+- **Pointer events:** Use `setPointerCapture` to maintain drag even when cursor leaves card
+- **GSAP gradient tweening:** Tween individual RGB components, not color strings
+- **Z-index layering:** Set z-index based on calculated Z depth for proper overlap
+
+### Would Do Differently
+
+- Add keyboard navigation (arrow keys to advance)
+- Implement lazy loading for images outside visible range
+- Consider using WebGL for smoother gradient rendering at scale
+- Add touch velocity detection for more natural swipe momentum
+- Could add color palette caching to avoid re-extraction
+
+---
+
+*Last updated: 2026-02-02*

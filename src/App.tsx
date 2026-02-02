@@ -25,6 +25,7 @@ const ScrollScrub = lazy(() => import('./interactions/scroll-scrub').then(m => (
 const ThreeDCards = lazy(() => import('./interactions/3d-cards').then(m => ({ default: m.ThreeDCards })))
 const LayeredZoomScroll = lazy(() => import('./interactions/layered-zoom-scroll').then(m => ({ default: m.LayeredZoomScroll })))
 const CurvedPath = lazy(() => import('./interactions/curved-path').then(m => ({ default: m.CurvedPathDemo })))
+const GradientCarousel = lazy(() => import('./interactions/gradient-carousel').then(m => ({ default: m.GradientCarousel })))
 
 // Shader-based interactions
 const ShaderHero = lazy(() => import('./interactions/shader-hero').then(m => ({ default: m.ShaderHero })))
@@ -93,6 +94,7 @@ export default function App() {
           <Route path="/3d-cards" element={<ThreeDCards />} />
           <Route path="/layered-zoom-scroll" element={<LayeredZoomScroll />} />
           <Route path="/curved-path" element={<CurvedPath />} />
+          <Route path="/gradient-carousel" element={<GradientCarousel />} />
           
           {/* Shader interactions */}
           <Route path="/shader-hero" element={
