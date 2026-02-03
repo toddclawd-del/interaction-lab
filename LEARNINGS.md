@@ -4,6 +4,67 @@ This file captures techniques, gotchas, and insights from recreating web interac
 
 ---
 
+## 2026-02-03 — Shader Reveal Gallery
+
+**Source:** [Codrops Tutorial](https://tympanus.net/codrops/2026/02/02/building-a-scroll-revealed-webgl-gallery-with-gsap-three-js-astro-and-barba-js/) by Chakib Mazouni
+
+### Techniques Learned
+
+1. **WebGL-DOM Synchronization**
+   - Render WebGL planes that perfectly overlay DOM images
+   - Use `getBoundingClientRect()` to get DOM element position/size
+   - Convert screen coordinates to Three.js world coordinates:
+     ```ts
+     const meshWidth = (bounds.width / size.width) * viewport.width
+     const meshX = ((bounds.left + bounds.width / 2) / size.width) * viewport.width - viewport.width / 2
+     ```
+   - Run position sync in `useFrame` to update every render
+
+2. **ScrollTrigger + Shader Uniforms**
+   - GSAP ScrollTrigger can animate Three.js shader uniforms directly
+   - Use `scrub` for smooth scroll-linked progress
+   - `toggleActions: 'play reset restart reset'` resets animation when leaving viewport
+   - Trigger DOM element, but animate WebGL material
+
+3. **Grid-Based Reveal Shader**
+   - Divide UV space into grid cells: `floor(vUv * uGridSize)`
+   - Use pseudo-random per cell: `fract(sin(dot(gridPos, vec2(12.9898, 78.233))) * 43758.5453)`
+   - Each cell reveals at different progress threshold for organic effect
+   - `smoothstep(threshold - 0.1, threshold + 0.1, uProgress)` for soft transitions
+
+4. **Object-Fit Cover in GLSL**
+   - Calculate aspect ratios for both texture and container
+   - Scale UVs to maintain aspect ratio without distortion:
+     ```glsl
+     vec2 scale = textureAspect / containerAspect;
+     if (scale.x < scale.y) scale = vec2(scale.x / scale.y, 1.0);
+     else scale = vec2(1.0, scale.y / scale.x);
+     return (uv - 0.5) * scale + 0.5;
+     ```
+
+5. **Lenis + GSAP Ticker Sync**
+   - Don't use separate RAF loops — sync Lenis to GSAP ticker
+   - `gsap.ticker.add((time) => lenis.raf(time * 1000))`
+   - `lenis.on('scroll', ScrollTrigger.update)` keeps triggers in sync
+   - `gsap.ticker.lagSmoothing(0)` prevents jitter
+
+### Gotchas
+
+- **Hide DOM images:** Set `style={{ opacity: 0 }}` on DOM images since WebGL renders them
+- **Image loading:** Wait for all images to load before creating WebGL planes
+- **ScrollTrigger.refresh():** Call after images load to recalculate trigger positions
+- **Camera FOV math:** Position camera Z so viewport units match visible area
+- **CORS for textures:** Use `crossOrigin="anonymous"` on images for WebGL texture loading
+
+### Would Do Differently
+
+- Add click-to-expand with GSAP Flip for seamless transition to detail view
+- Implement image-specific reveal directions (diagonal, radial, etc.)
+- Add noise texture sampling for more organic reveal patterns
+- Consider using instanced rendering if many images
+
+---
+
 ## 2026-01-31 — Layered Zoom Scroll Effect
 
 **Source:** [Codrops Tutorial](https://tympanus.net/codrops/2025/10/29/building-a-layered-zoom-scroll-effect-with-gsap-scrollsmoother-and-scrolltrigger/) — Inspired by [Telescope](https://telescope.fyi/)

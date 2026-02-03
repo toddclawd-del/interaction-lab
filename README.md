@@ -36,6 +36,7 @@ npm run dev
 | Infinite Canvas | React Three Fiber | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/) |
 | Curved Path | GSAP MotionPath | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/12/17/building-responsive-scroll-triggered-curved-path-animations-with-gsap/) |
 | Gradient Carousel | CSS 3D + Canvas | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/11/building-a-3d-infinite-carousel-with-reactive-background-gradients/) |
+| Shader Reveal Gallery | R3F + GSAP + Shaders | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/02/02/building-a-scroll-revealed-webgl-gallery-with-gsap-three-js-astro-and-barba-js/) |
 
 ## Adding to Your Project
 

@@ -38,6 +38,7 @@ const ShaderLiquid = lazy(() => import('./interactions/shader-liquid').then(m =>
 const ShaderDistortion = lazy(() => import('./interactions/shader-distortion').then(m => ({ default: m.ShaderDistortion })))
 const ShaderTransition = lazy(() => import('./interactions/shader-transition').then(m => ({ default: m.TransitionShowcase })))
 const ShaderParticles = lazy(() => import('./interactions/shader-particles').then(m => ({ default: m.ParticleDemo })))
+const ShaderRevealGallery = lazy(() => import('./interactions/shader-reveal-gallery'))
 
 // UI Components micro-interaction library
 const UIComponents = lazy(() => import('./interactions/ui-components').then(m => ({ default: m.UIComponents })))
@@ -181,6 +182,9 @@ export default function App() {
               <ShaderParticles />
             </ShaderDemoWrapper>
           } />
+          
+          {/* WebGL Gallery */}
+          <Route path="/shader-reveal-gallery" element={<ShaderRevealGallery />} />
           
           {/* UI Components Library */}
           <Route path="/ui-components" element={<UIComponents />} />
