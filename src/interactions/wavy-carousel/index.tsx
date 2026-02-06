@@ -86,7 +86,8 @@ const GLImage = forwardRef<THREE.Mesh, GLImageProps>(
 
     const imageSizes = useMemo(() => {
       if (!texture) return [1, 1]
-      return [texture.image?.width || 600, texture.image?.height || 800]
+      const img = texture.image as HTMLImageElement | null
+      return [img?.width || 600, img?.height || 800]
     }, [texture])
 
     const shaderArgs = useMemo(

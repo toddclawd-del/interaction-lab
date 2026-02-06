@@ -9,6 +9,7 @@ const CylinderText = lazy(() => import('./interactions/cylinder-text').then(m =>
 const GridFlip = lazy(() => import('./interactions/grid-flip').then(m => ({ default: m.GridFlip })))
 const WavyCarousel = lazy(() => import('./interactions/wavy-carousel').then(m => ({ default: m.WavyCarousel })))
 const TerminalTextHover = lazy(() => import('./interactions/terminal-text-hover').then(m => ({ default: m.TerminalTextHover })))
+const DualCircleText = lazy(() => import('./interactions/dual-circle-text').then(m => ({ default: m.DualCircleText })))
 
 // GSAP-powered interactions
 const TextReveal = lazy(() => import('./interactions/text-reveal').then(m => ({ default: m.TextReveal })))
@@ -39,6 +40,12 @@ const ShaderDistortion = lazy(() => import('./interactions/shader-distortion').t
 const ShaderTransition = lazy(() => import('./interactions/shader-transition').then(m => ({ default: m.TransitionShowcase })))
 const ShaderParticles = lazy(() => import('./interactions/shader-particles').then(m => ({ default: m.ParticleDemo })))
 const ShaderRevealGallery = lazy(() => import('./interactions/shader-reveal-gallery'))
+
+// Scroll-driven interactions
+const ScrollStack = lazy(() => import('./interactions/scroll-stack').then(m => ({ default: m.ScrollStack })))
+
+// WebGPU Interactions
+const TextDissolve = lazy(() => import('./interactions/text-dissolve'))
 
 // UI Components micro-interaction library
 const UIComponents = lazy(() => import('./interactions/ui-components').then(m => ({ default: m.UIComponents })))
@@ -79,6 +86,7 @@ export default function App() {
           <Route path="/grid-flip" element={<GridFlip />} />
           <Route path="/wavy-carousel" element={<WavyCarousel />} />
           <Route path="/terminal-text-hover" element={<TerminalTextHover />} />
+          <Route path="/dual-circle-text" element={<DualCircleText />} />
           
           {/* GSAP-powered interactions */}
           <Route path="/text-reveal" element={<TextReveal />} />
@@ -183,8 +191,14 @@ export default function App() {
             </ShaderDemoWrapper>
           } />
           
+          {/* Scroll-driven */}
+          <Route path="/scroll-stack" element={<ScrollStack />} />
+          
           {/* WebGL Gallery */}
           <Route path="/shader-reveal-gallery" element={<ShaderRevealGallery />} />
+          
+          {/* WebGPU Interactions */}
+          <Route path="/text-dissolve" element={<TextDissolve />} />
           
           {/* UI Components Library */}
           <Route path="/ui-components" element={<UIComponents />} />

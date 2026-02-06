@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════════════════
+   SCROLL STACK — Pinned stacking cards on scroll
+   ═══════════════════════════════════════════════════════════ */
+
+.scroll-stack {
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #050505;
+  min-height: 100vh;
+}
+
+/* ─── Hero Intro ─────────────────────────────────────────── */
+.scroll-stack__hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 1;
+}
+
+.scroll-stack__hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 2rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.scroll-stack__hero-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6366f1;
+  box-shadow: 0 0 10px #6366f1;
+}
+
+.scroll-stack__hero-title {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #fff;
+  margin: 0 0 1.5rem;
+  max-width: 800px;
+}
+
+.scroll-stack__hero-title span {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.scroll-stack__hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0;
+}
+
+.scroll-stack__scroll-cue {
+  position: absolute;
+  bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.scroll-stack__scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.3); }
+}
+
+/* ─── Cards Container ────────────────────────────────────── */
+.scroll-stack__cards {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Individual Card ────────────────────────────────────── */
+.scroll-stack__card {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  /* will be pinned by GSAP */
+}
+
+.scroll-stack__card-inner {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  height: min(80vh, 600px);
+  border-radius: 24px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 80px -20px var(--card-glow, rgba(99, 102, 241, 0.15));
+  transition: box-shadow 0.4s ease;
+  /* 3D depth */
+  transform-origin: center top;
+  will-change: transform, filter, opacity;
+}
+
+/* Card backgrounds */
+.scroll-stack__card-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-stack__card-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--card-gradient);
+  opacity: 0.95;
+}
+
+.scroll-stack__card-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,0,0,0.2) 0%, transparent 50%);
+}
+
+/* Noise texture overlay */
+.scroll-stack__card-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* ─── Card Content (Left) ────────────────────────────────── */
+.scroll-stack__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  gap: 1.5rem;
+}
+
+.scroll-stack__number {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+.scroll-stack__card-title {
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #fff;
+  margin: 0;
+}
+
+.scroll-stack__card-desc {
+  font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 400px;
+}
+
+.scroll-stack__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.scroll-stack__tag {
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.scroll-stack__card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #000;
+  background: #fff;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  align-self: flex-start;
+}
+
+.scroll-stack__card-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-stack__card-cta svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.scroll-stack__card-cta:hover svg {
+  transform: translateX(2px);
+}
+
+/* ─── Card Visual (Right) ────────────────────────────────── */
+.scroll-stack__visual {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.scroll-stack__visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-stack__visual-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+/* ─── Progress Indicator ─────────────────────────────────── */
+.scroll-stack__progress {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scroll-stack__progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.scroll-stack__progress-dot--active {
+  background: #fff;
+  border-color: #fff;
+  transform: scale(1.5);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Back Button ────────────────────────────────────────── */
+.scroll-stack__back {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  z-index: 100;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.scroll-stack__back:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Outro Section ──────────────────────────────────────── */
+.scroll-stack__outro {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 1;
+}
+
+.scroll-stack__outro-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin: 0 0 1rem;
+}
+
+.scroll-stack__outro-text {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .scroll-stack__card-inner {
+    grid-template-columns: 1fr;
+    height: min(85vh, 650px);
+  }
+
+  .scroll-stack__visual {
+    display: none;
+  }
+
+  .scroll-stack__content {
+    padding: clamp(2rem, 5vw, 3rem);
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .scroll-stack__card {
+    padding: 1rem;
+  }
+
+  .scroll-stack__card-inner {
+    border-radius: 16px;
+    height: min(80vh, 500px);
+  }
+
+  .scroll-stack__progress {
+    right: 0.75rem;
+  }
+
+  .scroll-stack__progress-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-stack__back {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .scroll-stack__hero-title {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .scroll-stack__card-cta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Ultra-wide */
+@media (min-width: 2560px) {
+  .scroll-stack__card-inner {
+    max-width: 1400px;
+    height: min(70vh, 700px);
+  }
+}

@@ -37,6 +37,13 @@ npm run dev
 | Curved Path | GSAP MotionPath | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/12/17/building-responsive-scroll-triggered-curved-path-animations-with-gsap/) |
 | Gradient Carousel | CSS 3D + Canvas | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/11/building-a-3d-infinite-carousel-with-reactive-background-gradients/) |
 | Shader Reveal Gallery | R3F + GSAP + Shaders | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/02/02/building-a-scroll-revealed-webgl-gallery-with-gsap-three-js-astro-and-barba-js/) |
+| Dual Circle Text | GSAP ScrollTrigger | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/04/creating-3d-scroll-driven-text-animations-with-css-and-gsap/) |
+
+## TODO (Tonight)
+
+| Name | Tech | Notes |
+|------|------|-------|
+| Origami Paper Fold | CSS 3D + Framer Motion | 4 envelope flaps folding inward to center, front/back faces. For Crafted Kit loader. [CodePen ref](https://codepen.io/Vandilson-Gomes/pen/EaVgPXq) |
 
 ## Adding to Your Project
 

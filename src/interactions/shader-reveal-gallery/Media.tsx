@@ -55,9 +55,10 @@ export function Media({ element, gridSize = 20, bgColor = '#1a1a1a' }: MediaProp
   useEffect(() => {
     if (texture && shaderMaterial) {
       shaderMaterial.uniforms.uTexture.value = texture
+      const img = texture.image as HTMLImageElement
       shaderMaterial.uniforms.uResolution.value.set(
-        texture.image.naturalWidth,
-        texture.image.naturalHeight
+        img.naturalWidth,
+        img.naturalHeight
       )
     }
   }, [texture, shaderMaterial])

@@ -359,6 +359,39 @@ const experiments: Experiment[] = [
     icon: '👆',
     tags: ['Shaders', 'Cursor'],
     github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-cursor'
+  },
+  {
+    slug: 'shader-reveal-gallery',
+    title: 'WebGL Gallery',
+    description: 'Scroll-triggered WebGL gallery with grid-based shader reveal, smooth scrolling with Lenis, and GSAP ScrollTrigger sync.',
+    date: '2026-02-03',
+    size: 'large',
+    accent: '#00d4ff',
+    icon: '🖼️',
+    tags: ['Shaders', 'Scroll', 'WebGL'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/shader-reveal-gallery'
+  },
+  {
+    slug: 'scroll-stack',
+    title: 'Scroll Stack',
+    description: 'Cards that pin to the viewport and stack on top of each other as you scroll. Progressive blur, scale, and depth create a cinematic storytelling flow.',
+    date: '2026-02-05',
+    size: 'large',
+    accent: '#6366f1',
+    icon: '📚',
+    tags: ['Scroll', 'Animation'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/scroll-stack'
+  },
+  {
+    slug: 'text-dissolve',
+    title: 'Text Dissolve',
+    description: 'WebGPU MSDF text that disintegrates into dust and petals. TSL shaders, instanced particles, and selective bloom. Requires WebGPU.',
+    date: '2026-02-04',
+    size: 'large',
+    accent: '#ff6b35',
+    icon: '✨',
+    tags: ['WebGPU', 'Shaders', 'Particles'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/text-dissolve'
   }
 ]
 

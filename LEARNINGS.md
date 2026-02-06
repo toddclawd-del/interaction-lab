@@ -4,6 +4,51 @@ This file captures techniques, gotchas, and insights from recreating web interac
 
 ---
 
+## 2026-02-06 — Dual Circle Text
+
+**Source:** [Codrops Tutorial](https://tympanus.net/codrops/2025/11/04/creating-3d-scroll-driven-text-animations-with-css-and-gsap/) — Circle Effect (Demo 2)
+
+### Techniques Learned
+
+1. **Polar to Cartesian Conversion for Circular Layouts**
+   - Convert angle to x/y position: `x = centerX + Math.cos(angle) * radius`, `y = centerY + Math.sin(angle) * radius`
+   - Distribute items across half circle using `spacing = Math.PI / totalItems`
+   - Each item's angle: `index * spacing - scrollProgress * direction * Math.PI * 2`
+
+2. **Mirrored Rotation with Direction Parameter**
+   - Use `direction` value of `1` (clockwise) or `-1` (counterclockwise)
+   - Multiply scroll progress by direction to create opposite rotations
+   - Add 180° rotation offset for one circle to keep text readable from both sides
+
+3. **Direct DOM Positioning vs GSAP Transforms**
+   - Using `element.style.left` and `element.style.top` for position
+   - Using `element.style.transform` for rotation + centering (`translate(-50%, -50%)`)
+   - This avoids transform conflicts when GSAP's x/y would stack with existing transforms
+
+4. **ScrollTrigger onUpdate for Continuous Animation**
+   - Use `scrub: 1` for 1-second smoothed response to scroll
+   - `onUpdate: (self) => { const scrollY = self.progress * 0.5 }` maps scroll to rotation
+   - Multiply progress by a factor (0.5) to control rotation speed — full scroll = half rotation
+
+5. **Responsive Radius Calculation**
+   - Calculate radius from wrapper dimensions: `Math.min(width, height) * 0.4`
+   - Recalculate on resize and re-apply positions with current scroll progress
+
+### Gotchas
+
+- **Mobile responsiveness:** Two side-by-side circles don't work well on narrow viewports — need to stack vertically or show single circle on mobile
+- **Transform stacking:** When items have existing transforms (like centering), GSAP's `x`/`y` properties can conflict — use direct style manipulation instead
+- **Text readability:** Items on one circle face "inward" — need 180° rotation offset to flip them outward
+
+### Would Do Differently
+
+- Add mobile breakpoint that switches to single circle or vertical stacking
+- Add hover effects on individual text items (opacity, scale)
+- Consider using CSS custom properties for the rotation to reduce JavaScript calls
+- Add option for drag/touch interaction alongside scroll
+
+---
+
 ## 2026-02-03 — Shader Reveal Gallery
 
 **Source:** [Codrops Tutorial](https://tympanus.net/codrops/2026/02/02/building-a-scroll-revealed-webgl-gallery-with-gsap-three-js-astro-and-barba-js/) by Chakib Mazouni
