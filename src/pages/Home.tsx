@@ -19,11 +19,22 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'pixel-grid',
+    title: 'Pixel Grid Reveal',
+    description: 'Content reveals through animated pixel grid with radial, directional, and random patterns. Mouse-driven distortion effects (repel, attract, swirl).',
+    date: '2026-02-07',
+    size: 'hero',
+    accent: '#667eea',
+    icon: '▦',
+    tags: ['Animation', 'Interactive'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/pixel-grid'
+  },
+  {
     slug: 'ui-components',
     title: 'UI Components',
     description: '72 micro-interaction components: buttons, inputs, toggles, cards, loaders, badges, tooltips, menus, tabs, and navigation. Copy-paste ready.',
     date: '2025-02-01',
-    size: 'hero',
+    size: 'large',
     accent: '#6366f1',
     icon: '🧩',
     tags: ['Components'],

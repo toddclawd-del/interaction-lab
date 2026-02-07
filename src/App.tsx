@@ -50,6 +50,9 @@ const TextDissolve = lazy(() => import('./interactions/text-dissolve'))
 // UI Components micro-interaction library
 const UIComponents = lazy(() => import('./interactions/ui-components').then(m => ({ default: m.UIComponents })))
 
+// Pixel-based interactions
+const PixelGridDemo = lazy(() => import('./interactions/pixel-grid/PixelGridDemo'))
+
 // Loading fallback
 const Loading = () => (
   <div style={{ 
@@ -202,6 +205,9 @@ export default function App() {
           
           {/* UI Components Library */}
           <Route path="/ui-components" element={<UIComponents />} />
+          
+          {/* Pixel-based interactions */}
+          <Route path="/pixel-grid" element={<PixelGridDemo />} />
         </Routes>
       </Suspense>
     </HashRouter>

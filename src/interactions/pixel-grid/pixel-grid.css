@@ -1,0 +1,167 @@
+.pixel-grid-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.pixel-grid-container:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.pixel-grid-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+.pixel-grid-text {
+  font-size: clamp(2rem, 8vw, 6rem);
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pixel-grid-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pixel-grid-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pixel {
+  background-color: var(--pixel-color, #1a1a1a);
+  border-radius: var(--pixel-radius, 0);
+  opacity: 1;
+  transition: 
+    opacity var(--animation-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+    transform 50ms ease-out;
+  will-change: opacity, transform;
+}
+
+.pixel-revealed {
+  opacity: 0;
+}
+
+/* Performance optimization for large grids */
+@media (prefers-reduced-motion: reduce) {
+  .pixel {
+    transition: none;
+  }
+  
+  .pixel-revealed {
+    opacity: 0;
+  }
+}
+
+/* Demo page styles */
+.pixel-grid-demo {
+  min-height: 100vh;
+  background: #0a0a0a;
+  padding: 2rem;
+}
+
+.pixel-grid-demo h1 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.pixel-grid-demo a {
+  color: #667eea;
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.demo-section {
+  margin-bottom: 4rem;
+}
+
+.demo-section h2 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.demo-section p {
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.demo-card {
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #111;
+}
+
+.demo-card-tall {
+  aspect-ratio: 3 / 4;
+}
+
+.demo-card-square {
+  aspect-ratio: 1;
+}
+
+/* Pattern demos */
+.pattern-demo {
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Interactive controls */
+.demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.demo-controls button {
+  padding: 0.5rem 1rem;
+  background: #333;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.demo-controls button:hover {
+  background: #444;
+}
+
+.demo-controls button.active {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+/* Stats display */
+.demo-stats {
+  font-family: monospace;
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
