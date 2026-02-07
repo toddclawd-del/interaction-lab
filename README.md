@@ -38,6 +38,7 @@ npm run dev
 | Gradient Carousel | CSS 3D + Canvas | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/11/building-a-3d-infinite-carousel-with-reactive-background-gradients/) |
 | Shader Reveal Gallery | R3F + GSAP + Shaders | ✅ Ready | [Codrops](https://tympanus.net/codrops/2026/02/02/building-a-scroll-revealed-webgl-gallery-with-gsap-three-js-astro-and-barba-js/) |
 | Dual Circle Text | GSAP ScrollTrigger | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/04/creating-3d-scroll-driven-text-animations-with-css-and-gsap/) |
+| Pixel Grid Reveal | React + CSS Grid | ✅ Ready | [Vercel Geist](https://vercel.com/font), [Aceternity](https://ui.aceternity.com/components/canvas-reveal-effect) |
 
 ## TODO (Tonight)
 
