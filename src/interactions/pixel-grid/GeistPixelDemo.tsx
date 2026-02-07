@@ -5,6 +5,7 @@ type PixelVariant = 'square' | 'grid' | 'circle' | 'triangle' | 'line'
 type FontState = PixelVariant | 'sans'
 
 const VARIANTS: PixelVariant[] = ['square', 'grid', 'circle', 'triangle', 'line']
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*'
 
 // Variant showcase cards
 const VariantShowcase = () => (
@@ -245,6 +246,499 @@ const ComparisonDemo = () => (
   </section>
 )
 
+// ════════════════════════════════════════════════════════════════
+// NEW ANIMATED DEMOS
+// ════════════════════════════════════════════════════════════════
+
+// Glitch effect - random letters flicker between variants
+const GlitchDemo = () => {
+  const text = "GLITCH"
+  const [chars, setChars] = useState(text.split(''))
+  const [variants, setVariants] = useState<PixelVariant[]>(
+    text.split('').map(() => 'square')
+  )
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const idx = Math.floor(Math.random() * text.length)
+      const newVariants = [...variants]
+      newVariants[idx] = VARIANTS[Math.floor(Math.random() * VARIANTS.length)]
+      setVariants(newVariants)
+      
+      // Occasionally glitch a character
+      if (Math.random() > 0.7) {
+        const newChars = [...chars]
+        const charIdx = Math.floor(Math.random() * text.length)
+        newChars[charIdx] = CHARS[Math.floor(Math.random() * CHARS.length)]
+        setChars(newChars)
+        setTimeout(() => {
+          setChars(text.split(''))
+        }, 100)
+      }
+    }, 150)
+
+    return () => clearInterval(interval)
+  }, [variants, chars])
+
+  return (
+    <section className="demo-section">
+      <h2>Glitch Effect</h2>
+      <p>Random characters flicker between variants with occasional character swaps.</p>
+      
+      <div className="transition-demo" style={{ background: '#000' }}>
+        <div className="hero-text" style={{ color: '#0f0' }}>
+          {chars.map((char, i) => (
+            <span
+              key={i}
+              style={{
+                fontFamily: `var(--font-pixel-${variants[i]})`,
+                display: 'inline-block',
+                textShadow: '0 0 10px currentColor',
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Wave animation - characters animate in a wave through variants
+const WaveDemo = () => {
+  const text = "WAVE MOTION"
+  const [time, setTime] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(t => t + 1)
+    }, 100)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <section className="demo-section">
+      <h2>Wave Animation</h2>
+      <p>Characters cycle through variants in a wave pattern.</p>
+      
+      <div className="transition-demo">
+        <div className="hero-text">
+          {text.split('').map((char, i) => {
+            const wave = Math.sin((time + i * 2) * 0.3)
+            const variantIdx = Math.floor((wave + 1) * 2.5) % VARIANTS.length
+            const scale = 1 + wave * 0.1
+            const y = wave * 10
+            
+            return (
+              <span
+                key={i}
+                style={{
+                  fontFamily: `var(--font-pixel-${VARIANTS[variantIdx]})`,
+                  display: 'inline-block',
+                  transform: `translateY(${y}px) scale(${scale})`,
+                  transition: 'transform 0.1s ease-out',
+                }}
+              >
+                {char === ' ' ? '\u00A0' : char}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Scramble decode effect
+const ScrambleDemo = () => {
+  const targetText = "DECODED"
+  const [displayText, setDisplayText] = useState(
+    targetText.split('').map(() => CHARS[Math.floor(Math.random() * CHARS.length)]).join('')
+  )
+  const [revealed, setRevealed] = useState<boolean[]>(
+    targetText.split('').map(() => false)
+  )
+
+  const startScramble = useCallback(() => {
+    setRevealed(targetText.split('').map(() => false))
+    
+    // Scramble continuously
+    const scrambleInterval = setInterval(() => {
+      setDisplayText(prev => 
+        prev.split('').map((_, i) => 
+          revealed[i] ? targetText[i] : CHARS[Math.floor(Math.random() * CHARS.length)]
+        ).join('')
+      )
+    }, 50)
+
+    // Reveal one character at a time
+    targetText.split('').forEach((_, i) => {
+      setTimeout(() => {
+        setRevealed(prev => {
+          const next = [...prev]
+          next[i] = true
+          return next
+        })
+      }, 300 + i * 200)
+    })
+
+    // Stop scrambling after all revealed
+    setTimeout(() => {
+      clearInterval(scrambleInterval)
+      setDisplayText(targetText)
+    }, 300 + targetText.length * 200 + 100)
+
+    return () => clearInterval(scrambleInterval)
+  }, [])
+
+  useEffect(() => {
+    startScramble()
+  }, [])
+
+  return (
+    <section className="demo-section">
+      <h2>Scramble Decode</h2>
+      <p>Text scrambles through random characters before decoding letter by letter.</p>
+      
+      <div className="transition-demo">
+        <div className="hero-text" style={{ fontFamily: 'var(--font-pixel-grid)' }}>
+          {displayText.split('').map((char, i) => (
+            <span
+              key={i}
+              style={{
+                color: revealed[i] ? '#fff' : '#667eea',
+                transition: 'color 0.2s',
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </div>
+      </div>
+      
+      <div className="controls" style={{ marginTop: '1.5rem' }}>
+        <button onClick={startScramble}>Replay</button>
+      </div>
+    </section>
+  )
+}
+
+// Loading pulse animation
+const PulseDemo = () => {
+  const text = "LOADING"
+  const [phase, setPhase] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhase(p => (p + 1) % 360)
+    }, 30)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <section className="demo-section">
+      <h2>Loading Pulse</h2>
+      <p>Text pulses with scale and opacity, perfect for loading states.</p>
+      
+      <div className="transition-demo">
+        <div className="hero-text">
+          {text.split('').map((char, i) => {
+            const offset = i * 30
+            const pulse = Math.sin((phase + offset) * Math.PI / 180)
+            const scale = 1 + pulse * 0.15
+            const opacity = 0.5 + pulse * 0.5
+            
+            return (
+              <span
+                key={i}
+                style={{
+                  fontFamily: 'var(--font-pixel-circle)',
+                  display: 'inline-block',
+                  transform: `scale(${scale})`,
+                  opacity,
+                }}
+              >
+                {char}
+              </span>
+            )
+          })}
+        </div>
+        <div style={{ 
+          marginTop: '1rem', 
+          width: '200px', 
+          height: '4px', 
+          background: '#222', 
+          borderRadius: '2px',
+          overflow: 'hidden',
+          margin: '1.5rem auto 0'
+        }}>
+          <div style={{
+            width: `${((phase % 180) / 180) * 100}%`,
+            height: '100%',
+            background: 'linear-gradient(90deg, #667eea, #764ba2)',
+            borderRadius: '2px',
+            transition: phase % 180 < 5 ? 'none' : 'width 0.1s linear',
+          }} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Countdown timer
+const CountdownDemo = () => {
+  const [count, setCount] = useState(10)
+  const [variant, setVariant] = useState<PixelVariant>('square')
+
+  useEffect(() => {
+    if (count <= 0) return
+    
+    const timeout = setTimeout(() => {
+      setCount(c => c - 1)
+      setVariant(VARIANTS[Math.floor(Math.random() * VARIANTS.length)])
+    }, 1000)
+
+    return () => clearTimeout(timeout)
+  }, [count])
+
+  const reset = () => {
+    setCount(10)
+    setVariant('square')
+  }
+
+  return (
+    <section className="demo-section">
+      <h2>Countdown</h2>
+      <p>Animated countdown with variant changes on each tick.</p>
+      
+      <div className="transition-demo">
+        <div 
+          className="hero-text"
+          style={{ 
+            fontFamily: `var(--font-pixel-${variant})`,
+            fontSize: 'clamp(6rem, 20vw, 12rem)',
+            transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform: count > 0 ? 'scale(1)' : 'scale(1.2)',
+            color: count === 0 ? '#22c55e' : '#fff',
+          }}
+        >
+          {count === 0 ? 'GO!' : count}
+        </div>
+      </div>
+      
+      <div className="controls" style={{ marginTop: '1.5rem' }}>
+        <button onClick={reset}>Reset</button>
+      </div>
+    </section>
+  )
+}
+
+// Continuous morph through all variants
+const MorphDemo = () => {
+  const [variantIdx, setVariantIdx] = useState(0)
+  const allFonts: FontState[] = [...VARIANTS, 'sans']
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVariantIdx(i => (i + 1) % allFonts.length)
+    }, 800)
+    return () => clearInterval(interval)
+  }, [])
+
+  const current = allFonts[variantIdx]
+  const fontFamily = current === 'sans' 
+    ? 'var(--font-geist-sans)' 
+    : `var(--font-pixel-${current})`
+
+  return (
+    <section className="demo-section">
+      <h2>Continuous Morph</h2>
+      <p>Text continuously morphs through all variants in a loop.</p>
+      
+      <div className="transition-demo">
+        <div 
+          className="hero-text"
+          style={{ 
+            fontFamily,
+            transition: 'font-family 0.4s ease-out, letter-spacing 0.4s ease-out',
+            letterSpacing: current === 'sans' ? '-0.03em' : '0',
+          }}
+        >
+          MORPH
+        </div>
+        <div style={{ 
+          marginTop: '1rem', 
+          color: '#666',
+          fontFamily: 'var(--font-geist-sans)',
+          fontSize: '0.875rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+        }}>
+          {current}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Split reveal - top pixel, bottom sans
+const SplitDemo = () => {
+  const [split, setSplit] = useState(50)
+  const text = "SPLIT"
+
+  return (
+    <section className="demo-section">
+      <h2>Split Reveal</h2>
+      <p>Drag to reveal the transition between pixel and sans.</p>
+      
+      <div className="transition-demo" style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* Pixel layer */}
+        <div 
+          className="hero-text"
+          style={{ 
+            fontFamily: 'var(--font-pixel-square)',
+            position: 'relative',
+            clipPath: `inset(0 0 ${100 - split}% 0)`,
+          }}
+        >
+          {text}
+        </div>
+        
+        {/* Sans layer */}
+        <div 
+          className="hero-text"
+          style={{ 
+            fontFamily: 'var(--font-geist-sans)',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            clipPath: `inset(${split}% 0 0 0)`,
+            width: '100%',
+            letterSpacing: '-0.03em',
+          }}
+        >
+          {text}
+        </div>
+        
+        {/* Drag line */}
+        <div style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: `${split}%`,
+          height: '2px',
+          background: '#667eea',
+          cursor: 'ns-resize',
+        }} />
+      </div>
+      
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={split}
+        onChange={(e) => setSplit(Number(e.target.value))}
+        style={{ 
+          width: '200px', 
+          marginTop: '1.5rem',
+          accentColor: '#667eea',
+        }}
+      />
+    </section>
+  )
+}
+
+// Bouncing letters
+const BounceDemo = () => {
+  const text = "BOUNCE"
+  const [bouncing, setBouncing] = useState<number | null>(null)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBouncing(Math.floor(Math.random() * text.length))
+      setTimeout(() => setBouncing(null), 300)
+    }, 500)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <section className="demo-section">
+      <h2>Bounce Effect</h2>
+      <p>Random characters bounce with a playful spring animation.</p>
+      
+      <div className="transition-demo">
+        <div className="hero-text">
+          {text.split('').map((char, i) => (
+            <span
+              key={i}
+              style={{
+                fontFamily: bouncing === i ? 'var(--font-pixel-circle)' : 'var(--font-pixel-square)',
+                display: 'inline-block',
+                transform: bouncing === i ? 'translateY(-20px) scale(1.2)' : 'translateY(0) scale(1)',
+                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), font-family 0.15s',
+                color: bouncing === i ? '#667eea' : '#fff',
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Flip animation
+const FlipDemo = () => {
+  const text = "FLIP"
+  const [flipped, setFlipped] = useState<boolean[]>(text.split('').map(() => false))
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const idx = Math.floor(Math.random() * text.length)
+      setFlipped(prev => {
+        const next = [...prev]
+        next[idx] = !next[idx]
+        return next
+      })
+    }, 600)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <section className="demo-section">
+      <h2>3D Flip</h2>
+      <p>Characters flip between pixel and sans with a 3D rotation.</p>
+      
+      <div className="transition-demo" style={{ perspective: '1000px' }}>
+        <div className="hero-text">
+          {text.split('').map((char, i) => (
+            <span
+              key={i}
+              style={{
+                display: 'inline-block',
+                transformStyle: 'preserve-3d',
+                transform: flipped[i] ? 'rotateY(180deg)' : 'rotateY(0)',
+                transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
+            >
+              <span style={{
+                fontFamily: flipped[i] ? 'var(--font-geist-sans)' : 'var(--font-pixel-triangle)',
+                display: 'inline-block',
+                transform: flipped[i] ? 'rotateY(180deg)' : 'none',
+              }}>
+                {char}
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // Main demo page
 export function GeistPixelDemo() {
   return (
@@ -252,13 +746,43 @@ export function GeistPixelDemo() {
       <h1>Geist Pixel</h1>
       <a href="#/">← Back to Home</a>
       
+      {/* Explainer sections */}
       <VariantShowcase />
       <TransitionDemo />
-      <HeroDemo />
+      <ComparisonDemo />
+      
+      {/* Animated demos */}
+      <div style={{ 
+        borderTop: '1px solid #222', 
+        marginTop: '4rem', 
+        paddingTop: '4rem',
+        marginBottom: '2rem'
+      }}>
+        <h2 style={{ 
+          fontSize: '0.875rem', 
+          color: '#666', 
+          textTransform: 'uppercase', 
+          letterSpacing: '0.1em',
+          marginBottom: '3rem',
+          textAlign: 'center'
+        }}>
+          Animation Showcase
+        </h2>
+      </div>
+      
+      <WaveDemo />
+      <GlitchDemo />
+      <MorphDemo />
+      <BounceDemo />
+      <FlipDemo />
+      <PulseDemo />
+      <ScrambleDemo />
+      <CountdownDemo />
+      <SplitDemo />
       <StaggeredReveal />
       <HoverReveal />
       <TypingDemo />
-      <ComparisonDemo />
+      <HeroDemo />
       
       <section className="demo-section" style={{ marginBottom: '4rem' }}>
         <h2>Credits</h2>
