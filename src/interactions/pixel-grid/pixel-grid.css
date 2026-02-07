@@ -73,12 +73,26 @@
   min-height: 100vh;
   background: #0a0a0a;
   padding: 2rem;
+  padding-bottom: 4rem;
+}
+
+@media (max-width: 480px) {
+  .pixel-grid-demo {
+    padding: 1rem;
+    padding-bottom: 3rem;
+  }
 }
 
 .pixel-grid-demo h1 {
   color: white;
   margin-bottom: 1rem;
   font-size: 2rem;
+}
+
+@media (max-width: 480px) {
+  .pixel-grid-demo h1 {
+    font-size: 1.5rem;
+  }
 }
 
 .pixel-grid-demo a {
@@ -91,21 +105,52 @@
   margin-bottom: 4rem;
 }
 
+@media (max-width: 480px) {
+  .demo-section {
+    margin-bottom: 2.5rem;
+  }
+}
+
 .demo-section h2 {
   color: white;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
 
+@media (max-width: 480px) {
+  .demo-section h2 {
+    font-size: 1.25rem;
+  }
+}
+
 .demo-section p {
   color: #888;
   margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
 .demo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+/* Ensure gap works on all mobile sizes */
+@media (max-width: 768px) {
+  .demo-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  /* Force single column on mobile for side-by-side grids */
+  .demo-grid[style*="repeat(2"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .demo-grid[style*="repeat(3"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .demo-card {
@@ -113,6 +158,8 @@
   border-radius: 12px;
   overflow: hidden;
   background: #111;
+  /* Ensure cards don't touch edges */
+  min-width: 0;
 }
 
 .demo-card-tall {

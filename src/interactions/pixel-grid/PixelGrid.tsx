@@ -203,6 +203,44 @@ export function PixelGrid({
     mouseRef.current.active = false
   }, [])
 
+  // Touch interaction for mobile distortion
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!interactive || distortionMode === 'none' || !containerRef.current) return
+    
+    const touch = e.touches[0]
+    if (!touch) return
+    
+    const rect = containerRef.current.getBoundingClientRect()
+    mouseRef.current = {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+      active: true,
+    }
+  }, [interactive, distortionMode])
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!interactive || distortionMode === 'none' || !containerRef.current) return
+    
+    const touch = e.touches[0]
+    if (!touch) return
+    
+    const rect = containerRef.current.getBoundingClientRect()
+    mouseRef.current = {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+      active: true,
+    }
+    
+    // Also trigger reveal on tap if not revealed
+    if (!isRevealed && !isAnimating) {
+      triggerReveal()
+    }
+  }, [interactive, distortionMode, isRevealed, isAnimating, triggerReveal])
+
+  const handleTouchEnd = useCallback(() => {
+    mouseRef.current.active = false
+  }, [])
+
   // RAF loop for smooth distortion
   useEffect(() => {
     if (!interactive || distortionMode === 'none' || prefersReducedMotion) return
@@ -302,6 +340,9 @@ export function PixelGrid({
       style={{ backgroundColor, ...pixelStyle }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       tabIndex={0}
