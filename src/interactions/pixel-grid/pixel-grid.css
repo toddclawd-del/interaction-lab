@@ -131,25 +131,26 @@
 
 .demo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 0 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
 }
 
-/* Ensure gap works on all mobile sizes */
+/* Explicit column classes */
+.demo-grid-2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.demo-grid-3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Mobile: stack everything */
 @media (max-width: 768px) {
-  .demo-grid {
+  .demo-grid,
+  .demo-grid-2col,
+  .demo-grid-3col {
     grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-  
-  /* Force single column on mobile for side-by-side grids */
-  .demo-grid[style*="repeat(2"] {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .demo-grid[style*="repeat(3"] {
-    grid-template-columns: 1fr !important;
+    gap: 1rem;
   }
 }
 

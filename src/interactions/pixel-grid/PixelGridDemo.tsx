@@ -74,7 +74,7 @@ export function PixelGridDemo() {
       {/* Distortion modes */}
       <section className="demo-section">
         <h2>Distortion Modes</h2>
-        <p>Move your mouse over the grid after reveal.</p>
+        <p>Tap the grid or move your finger for distortion.</p>
         <div className="demo-controls">
           {(['repel', 'attract', 'swirl', 'none'] as Distortion[]).map(d => (
             <button
@@ -86,10 +86,10 @@ export function PixelGridDemo() {
             </button>
           ))}
         </div>
-        <div className="demo-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+        <div className="demo-grid demo-grid-2col">
           <div className="demo-card" style={{ height: 200, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
             <PixelGrid
-              key={`distort-${distortion}-${key}`}
+              key={`distort-${key}`}
               pixelSize={10}
               gap={3}
               shape="circle"
@@ -109,7 +109,7 @@ export function PixelGridDemo() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
-                fontSize: '2rem',
+                fontSize: '1.5rem',
                 fontWeight: 'bold'
               }}>
                 CONTENT
@@ -118,7 +118,7 @@ export function PixelGridDemo() {
           </div>
           <div className="demo-card" style={{ height: 200 }}>
             <PixelGrid
-              key={`distort2-${distortion}-${key}`}
+              key={`distort2-${key}`}
               pixelSize={6}
               gap={1}
               shape="square"
@@ -152,7 +152,7 @@ export function PixelGridDemo() {
       {/* Pixel sizes */}
       <section className="demo-section">
         <h2>Pixel Size Comparison</h2>
-        <div className="demo-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        <div className="demo-grid demo-grid-3col">
           {[4, 8, 16].map(size => (
             <div key={size} className="demo-card" style={{ height: 150 }}>
               <PixelGrid
@@ -174,7 +174,7 @@ export function PixelGridDemo() {
       {/* Shapes */}
       <section className="demo-section">
         <h2>Pixel Shapes</h2>
-        <div className="demo-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        <div className="demo-grid demo-grid-3col">
           <div className="demo-card" style={{ height: 150 }}>
             <PixelGrid
               key={`shape-square-${key}`}
@@ -221,7 +221,7 @@ export function PixelGridDemo() {
       {/* Animation speeds */}
       <section className="demo-section">
         <h2>Animation Speeds</h2>
-        <div className="demo-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        <div className="demo-grid demo-grid-3col">
           {[0.5, 1, 2].map(speed => (
             <div key={speed} className="demo-card" style={{ height: 150 }}>
               <PixelGrid
