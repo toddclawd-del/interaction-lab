@@ -19,11 +19,22 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'geist-pixel',
+    title: 'Geist Pixel',
+    description: 'Vercel\'s new pixel font family with 5 variants: Square, Grid, Circle, Triangle, Line. Font transitions, hover reveals, staggered animations.',
+    date: '2026-02-07',
+    size: 'hero',
+    accent: '#fff',
+    icon: '▣',
+    tags: ['Typography', 'Vercel'],
+    github: 'https://vercel.com/font'
+  },
+  {
     slug: 'pixel-grid',
     title: 'Pixel Grid Reveal',
     description: 'Content reveals through animated pixel grid with radial, directional, and random patterns. Mouse-driven distortion effects (repel, attract, swirl).',
     date: '2026-02-07',
-    size: 'hero',
+    size: 'large',
     accent: '#667eea',
     icon: '▦',
     tags: ['Animation', 'Interactive'],

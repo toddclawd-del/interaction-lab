@@ -52,6 +52,7 @@ const UIComponents = lazy(() => import('./interactions/ui-components').then(m =>
 
 // Pixel-based interactions
 const PixelGridDemo = lazy(() => import('./interactions/pixel-grid/PixelGridDemo'))
+const GeistPixelDemo = lazy(() => import('./interactions/pixel-grid/GeistPixelDemo'))
 
 // Loading fallback
 const Loading = () => (
@@ -208,6 +209,7 @@ export default function App() {
           
           {/* Pixel-based interactions */}
           <Route path="/pixel-grid" element={<PixelGridDemo />} />
+          <Route path="/geist-pixel" element={<GeistPixelDemo />} />
         </Routes>
       </Suspense>
     </HashRouter>

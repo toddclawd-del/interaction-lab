@@ -1,0 +1,342 @@
+/* Geist Pixel Font Faces */
+@font-face {
+  font-family: 'Geist Pixel Square';
+  src: url('/fonts/geist-pixel/GeistPixel-Square.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Pixel Grid';
+  src: url('/fonts/geist-pixel/GeistPixel-Grid.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Pixel Circle';
+  src: url('/fonts/geist-pixel/GeistPixel-Circle.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Pixel Triangle';
+  src: url('/fonts/geist-pixel/GeistPixel-Triangle.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Pixel Line';
+  src: url('/fonts/geist-pixel/GeistPixel-Line.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('/fonts/geist-sans/Geist-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('/fonts/geist-sans/Geist-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* CSS Variables for fonts */
+:root {
+  --font-pixel-square: 'Geist Pixel Square', monospace;
+  --font-pixel-grid: 'Geist Pixel Grid', monospace;
+  --font-pixel-circle: 'Geist Pixel Circle', monospace;
+  --font-pixel-triangle: 'Geist Pixel Triangle', monospace;
+  --font-pixel-line: 'Geist Pixel Line', monospace;
+  --font-geist-sans: 'Geist Sans', system-ui, sans-serif;
+}
+
+/* Geist Pixel Demo Styles */
+.geist-pixel-demo {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  padding: 3rem 1.5rem;
+  font-family: var(--font-geist-sans);
+}
+
+.geist-pixel-demo h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.geist-pixel-demo > a {
+  color: #666;
+  font-size: 0.875rem;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 3rem;
+}
+
+.geist-pixel-demo > a:hover {
+  color: #999;
+}
+
+.demo-section {
+  margin-bottom: 5rem;
+}
+
+.demo-section h2 {
+  font-size: 1rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.demo-section p {
+  color: #888;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Variant Showcase Grid */
+.variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.variant-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.variant-card:hover {
+  border-color: #444;
+  transform: translateY(-2px);
+}
+
+.variant-label {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.variant-text {
+  font-size: clamp(2rem, 8vw, 4rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.variant-text.square { font-family: var(--font-pixel-square); }
+.variant-text.grid { font-family: var(--font-pixel-grid); }
+.variant-text.circle { font-family: var(--font-pixel-circle); }
+.variant-text.triangle { font-family: var(--font-pixel-triangle); }
+.variant-text.line { font-family: var(--font-pixel-line); }
+
+/* Transition Demo */
+.transition-demo {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.transition-text {
+  font-size: clamp(3rem, 12vw, 8rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: font-family 0.5s ease-out, letter-spacing 0.5s ease-out;
+}
+
+.transition-text.pixel-square { font-family: var(--font-pixel-square); }
+.transition-text.pixel-grid { font-family: var(--font-pixel-grid); }
+.transition-text.pixel-circle { font-family: var(--font-pixel-circle); }
+.transition-text.pixel-triangle { font-family: var(--font-pixel-triangle); }
+.transition-text.pixel-line { font-family: var(--font-pixel-line); }
+.transition-text.sans { 
+  font-family: var(--font-geist-sans); 
+  letter-spacing: -0.03em;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.controls button {
+  padding: 0.5rem 1rem;
+  background: #1a1a1a;
+  color: #888;
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-geist-sans);
+}
+
+.controls button:hover {
+  background: #222;
+  color: #fff;
+  border-color: #444;
+}
+
+.controls button.active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+/* Auto-cycle indicator */
+.cycle-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.cycle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #333;
+  transition: background 0.2s;
+}
+
+.cycle-dot.active {
+  background: #fff;
+}
+
+/* Hero reveal animation */
+.hero-reveal {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.hero-text {
+  font-size: clamp(2.5rem, 10vw, 6rem);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+/* Staggered character animation */
+.stagger-char {
+  display: inline-block;
+  transition: font-family 0.3s ease-out;
+}
+
+/* Interactive hover demo */
+.hover-demo {
+  padding: 3rem;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.hover-text {
+  font-size: clamp(2rem, 8vw, 5rem);
+  font-family: var(--font-pixel-square);
+  cursor: pointer;
+  transition: font-family 0.3s ease-out, color 0.3s;
+}
+
+.hover-text:hover {
+  font-family: var(--font-geist-sans);
+  color: #667eea;
+}
+
+/* Typing effect */
+.typing-container {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typing-text {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-family: var(--font-pixel-square);
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: #667eea;
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .geist-pixel-demo {
+    padding: 2rem 1rem;
+  }
+  
+  .variant-card {
+    padding: 1.5rem;
+  }
+  
+  .transition-demo {
+    padding: 2rem 1rem;
+  }
+  
+  .controls {
+    gap: 0.375rem;
+  }
+  
+  .controls button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
