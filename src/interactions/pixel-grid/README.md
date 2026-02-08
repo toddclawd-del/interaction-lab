@@ -1,117 +1,215 @@
-# Pixel Grid Reveal
+# Geist Pixel Components
 
-A React component that renders content behind an animated grid of pixels that reveal on scroll, focus, or programmatic trigger. Each pixel can respond to mouse movement with distortion effects.
+Production-ready, drag-and-drop text components for Geist Pixel typography effects.
 
 ## Installation
 
-```tsx
-import { PixelGrid } from './interactions/pixel-grid'
+1. Install the fonts via npm or self-host:
+
+```bash
+npm install geist
 ```
 
-No external dependencies required — uses native CSS Grid and React.
+2. Add the CSS variables to your root:
 
-## Basic Usage
-
-```tsx
-// Text reveal
-<PixelGrid text="HELLO" />
-
-// Content reveal
-<PixelGrid>
-  <img src="/hero.jpg" alt="Hero" />
-</PixelGrid>
-
-// With custom configuration
-<PixelGrid
-  pixelSize={8}
-  gap={2}
-  revealPattern="radial"
-  distortionMode="repel"
-  backgroundColor="#000"
-  pixelColor="#1a1a1a"
->
-  <YourContent />
-</PixelGrid>
+```css
+:root {
+  --font-pixel-square: 'Geist Pixel Square', monospace;
+  --font-pixel-grid: 'Geist Pixel Grid', monospace;
+  --font-pixel-circle: 'Geist Pixel Circle', monospace;
+  --font-pixel-triangle: 'Geist Pixel Triangle', monospace;
+  --font-pixel-line: 'Geist Pixel Line', monospace;
+  --font-geist-sans: 'Geist Sans', system-ui, sans-serif;
+}
 ```
 
-## Props
+3. Copy the components you need from `components/`.
+
+## Components
+
+### PixelText
+
+Static text in a Geist Pixel variant.
+
+```tsx
+import { PixelText } from './pixel-grid'
+
+<PixelText variant="square">HELLO</PixelText>
+<PixelText variant="grid" as="h1">Title</PixelText>
+```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | ReactNode | - | Content to reveal |
-| `text` | string | - | Text to display (alternative to children) |
-| `src` | string | - | Image source (alternative to children) |
-| `pixelSize` | number | 8 | Size of each pixel in px |
-| `gap` | number | 2 | Gap between pixels in px |
-| `shape` | 'square' \| 'circle' | 'square' | Pixel shape |
-| `borderRadius` | number | 0 | Corner radius for square pixels |
-| `animationSpeed` | number | 1 | Animation speed multiplier (0.1-2) |
-| `revealPattern` | 'radial' \| 'directional' \| 'random' \| 'typewriter' | 'radial' | How pixels reveal |
-| `revealDirection` | 'top' \| 'bottom' \| 'left' \| 'right' | 'top' | Direction for directional pattern |
-| `staggerDelay` | number | 20 | Delay between each pixel (ms) |
-| `interactive` | boolean | true | Enable mouse distortion |
-| `distortionMode` | 'repel' \| 'attract' \| 'swirl' \| 'none' | 'repel' | Mouse distortion effect |
-| `distortionStrength` | number | 3 | Distortion intensity (0-10) |
-| `distortionRadius` | number | 80 | Mouse effect radius in px |
-| `triggerOnView` | boolean | true | Animate when scrolled into view |
-| `triggerThreshold` | number | 0.3 | Visibility threshold for trigger (0-1) |
-| `autoPlay` | boolean | false | Start animation immediately |
-| `delay` | number | 0 | Delay before animation starts (ms) |
-| `backgroundColor` | string | '#000' | Container background |
-| `pixelColor` | string | '#1a1a1a' | Pixel overlay color |
-| `className` | string | '' | Additional CSS classes |
-| `onRevealStart` | () => void | - | Callback when reveal starts |
-| `onRevealComplete` | () => void | - | Callback when reveal finishes |
+| children | string | required | Text to display |
+| variant | 'square' \| 'grid' \| 'circle' \| 'triangle' \| 'line' | 'square' | Pixel variant |
+| as | 'span' \| 'div' \| 'h1' \| 'h2' \| 'h3' \| 'p' | 'span' | HTML element |
+| className | string | - | CSS class |
 
-## Reveal Patterns
+---
 
-- **radial**: Pixels reveal outward from center
-- **directional**: Pixels reveal in a direction (top/bottom/left/right)
-- **random**: Pixels reveal in random order
-- **typewriter**: Row by row, left to right
+### PixelMorph
 
-## Distortion Modes
+Text that transitions between variants. Auto-cycles or controlled.
 
-- **repel**: Pixels push away from cursor
-- **attract**: Pixels pull toward cursor  
-- **swirl**: Pixels rotate around cursor
-- **none**: No mouse interaction
+```tsx
+import { PixelMorph } from './pixel-grid'
+
+// Auto-cycling
+<PixelMorph variants={['square', 'grid', 'sans']} interval={2000}>
+  VERCEL
+</PixelMorph>
+
+// Controlled
+const [variant, setVariant] = useState('square')
+<PixelMorph activeVariant={variant} auto={false}>
+  MORPH
+</PixelMorph>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| children | string | required | Text to display |
+| variants | FontState[] | all variants | Variants to cycle through |
+| interval | number | 1500 | ms between transitions |
+| auto | boolean | true | Auto-cycle mode |
+| activeVariant | FontState | - | Controlled mode |
+| onVariantChange | (variant) => void | - | Callback on change |
+
+---
+
+### PixelReveal
+
+Text that reveals character-by-character with stagger.
+
+```tsx
+import { PixelReveal } from './pixel-grid'
+
+// Reveal on scroll
+<PixelReveal from="grid" to="sans" trigger="inView" staggerMs={80}>
+  BUILD FASTER
+</PixelReveal>
+
+// Manual trigger
+const [revealed, setRevealed] = useState(false)
+<PixelReveal isRevealed={revealed} trigger="manual" onComplete={() => console.log('done')}>
+  REVEAL ME
+</PixelReveal>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| children | string | required | Text to display |
+| from | PixelVariant | 'square' | Starting font |
+| to | FontState | 'sans' | Target font |
+| staggerMs | number | 60 | Delay between chars |
+| trigger | 'mount' \| 'inView' \| 'manual' | 'mount' | When to start |
+| isRevealed | boolean | - | For manual trigger |
+| onComplete | () => void | - | Callback when done |
+
+---
+
+### PixelScramble
+
+Decode effect — random characters lock in one by one.
+
+```tsx
+import { PixelScramble } from './pixel-grid'
+
+<PixelScramble trigger="mount" targetVariant="sans" onComplete={() => console.log('decoded')}>
+  DECODED
+</PixelScramble>
+
+// Trigger on scroll
+<PixelScramble trigger="inView" scrambleSpeed={40} lockInDelay={200}>
+  SECRET
+</PixelScramble>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| children | string | required | Text to decode |
+| targetVariant | FontState | 'sans' | Final font |
+| scrambleSpeed | number | 50 | ms per random swap |
+| lockInDelay | number | 180 | ms between lock-ins |
+| trigger | 'mount' \| 'inView' \| 'manual' | 'mount' | When to start |
+| isActive | boolean | - | For manual trigger |
+| onComplete | () => void | - | Callback when done |
+
+---
+
+### PixelHover
+
+Text morphs on hover (and focus for a11y).
+
+```tsx
+import { PixelHover } from './pixel-grid'
+
+// Simple hover
+<PixelHover pixelVariant="triangle" hoverVariant="sans">
+  HOVER ME
+</PixelHover>
+
+// Staggered character effect
+<PixelHover staggered>
+  WAVE EFFECT
+</PixelHover>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| children | string | required | Text to display |
+| pixelVariant | PixelVariant | 'square' | Default font |
+| hoverVariant | FontState | 'sans' | Hover font |
+| staggered | boolean | false | Character-by-character |
+
+---
 
 ## Accessibility
 
-- Keyboard: Tab to focus, Enter/Space to trigger reveal
-- Screen readers: Uses `aria-busy` during animation, `aria-live="polite"`
-- Reduced motion: Respects `prefers-reduced-motion`, skips animation and shows content immediately
+All components:
+- Detect `prefers-reduced-motion: reduce` and skip animations
+- Keep text visible to screen readers at all times
+- PixelHover responds to keyboard focus (not just mouse)
 
-## Performance Notes
+## Hooks
 
-- Uses CSS `will-change` for optimized animations
-- RAF-based distortion runs at 60fps
-- For very large grids (>5000 pixels), consider reducing `pixelSize` or using fewer rows/cols
-- Distortion calculations are throttled and use quadratic falloff
-
-## Example: Hero Section
+### useReducedMotion
 
 ```tsx
-<div style={{ height: '100vh' }}>
-  <PixelGrid
-    pixelSize={12}
-    gap={3}
-    revealPattern="radial"
-    distortionMode="repel"
-    distortionStrength={4}
-    staggerDelay={8}
-    triggerOnView
-  >
-    <div className="hero-content">
-      <h1>Welcome</h1>
-      <p>Your hero content here</p>
-    </div>
-  </PixelGrid>
-</div>
+import { useReducedMotion } from './pixel-grid'
+
+const prefersReduced = useReducedMotion()
 ```
 
-## Inspiration
+### useInView
 
-- [Vercel Geist Font](https://vercel.com/font) — Pixel mode transitions
-- [Aceternity Canvas Reveal](https://ui.aceternity.com/components/canvas-reveal-effect)
+```tsx
+import { useInView } from './pixel-grid'
+
+const ref = useRef<HTMLDivElement>(null)
+const isInView = useInView(ref, { threshold: 0.3, once: true })
+```
+
+## Font Setup (Self-Hosted)
+
+Download from https://vercel.com/font and add to `/public/fonts/`:
+
+```
+public/fonts/
+├── geist-pixel/
+│   ├── GeistPixel-Square.woff2
+│   ├── GeistPixel-Grid.woff2
+│   ├── GeistPixel-Circle.woff2
+│   ├── GeistPixel-Triangle.woff2
+│   └── GeistPixel-Line.woff2
+└── geist-sans/
+    ├── Geist-Regular.woff2
+    ├── Geist-Medium.woff2
+    └── Geist-Bold.woff2
+```
+
+Then import `geist-pixel.css` for the @font-face declarations.
+
+---
+
+**Credits:** Geist Pixel by [Vercel](https://vercel.com/font). Components by Interaction Lab.
