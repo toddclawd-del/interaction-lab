@@ -196,6 +196,7 @@ export const SpotlightTiltButton = forwardRef<
     borderRadius: 'inherit',
     background: spotlightGradient,
     backgroundSize: `${spotlightSize}px ${spotlightSize}px`,
+    backgroundRepeat: 'no-repeat',
     opacity:
       disabled || (!state.isHovered && !state.isFocused) ? 0 : spotlightIntensity,
     transition: prefersReducedMotion ? 'none' : 'opacity 200ms ease-out',
