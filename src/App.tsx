@@ -53,6 +53,10 @@ const UIComponents = lazy(() => import('./interactions/ui-components').then(m =>
 // Pixel-based interactions
 const PixelGridDemo = lazy(() => import('./interactions/pixel-grid/PixelGridDemo'))
 const GeistPixelDemo = lazy(() => import('./interactions/pixel-grid/GeistPixelDemo'))
+const PixelCursorTrailDemo = lazy(() => import('./interactions/pixel-cursor-trail'))
+
+// Button interactions
+const SpotlightTiltButtonDemo = lazy(() => import('./interactions/spotlight-tilt-button'))
 
 // Loading fallback
 const Loading = () => (
@@ -210,6 +214,10 @@ export default function App() {
           {/* Pixel-based interactions */}
           <Route path="/pixel-grid" element={<PixelGridDemo />} />
           <Route path="/geist-pixel" element={<GeistPixelDemo />} />
+          <Route path="/pixel-cursor-trail" element={<PixelCursorTrailDemo />} />
+          
+          {/* Button interactions */}
+          <Route path="/spotlight-tilt-button" element={<SpotlightTiltButtonDemo />} />
         </Routes>
       </Suspense>
     </HashRouter>

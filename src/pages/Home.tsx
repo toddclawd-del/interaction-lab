@@ -19,11 +19,32 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'spotlight-tilt-button',
+    title: 'Spotlight Tilt Button',
+    description: 'Cursor-reactive buttons with radial highlight + 3D perspective tilt. Premium tactile feel — like brushed metal responding to light and pressure.',
+    date: '2026-02-09',
+    size: 'hero',
+    accent: '#667eea',
+    icon: '◈',
+    tags: ['Interactive', 'Components'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/spotlight-tilt-button'
+  },
+  {
+    slug: 'pixel-cursor-trail',
+    title: 'Pixel Cursor Trail',
+    description: 'CRT phosphor effect — cursor paints light across a grid of invisible pixels. Text inverts with mix-blend-mode difference. Retro-digital meets modern web.',
+    date: '2026-02-08',
+    size: 'large',
+    accent: '#00ffff',
+    icon: '◉',
+    tags: ['Interactive', 'Cursor'],
+  },
+  {
     slug: 'geist-pixel',
     title: 'Geist Pixel',
     description: 'Vercel\'s new pixel font family with 5 variants: Square, Grid, Circle, Triangle, Line. Font transitions, hover reveals, staggered animations.',
     date: '2026-02-07',
-    size: 'hero',
+    size: 'large',
     accent: '#fff',
     icon: '▣',
     tags: ['Typography', 'Vercel'],
