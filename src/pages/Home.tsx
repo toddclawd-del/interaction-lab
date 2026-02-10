@@ -19,11 +19,22 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'parallax-tilt-card',
+    title: 'Parallax Tilt Card',
+    description: 'Premium 3D cards with cursor-tracking tilt and internal parallax layers. Each layer moves at a different depth — like a diorama responding to your gaze. Spring physics for organic feel.',
+    date: '2026-02-10',
+    size: 'hero',
+    accent: '#6366f1',
+    icon: '◇',
+    tags: ['Interactive', 'Components'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/parallax-tilt-card'
+  },
+  {
     slug: 'spotlight-tilt-button',
     title: 'Spotlight Tilt Button',
     description: 'Cursor-reactive buttons with radial highlight + 3D perspective tilt. Premium tactile feel — like brushed metal responding to light and pressure.',
     date: '2026-02-09',
-    size: 'hero',
+    size: 'large',
     accent: '#667eea',
     icon: '◈',
     tags: ['Interactive', 'Components'],
@@ -439,7 +450,7 @@ const experiments: Experiment[] = [
 ]
 
 const stats = [
-  { value: '28', label: 'Experiments' },
+  { value: '29', label: 'Experiments' },
   { value: '100%', label: 'Open Source' },
   { value: '0', label: 'Dependencies*' },
 ]

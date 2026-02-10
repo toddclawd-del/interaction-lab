@@ -58,6 +58,9 @@ const PixelCursorTrailDemo = lazy(() => import('./interactions/pixel-cursor-trai
 // Button interactions
 const SpotlightTiltButtonDemo = lazy(() => import('./interactions/spotlight-tilt-button'))
 
+// Card interactions
+const ParallaxTiltCardDemo = lazy(() => import('./interactions/parallax-tilt-card'))
+
 // Loading fallback
 const Loading = () => (
   <div style={{ 
@@ -218,6 +221,9 @@ export default function App() {
           
           {/* Button interactions */}
           <Route path="/spotlight-tilt-button" element={<SpotlightTiltButtonDemo />} />
+          
+          {/* Card interactions */}
+          <Route path="/parallax-tilt-card" element={<ParallaxTiltCardDemo />} />
         </Routes>
       </Suspense>
     </HashRouter>
