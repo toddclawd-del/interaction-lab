@@ -27,6 +27,7 @@ npm run dev
 
 | Name | Tech | Status | Source |
 |------|------|--------|--------|
+| Parallax Tilt Card | Framer Motion | ✅ Ready | [Exo Ape](https://exoape.com), [Aristide Benoist](https://aristidebenoist.com) |
 | Layered Zoom Scroll | GSAP ScrollTrigger | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/10/29/building-a-layered-zoom-scroll-effect-with-gsap-scrollsmoother-and-scrolltrigger/) |
 | Terminal Text Hover | GSAP + SplitType | ✅ Ready | [Codrops](https://tympanus.net/codrops/2024/06/19/hover-animations-for-terminal-like-typography/) |
 | Wavy Carousel | R3F + GLSL Shaders | ✅ Ready | [Codrops](https://tympanus.net/codrops/2025/11/26/creating-wavy-infinite-carousels-in-react-three-fiber-with-glsl-shaders/) |
