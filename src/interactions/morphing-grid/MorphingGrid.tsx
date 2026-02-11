@@ -16,6 +16,7 @@
  */
 
 import { useRef, useState, useCallback, useId } from 'react'
+import { flushSync } from 'react-dom'
 import gsap from 'gsap'
 import { Flip } from 'gsap/dist/Flip'
 
@@ -185,14 +186,26 @@ export function MorphingGrid({
       return
     }
 
-    // Capture current state
+    // Capture current state BEFORE any changes
     const state = Flip.getState(itemElements)
 
-    // Update state (triggers CSS change via data attribute)
-    setCurrentDensity(newDensity)
+    // Update state synchronously to ensure DOM is ready before animation
+    flushSync(() => {
+      setCurrentDensity(newDensity)
+    })
 
-    // Animate after DOM update
+    // Fallback to reset animation lock if something goes wrong
+    const maxAnimDuration = enhancedTransition ? 2000 : 1500
+    const fallbackTimer = setTimeout(() => {
+      if (isAnimating.current) {
+        console.warn('Animation timeout - force unlocking')
+        isAnimating.current = false
+      }
+    }, maxAnimDuration)
+
+    // Wait for layout to be calculated before animating
     requestAnimationFrame(() => {
+      // Animate - DOM is now updated with new layout
       if (enhancedTransition) {
         // Version 2: With stagger and blur effect
         const flipDuration = 1
@@ -207,31 +220,34 @@ export function MorphingGrid({
             from: 'random',
           },
           onComplete: () => {
+            clearTimeout(fallbackTimer)
             isAnimating.current = false
             announce(`Gallery updated to ${newDensity}% density`)
           },
         })
 
         // Blur/brightness effect on container
-        gsap.fromTo(
-          gridRef.current,
-          { filter: 'blur(0px) brightness(100%)' },
-          {
-            duration: flipDuration + staggerAmount,
-            keyframes: [
-              {
-                filter: 'blur(10px) brightness(200%)',
-                duration: (flipDuration + staggerAmount) * 0.5,
-                ease: 'power2.in',
-              },
-              {
-                filter: 'blur(0px) brightness(100%)',
-                duration: (flipDuration + staggerAmount) * 0.5,
-                ease: 'power2.out',
-              },
-            ],
-          }
-        )
+        if (gridRef.current) {
+          gsap.fromTo(
+            gridRef.current,
+            { filter: 'blur(0px) brightness(100%)' },
+            {
+              duration: flipDuration + staggerAmount,
+              keyframes: [
+                {
+                  filter: 'blur(10px) brightness(200%)',
+                  duration: (flipDuration + staggerAmount) * 0.5,
+                  ease: 'power2.in',
+                },
+                {
+                  filter: 'blur(0px) brightness(100%)',
+                  duration: (flipDuration + staggerAmount) * 0.5,
+                  ease: 'power2.out',
+                },
+              ],
+            }
+          )
+        }
       } else {
         // Version 1: Simple flip
         Flip.from(state, {
@@ -239,6 +255,7 @@ export function MorphingGrid({
           duration: 0.8,
           ease: 'expo.inOut',
           onComplete: () => {
+            clearTimeout(fallbackTimer)
             isAnimating.current = false
             announce(`Gallery updated to ${newDensity}% density`)
           },
