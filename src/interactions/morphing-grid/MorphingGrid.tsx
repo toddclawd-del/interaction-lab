@@ -139,9 +139,10 @@ export function MorphingGrid({
   gridClassName = '',
 }: MorphingGridProps) {
   const [currentDensity, setCurrentDensity] = useState(defaultDensity)
+  const [isAnimating, setIsAnimating] = useState(false)
   const gridRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
-  const isAnimating = useRef(false)
+  const isAnimatingRef = useRef(false) // For synchronous checks during animation
   const controlsId = useId()
   const gridId = useId()
   const liveRegionRef = useRef<HTMLDivElement>(null)
@@ -168,11 +169,12 @@ export function MorphingGrid({
 
   // Handle density change
   const handleDensityChange = useCallback((newDensity: number) => {
-    if (isAnimating.current || newDensity === currentDensity) return
+    if (isAnimatingRef.current || newDensity === currentDensity) return
     if (!gridRef.current) return
     if (!items.length) return
 
-    isAnimating.current = true
+    isAnimatingRef.current = true
+    setIsAnimating(true)
 
     // Get all item elements
     const itemElements = itemRefs.current.filter(Boolean) as HTMLDivElement[]
@@ -180,7 +182,8 @@ export function MorphingGrid({
     if (prefersReducedMotion.current) {
       // Skip animation for reduced motion
       setCurrentDensity(newDensity)
-      isAnimating.current = false
+      isAnimatingRef.current = false
+      setIsAnimating(false)
       announce(`Gallery updated to ${newDensity}% density`)
       onDensityChange?.(newDensity)
       return
@@ -195,11 +198,12 @@ export function MorphingGrid({
     })
 
     // Fallback to reset animation lock if something goes wrong
-    const maxAnimDuration = enhancedTransition ? 2000 : 1500
+    const maxAnimDuration = enhancedTransition ? 2500 : 1500
     const fallbackTimer = setTimeout(() => {
-      if (isAnimating.current) {
+      if (isAnimatingRef.current) {
         console.warn('Animation timeout - force unlocking')
-        isAnimating.current = false
+        isAnimatingRef.current = false
+        setIsAnimating(false)
       }
     }, maxAnimDuration)
 
@@ -221,7 +225,8 @@ export function MorphingGrid({
           },
           onComplete: () => {
             clearTimeout(fallbackTimer)
-            isAnimating.current = false
+            isAnimatingRef.current = false
+            setIsAnimating(false)
             announce(`Gallery updated to ${newDensity}% density`)
           },
         })
@@ -256,7 +261,8 @@ export function MorphingGrid({
           ease: 'expo.inOut',
           onComplete: () => {
             clearTimeout(fallbackTimer)
-            isAnimating.current = false
+            isAnimatingRef.current = false
+            setIsAnimating(false)
             announce(`Gallery updated to ${newDensity}% density`)
           },
         })
@@ -366,7 +372,7 @@ export function MorphingGrid({
                 data-density-control={controlsId}
                 onClick={() => handleDensityChange(density)}
                 onKeyDown={(e) => handleKeyDown(e, density)}
-                disabled={isAnimating.current}
+                disabled={isAnimating}
                 aria-pressed={isActive}
                 aria-label={`Set gallery density to ${density}%`}
                 tabIndex={isActive ? 0 : -1}
@@ -376,7 +382,7 @@ export function MorphingGrid({
                   borderRadius: '6px',
                   background: isActive ? '#fff' : 'rgba(255,255,255,0.1)',
                   color: isActive ? '#000' : '#888',
-                  cursor: isAnimating.current ? 'not-allowed' : 'pointer',
+                  cursor: isAnimating ? 'not-allowed' : 'pointer',
                   fontFamily: 'system-ui, sans-serif',
                   fontSize: '0.875rem',
                   fontWeight: isActive ? 600 : 400,
