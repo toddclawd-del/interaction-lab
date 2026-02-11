@@ -189,6 +189,10 @@ export function MorphingGrid({
       return
     }
 
+    // Capture current height BEFORE any changes to prevent collapse
+    const currentHeight = gridRef.current.offsetHeight
+    gridRef.current.style.height = `${currentHeight}px`
+
     // Capture current state BEFORE any changes
     const state = Flip.getState(itemElements)
 
@@ -204,6 +208,10 @@ export function MorphingGrid({
         console.warn('Animation timeout - force unlocking')
         isAnimatingRef.current = false
         setIsAnimating(false)
+        // Reset height on timeout
+        if (gridRef.current) {
+          gridRef.current.style.height = ''
+        }
       }
     }, maxAnimDuration)
 
@@ -228,6 +236,10 @@ export function MorphingGrid({
             isAnimatingRef.current = false
             setIsAnimating(false)
             announce(`Gallery updated to ${newDensity}% density`)
+            // Remove explicit height after animation completes
+            if (gridRef.current) {
+              gridRef.current.style.height = ''
+            }
           },
         })
 
@@ -264,6 +276,10 @@ export function MorphingGrid({
             isAnimatingRef.current = false
             setIsAnimating(false)
             announce(`Gallery updated to ${newDensity}% density`)
+            // Remove explicit height after animation completes
+            if (gridRef.current) {
+              gridRef.current.style.height = ''
+            }
           },
         })
       }
