@@ -61,6 +61,9 @@ const SpotlightTiltButtonDemo = lazy(() => import('./interactions/spotlight-tilt
 // Card interactions
 const ParallaxTiltCardDemo = lazy(() => import('./interactions/parallax-tilt-card'))
 
+// Grid interactions
+const MorphingGridDemo = lazy(() => import('./interactions/morphing-grid'))
+
 // Loading fallback
 const Loading = () => (
   <div style={{ 
@@ -224,6 +227,9 @@ export default function App() {
           
           {/* Card interactions */}
           <Route path="/parallax-tilt-card" element={<ParallaxTiltCardDemo />} />
+          
+          {/* Grid interactions */}
+          <Route path="/morphing-grid" element={<MorphingGridDemo />} />
         </Routes>
       </Suspense>
     </HashRouter>

@@ -19,11 +19,22 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'morphing-grid',
+    title: 'Morphing Grid',
+    description: 'Grid gallery that flows between density levels. Click a button, watch items seamlessly rearrange — GSAP Flip captures positions and animates with staggered blur. Portfolio/gallery gold.',
+    date: '2026-02-11',
+    size: 'hero',
+    accent: '#8b5cf6',
+    icon: '▤',
+    tags: ['Gallery', 'GSAP Flip'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/morphing-grid'
+  },
+  {
     slug: 'parallax-tilt-card',
     title: 'Parallax Tilt Card',
     description: 'Premium 3D cards with cursor-tracking tilt and internal parallax layers. Each layer moves at a different depth — like a diorama responding to your gaze. Spring physics for organic feel.',
     date: '2026-02-10',
-    size: 'hero',
+    size: 'large',
     accent: '#6366f1',
     icon: '◇',
     tags: ['Interactive', 'Components'],
