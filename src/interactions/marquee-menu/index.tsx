@@ -1,0 +1,5 @@
+export { MarqueeMenu } from './MarqueeMenu'
+export { MarqueeMenuItem } from './MarqueeMenuItem'
+export { useDirectionAware, getClosestEdge } from './useDirectionAware'
+export type { MarqueeMenuProps, MarqueeContent, MarqueeMenuItemProps } from './MarqueeMenu'
+export type { Direction } from './useDirectionAware'

@@ -19,6 +19,17 @@ interface Experiment {
 
 const experiments: Experiment[] = [
   {
+    slug: 'marquee-menu',
+    title: 'Marquee Menu',
+    description: 'Direction-aware menu with scrolling marquee reveal. Hover from top = slides down, hover from bottom = slides up. The classic K72 effect — now in React.',
+    date: '2026-02-12',
+    size: 'hero',
+    accent: '#fff',
+    icon: '☰',
+    tags: ['Navigation', 'Interactive'],
+    github: 'https://github.com/toddclawd-del/interaction-lab/tree/main/src/interactions/marquee-menu'
+  },
+  {
     slug: 'morphing-grid',
     title: 'Morphing Grid',
     description: 'Grid gallery that flows between density levels. Click a button, watch items seamlessly rearrange — GSAP Flip captures positions and animates with staggered blur. Portfolio/gallery gold.',
@@ -461,7 +472,7 @@ const experiments: Experiment[] = [
 ]
 
 const stats = [
-  { value: '29', label: 'Experiments' },
+  { value: '30', label: 'Experiments' },
   { value: '100%', label: 'Open Source' },
   { value: '0', label: 'Dependencies*' },
 ]

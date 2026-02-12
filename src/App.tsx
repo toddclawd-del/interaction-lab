@@ -64,6 +64,9 @@ const ParallaxTiltCardDemo = lazy(() => import('./interactions/parallax-tilt-car
 // Grid interactions
 const MorphingGridDemo = lazy(() => import('./interactions/morphing-grid'))
 
+// Menu interactions
+const MarqueeMenuDemo = lazy(() => import('./interactions/marquee-menu/demo'))
+
 // Loading fallback
 const Loading = () => (
   <div style={{ 
@@ -230,6 +233,9 @@ export default function App() {
           
           {/* Grid interactions */}
           <Route path="/morphing-grid" element={<MorphingGridDemo />} />
+          
+          {/* Menu interactions */}
+          <Route path="/marquee-menu" element={<MarqueeMenuDemo />} />
         </Routes>
       </Suspense>
     </HashRouter>
